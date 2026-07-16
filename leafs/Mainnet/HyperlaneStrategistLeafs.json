@@ -1,53 +1,57 @@
 {
-  "metadata": {
-    "AccountantAddress": "0xBA4397B2B1780097eD1B483E3C0717E0Ed4fAAa5",
-    "BoringVaultAddress": "0xf8203A33027607D2C82dFd67b46986096257dFA5",
-    "DecoderAndSanitizerAddress": "0xfC823909C7D2Cb8701FE7d6EE74508C57Df1D6dE",
-    "DigestComposition": [
-      "Bytes20(DECODER_AND_SANITIZER_ADDRESS)",
-      "Bytes20(TARGET_ADDRESS)",
-      "Bytes1(CAN_SEND_VALUE)",
-      "Bytes4(TARGET_FUNCTION_SELECTOR)",
-      "Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"
-    ],
-    "LeafCount": 2,
-    "ManageRoot": "0x1a867ba537a17e20788200408290c524c5a622f3867ba79ff2b1baea1c567ade",
-    "ManagerAddress": "0x3770E6021d7b2617Ba86E89EF210Cc00A7c9Af95",
-    "TreeCapacity": 2
-  },
-  "leafs": [
-    {
-      "AddressArguments": ["0xef899e92DA472E014bE795Ecce948308958E25A2"],
-      "CanSendValue": false,
-      "DecoderAndSanitizerAddress": "0xfC823909C7D2Cb8701FE7d6EE74508C57Df1D6dE",
-      "Description": "Approve Hyperlane Token Router to spend weETHs",
-      "FunctionSelector": "0x095ea7b3",
-      "FunctionSignature": "approve(address,uint256)",
-      "LeafDigest": "0xb6704222276844d6afafb99a89ce7b239372fc6031a17ae27ce9de3ee0470170",
-      "PackedArgumentAddresses": "0xef899e92da472e014be795ecce948308958e25a2",
-      "TargetAddress": "0x917ceE801a67f933F2e6b33fC0cD1ED2d5909D88"
+    "MerkleTree": {
+        "0": [
+            "0x1a867ba537a17e20788200408290c524c5a622f3867ba79ff2b1baea1c567ade"
+        ],
+        "1": [
+            "0xb6704222276844d6afafb99a89ce7b239372fc6031a17ae27ce9de3ee0470170",
+            "0x0686fdb50f13fc12dbcc2a370ca4f52c0ffeea18bb42da424209703aa0eb4f58"
+        ]
     },
-    {
-      "AddressArguments": [
-        "0x0000000000000000000000000000000053F990bD",
-        "0x87559103E75eaB777571FfAbEBe0F4f400000000",
-        "0x8e729b2A621877AAB97084CaD3303cBF00000000"
-      ],
-      "CanSendValue": true,
-      "DecoderAndSanitizerAddress": "0xfC823909C7D2Cb8701FE7d6EE74508C57Df1D6dE",
-      "Description": "Bridge weETHs to 1408864445 via Hyperlane Token Router",
-      "FunctionSelector": "0x81b4e8b4",
-      "FunctionSignature": "transferRemote(uint32,bytes32,uint256)",
-      "LeafDigest": "0x0686fdb50f13fc12dbcc2a370ca4f52c0ffeea18bb42da424209703aa0eb4f58",
-      "PackedArgumentAddresses": "0x0000000000000000000000000000000053f990bd87559103e75eab777571ffabebe0f4f4000000008e729b2a621877aab97084cad3303cbf00000000",
-      "TargetAddress": "0xef899e92DA472E014bE795Ecce948308958E25A2"
+    "leafs": [
+        {
+            "AddressArguments": [
+                "0xef899e92DA472E014bE795Ecce948308958E25A2"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xfC823909C7D2Cb8701FE7d6EE74508C57Df1D6dE",
+            "Description": "Approve Hyperlane Token Router to spend weETHs",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0xb6704222276844d6afafb99a89ce7b239372fc6031a17ae27ce9de3ee0470170",
+            "PackedArgumentAddresses": "0xef899e92da472e014be795ecce948308958e25a2",
+            "TargetAddress": "0x917ceE801a67f933F2e6b33fC0cD1ED2d5909D88"
+        },
+        {
+            "AddressArguments": [
+                "0x0000000000000000000000000000000053F990bD",
+                "0x87559103E75eaB777571FfAbEBe0F4f400000000",
+                "0x8e729b2A621877AAB97084CaD3303cBF00000000"
+            ],
+            "CanSendValue": true,
+            "DecoderAndSanitizerAddress": "0xfC823909C7D2Cb8701FE7d6EE74508C57Df1D6dE",
+            "Description": "Bridge weETHs to 1408864445 via Hyperlane Token Router",
+            "FunctionSelector": "0x81b4e8b4",
+            "FunctionSignature": "transferRemote(uint32,bytes32,uint256)",
+            "LeafDigest": "0x0686fdb50f13fc12dbcc2a370ca4f52c0ffeea18bb42da424209703aa0eb4f58",
+            "PackedArgumentAddresses": "0x0000000000000000000000000000000053f990bd87559103e75eab777571ffabebe0f4f4000000008e729b2a621877aab97084cad3303cbf00000000",
+            "TargetAddress": "0xef899e92DA472E014bE795Ecce948308958E25A2"
+        }
+    ],
+    "metadata": {
+        "AccountantAddress": "0xBA4397B2B1780097eD1B483E3C0717E0Ed4fAAa5",
+        "BoringVaultAddress": "0xf8203A33027607D2C82dFd67b46986096257dFA5",
+        "DecoderAndSanitizerAddress": "0xfC823909C7D2Cb8701FE7d6EE74508C57Df1D6dE",
+        "DigestComposition": [
+            "Bytes20(DECODER_AND_SANITIZER_ADDRESS)",
+            "Bytes20(TARGET_ADDRESS)",
+            "Bytes1(CAN_SEND_VALUE)",
+            "Bytes4(TARGET_FUNCTION_SELECTOR)",
+            "Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"
+        ],
+        "LeafCount": 2,
+        "ManageRoot": "0x1a867ba537a17e20788200408290c524c5a622f3867ba79ff2b1baea1c567ade",
+        "ManagerAddress": "0x3770E6021d7b2617Ba86E89EF210Cc00A7c9Af95",
+        "TreeCapacity": 2
     }
-  ],
-  "MerkleTree": {
-    "0": ["0x1a867ba537a17e20788200408290c524c5a622f3867ba79ff2b1baea1c567ade"],
-    "1": [
-      "0xb6704222276844d6afafb99a89ce7b239372fc6031a17ae27ce9de3ee0470170",
-      "0x0686fdb50f13fc12dbcc2a370ca4f52c0ffeea18bb42da424209703aa0eb4f58"
-    ]
-  }
 }

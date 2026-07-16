@@ -1,837 +1,4 @@
 {
-    "metadata": {
-        "AccountantAddress": "0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198",
-        "BoringVaultAddress": "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-        "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-        "DigestComposition": [
-            "Bytes20(DECODER_AND_SANITIZER_ADDRESS)",
-            "Bytes20(TARGET_ADDRESS)",
-            "Bytes1(CAN_SEND_VALUE)",
-            "Bytes4(TARGET_FUNCTION_SELECTOR)",
-            "Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"
-        ],
-        "LeafCount": 59,
-        "ManageRoot": "0x83e0e0734273be6e978ca6182dd830290f8d8761a518527a6ddb39f37dedd639",
-        "ManagerAddress": "0xDEa7AF4a96A762c9d43A7eE02acecD20A3C6D8B6",
-        "TreeCapacity": 64
-    },
-    "leafs": [
-        {
-            "AddressArguments": [],
-            "CanSendValue": true,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Wrap ETH for wETH",
-            "FunctionSelector": "0xd0e30db0",
-            "FunctionSignature": "deposit()",
-            "LeafDigest": "0x60ebb3beec7c3b6a04a7f6dc147c4f2844d94346c797f10f4c838522332d81e3",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x4200000000000000000000000000000000000006"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Unwrap wETH for ETH",
-            "FunctionSelector": "0x2e1a7d4d",
-            "FunctionSignature": "withdraw(uint256)",
-            "LeafDigest": "0x9ec5612f664734affc2d18e34898be20e13af4401e29109400af57e108d53642",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x4200000000000000000000000000000000000006"
-        },
-        {
-            "AddressArguments": [
-                "0x0000000000000000000000000000000000007595",
-                "0x000000000000000000000000f0Bb208600000000",
-                "0x5277AbD641A307eCE5eE04E79073416C00000000",
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
-            ],
-            "CanSendValue": true,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Bridge weETH to LayerZero endpoint: 30101",
-            "FunctionSelector": "0xc7c7f5b3",
-            "FunctionSignature": "send((uint32,bytes32,uint256,uint256,bytes,bytes,bytes),(uint256,uint256),address)",
-            "LeafDigest": "0xd363aa15588ca0c46d4dea10e1aaaab0b0ae0eb75809146a6366d023020265b0",
-            "PackedArgumentAddresses": "0x0000000000000000000000000000000000007595000000000000000000000000f0bb2086000000005277abd641a307ece5ee04e79073416c00000000f0bb20865277abd641a307ece5ee04e79073416c",
-            "TargetAddress": "0xA6cB988942610f6731e664379D15fFcfBf282b44"
-        },
-        {
-            "AddressArguments": ["0xf0bb20865277aBd641a307eCe5Ee04E79073416C"],
-            "CanSendValue": true,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Bridge ETH from swell to mainnet",
-            "FunctionSelector": "0xe11013dd",
-            "FunctionSignature": "bridgeETHTo(address,uint32,bytes)",
-            "LeafDigest": "0xce34dd343a17711a317eb1fd6120e544a90bc302ea93337e08bc572b71401060",
-            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c",
-            "TargetAddress": "0x4200000000000000000000000000000000000010"
-        },
-        {
-            "AddressArguments": ["0x49C077B74292aA8F589d39034Bf9C1Ed1825a608"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Approve eWETH-1 to spend WETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0xb25213c04ba88bb736a980e9a2d10b40f4be36b85d6bb0d15fba4add2b11d213",
-            "PackedArgumentAddresses": "0x49c077b74292aa8f589d39034bf9c1ed1825a608",
-            "TargetAddress": "0x4200000000000000000000000000000000000006"
-        },
-        {
-            "AddressArguments": ["0xf0bb20865277aBd641a307eCe5Ee04E79073416C"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Deposit WETH for eWETH-1 for 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-            "FunctionSelector": "0x6e553f65",
-            "FunctionSignature": "deposit(uint256,address)",
-            "LeafDigest": "0x7b7f93a495911e51b076c26528bc18a34ee83021b070b526ad9c8a667dcaa9f5",
-            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c",
-            "TargetAddress": "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608"
-        },
-        {
-            "AddressArguments": [
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Withdraw WETH from eWETH-1 for 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-            "FunctionSelector": "0xb460af94",
-            "FunctionSignature": "withdraw(uint256,address,address)",
-            "LeafDigest": "0x0dc05ff7d978183a3869d3fcda43cbb847e1f05300d46108b07eaa6a67854220",
-            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416cf0bb20865277abd641a307ece5ee04e79073416c",
-            "TargetAddress": "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608"
-        },
-        {
-            "AddressArguments": ["0xf0bb20865277aBd641a307eCe5Ee04E79073416C"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Mint eWETH-1 using WETH for 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-            "FunctionSelector": "0x94bf804d",
-            "FunctionSignature": "mint(uint256,address)",
-            "LeafDigest": "0x180b86a677481c0f73fe6c280a77e437dab6119c9d4faa055ba288f848be1f5e",
-            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c",
-            "TargetAddress": "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608"
-        },
-        {
-            "AddressArguments": [
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Redeem eWETH-1 for WETH for 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-            "FunctionSelector": "0xba087652",
-            "FunctionSignature": "redeem(uint256,address,address)",
-            "LeafDigest": "0xcab849c8ce5986ba438bb6f679b3bd0d793b6d99365f33347348ab0b260cc75e",
-            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416cf0bb20865277abd641a307ece5ee04e79073416c",
-            "TargetAddress": "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608"
-        },
-        {
-            "AddressArguments": [
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-                "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Enable Collateral of Wrapped Ether on Euler for account #0 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-            "FunctionSelector": "0xd44fee5a",
-            "FunctionSignature": "enableCollateral(address,address)",
-            "LeafDigest": "0x86fe24f3f8f00920df508b60fd191e95ba19c0aa0d20a0e5530f8f3e2baef1fa",
-            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c49c077b74292aa8f589d39034bf9c1ed1825a608",
-            "TargetAddress": "0x08739CBede6E28E387685ba20e6409bD16969Cde"
-        },
-        {
-            "AddressArguments": [
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-                "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Disable Collateral of Wrapped Ether on Euler for account #0 : 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-            "FunctionSelector": "0xe920e8e0",
-            "FunctionSignature": "disableCollateral(address,address)",
-            "LeafDigest": "0x5dda26dced2f7bcd2cfc0d9bbc72c5e542cc3d0a4487ab760c7121ab268df6a5",
-            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c49c077b74292aa8f589d39034bf9c1ed1825a608",
-            "TargetAddress": "0x08739CBede6E28E387685ba20e6409bD16969Cde"
-        },
-        {
-            "AddressArguments": [
-                "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608",
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-                "0x00000000000000000000000000000000b460aF94",
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Call Withdraw on EVK Vault eWETH-1 via EVC on behalf of 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-            "FunctionSelector": "0x1f8b5215",
-            "FunctionSignature": "call(address,address,uint256,bytes)",
-            "LeafDigest": "0xebe09e500be25380650f1151031fa1b60dcd9ca9039588bd0ba47b0101e3c2ec",
-            "PackedArgumentAddresses": "0x49c077b74292aa8f589d39034bf9c1ed1825a608f0bb20865277abd641a307ece5ee04e79073416c00000000000000000000000000000000b460af94f0bb20865277abd641a307ece5ee04e79073416cf0bb20865277abd641a307ece5ee04e79073416c",
-            "TargetAddress": "0x08739CBede6E28E387685ba20e6409bD16969Cde"
-        },
-        {
-            "AddressArguments": [
-                "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608",
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-                "0x00000000000000000000000000000000ba087652",
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Call Redeem on EVK Vault eWETH-1 via EVC on behalf of 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-            "FunctionSelector": "0x1f8b5215",
-            "FunctionSignature": "call(address,address,uint256,bytes)",
-            "LeafDigest": "0x57f5eec443e1e2d1c181021d7af1f1c23035a238952e93c183cf5ec9cb8f5d66",
-            "PackedArgumentAddresses": "0x49c077b74292aa8f589d39034bf9c1ed1825a608f0bb20865277abd641a307ece5ee04e79073416c00000000000000000000000000000000ba087652f0bb20865277abd641a307ece5ee04e79073416cf0bb20865277abd641a307ece5ee04e79073416c",
-            "TargetAddress": "0x08739CBede6E28E387685ba20e6409bD16969Cde"
-        },
-        {
-            "AddressArguments": ["0x10D0D11A8B693F4E3e33d09BBab7D4aFc3C03ef3"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Approve eweETH-1 to spend weETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0xcee9bc0f8f1055acef67e5faf9a5f4b8ead69287f87c8329d449cabb220c4be0",
-            "PackedArgumentAddresses": "0x10d0d11a8b693f4e3e33d09bbab7d4afc3c03ef3",
-            "TargetAddress": "0xA6cB988942610f6731e664379D15fFcfBf282b44"
-        },
-        {
-            "AddressArguments": ["0xf0bb20865277aBd641a307eCe5Ee04E79073416C"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Deposit weETH for eweETH-1 for 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-            "FunctionSelector": "0x6e553f65",
-            "FunctionSignature": "deposit(uint256,address)",
-            "LeafDigest": "0x9107107bf5689c78137491c902fdaa095e972fc2691fa4dbfd277e55ae126643",
-            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c",
-            "TargetAddress": "0x10D0D11A8B693F4E3e33d09BBab7D4aFc3C03ef3"
-        },
-        {
-            "AddressArguments": [
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Withdraw weETH from eweETH-1 for 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-            "FunctionSelector": "0xb460af94",
-            "FunctionSignature": "withdraw(uint256,address,address)",
-            "LeafDigest": "0xca09f13f571cd6fc3690dea3c477a9f61913d4b720cb2f13d89524a2a285e334",
-            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416cf0bb20865277abd641a307ece5ee04e79073416c",
-            "TargetAddress": "0x10D0D11A8B693F4E3e33d09BBab7D4aFc3C03ef3"
-        },
-        {
-            "AddressArguments": ["0xf0bb20865277aBd641a307eCe5Ee04E79073416C"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Mint eweETH-1 using weETH for 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-            "FunctionSelector": "0x94bf804d",
-            "FunctionSignature": "mint(uint256,address)",
-            "LeafDigest": "0x5afcf258c20b978214c7f0c33773dad5e1527b1141eae85c497702b592230f3f",
-            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c",
-            "TargetAddress": "0x10D0D11A8B693F4E3e33d09BBab7D4aFc3C03ef3"
-        },
-        {
-            "AddressArguments": [
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Redeem eweETH-1 for weETH for 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-            "FunctionSelector": "0xba087652",
-            "FunctionSignature": "redeem(uint256,address,address)",
-            "LeafDigest": "0xc0a898d360b32337e65429562d98a31a993203ec1c545d678c60a51fb3ac9c69",
-            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416cf0bb20865277abd641a307ece5ee04e79073416c",
-            "TargetAddress": "0x10D0D11A8B693F4E3e33d09BBab7D4aFc3C03ef3"
-        },
-        {
-            "AddressArguments": [
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-                "0x10D0D11A8B693F4E3e33d09BBab7D4aFc3C03ef3"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Enable Collateral of Wrapped eETH on Euler for account #0 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-            "FunctionSelector": "0xd44fee5a",
-            "FunctionSignature": "enableCollateral(address,address)",
-            "LeafDigest": "0xefc5d5a1eb5fba580bba38caa9fa8de26e04e056e2e10ef2900282c6f9a3203c",
-            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c10d0d11a8b693f4e3e33d09bbab7d4afc3c03ef3",
-            "TargetAddress": "0x08739CBede6E28E387685ba20e6409bD16969Cde"
-        },
-        {
-            "AddressArguments": [
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-                "0x10D0D11A8B693F4E3e33d09BBab7D4aFc3C03ef3"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Disable Collateral of Wrapped eETH on Euler for account #0 : 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-            "FunctionSelector": "0xe920e8e0",
-            "FunctionSignature": "disableCollateral(address,address)",
-            "LeafDigest": "0xea336d4b8fbff9f3a9691c7447ea0ddaddddb94b843b8f9932844280743d11b5",
-            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c10d0d11a8b693f4e3e33d09bbab7d4afc3c03ef3",
-            "TargetAddress": "0x08739CBede6E28E387685ba20e6409bD16969Cde"
-        },
-        {
-            "AddressArguments": [
-                "0x10D0D11A8B693F4E3e33d09BBab7D4aFc3C03ef3",
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-                "0x00000000000000000000000000000000b460aF94",
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Call Withdraw on EVK Vault eweETH-1 via EVC on behalf of 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-            "FunctionSelector": "0x1f8b5215",
-            "FunctionSignature": "call(address,address,uint256,bytes)",
-            "LeafDigest": "0x2b5ac82d4521930bd9a4687b43f1121185cbfb0925d2104153a4a87f56b54553",
-            "PackedArgumentAddresses": "0x10d0d11a8b693f4e3e33d09bbab7d4afc3c03ef3f0bb20865277abd641a307ece5ee04e79073416c00000000000000000000000000000000b460af94f0bb20865277abd641a307ece5ee04e79073416cf0bb20865277abd641a307ece5ee04e79073416c",
-            "TargetAddress": "0x08739CBede6E28E387685ba20e6409bD16969Cde"
-        },
-        {
-            "AddressArguments": [
-                "0x10D0D11A8B693F4E3e33d09BBab7D4aFc3C03ef3",
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-                "0x00000000000000000000000000000000ba087652",
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Call Redeem on EVK Vault eweETH-1 via EVC on behalf of 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-            "FunctionSelector": "0x1f8b5215",
-            "FunctionSignature": "call(address,address,uint256,bytes)",
-            "LeafDigest": "0x91aa5ff93309ea25c129cf0f827ccadf7891a73c5fd96f1d2131ee4b41d00c6a",
-            "PackedArgumentAddresses": "0x10d0d11a8b693f4e3e33d09bbab7d4afc3c03ef3f0bb20865277abd641a307ece5ee04e79073416c00000000000000000000000000000000ba087652f0bb20865277abd641a307ece5ee04e79073416cf0bb20865277abd641a307ece5ee04e79073416c",
-            "TargetAddress": "0x08739CBede6E28E387685ba20e6409bD16969Cde"
-        },
-        {
-            "AddressArguments": ["0x49C077B74292aA8F589d39034Bf9C1Ed1825a608"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Approve Wrapped Ether to be repaid.",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0xb25213c04ba88bb736a980e9a2d10b40f4be36b85d6bb0d15fba4add2b11d213",
-            "PackedArgumentAddresses": "0x49c077b74292aa8f589d39034bf9c1ed1825a608",
-            "TargetAddress": "0x4200000000000000000000000000000000000006"
-        },
-        {
-            "AddressArguments": [
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-                "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Enable EVK Vault eWETH-1 as controller for subaccount #0 : 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-            "FunctionSelector": "0xc368516c",
-            "FunctionSignature": "enableController(address,address)",
-            "LeafDigest": "0x1fbbe0cb87d66c94032408a2cd7344acbab9b9aa1554dae3ac9845ab8fb8fe34",
-            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c49c077b74292aa8f589d39034bf9c1ed1825a608",
-            "TargetAddress": "0x08739CBede6E28E387685ba20e6409bD16969Cde"
-        },
-        {
-            "AddressArguments": ["0xf0bb20865277aBd641a307eCe5Ee04E79073416C"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Borrow Wrapped Ether from EVK Vault eWETH-1 for account #0",
-            "FunctionSelector": "0x4b3fd148",
-            "FunctionSignature": "borrow(uint256,address)",
-            "LeafDigest": "0x5bb87ce0d53cd06d126434334ff168258275f94c6c1786913adf4fa78db41b90",
-            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c",
-            "TargetAddress": "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608"
-        },
-        {
-            "AddressArguments": ["0xf0bb20865277aBd641a307eCe5Ee04E79073416C"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Repay Wrapped Ether to EVK Vault eWETH-1 for account #0",
-            "FunctionSelector": "0xacb70815",
-            "FunctionSignature": "repay(uint256,address)",
-            "LeafDigest": "0x617fbb700999b25736610e734f5bb702ddbaa32806774a19596d38d8ffe0e534",
-            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c",
-            "TargetAddress": "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608"
-        },
-        {
-            "AddressArguments": ["0xf0bb20865277aBd641a307eCe5Ee04E79073416C"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Repay Wrapped Ether with shares EVK Vault eWETH-1 for account #0",
-            "FunctionSelector": "0xa9c8eb7e",
-            "FunctionSignature": "repayWithShares(uint256,address)",
-            "LeafDigest": "0x3f7540c6c36d2889d3d22f0f12667eb2d9cd0b018bca681c76d30ffcd6aa60da",
-            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c",
-            "TargetAddress": "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Disable EVK Vault eWETH-1 as controller for account #0",
-            "FunctionSelector": "0x869e50c7",
-            "FunctionSignature": "disableController()",
-            "LeafDigest": "0xbb8641cf27a7d69fd3aa4a7573edc52151788cb4416f0afbb5519a374ae1aa5e",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608"
-        },
-        {
-            "AddressArguments": [
-                "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608",
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-                "0x000000000000000000000000000000004b3fd148",
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Call Borrow on EVK Vault eWETH-1 via EVC on behalf of 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-            "FunctionSelector": "0x1f8b5215",
-            "FunctionSignature": "call(address,address,uint256,bytes)",
-            "LeafDigest": "0x4fd8ca20b88cbe8413fe49bef3494f4805da120e2fdc41846dc8465e8ab9c9a3",
-            "PackedArgumentAddresses": "0x49c077b74292aa8f589d39034bf9c1ed1825a608f0bb20865277abd641a307ece5ee04e79073416c000000000000000000000000000000004b3fd148f0bb20865277abd641a307ece5ee04e79073416c",
-            "TargetAddress": "0x08739CBede6E28E387685ba20e6409bD16969Cde"
-        },
-        {
-            "AddressArguments": [
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-                "0xf8553c8552f906C19286F21711721E206EE4909E"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Allow 0xf8553c8552f906C19286F21711721E206EE4909E to claim merkl rewards",
-            "FunctionSelector": "0xbdac7ca3",
-            "FunctionSignature": "toggleOperator(address,address)",
-            "LeafDigest": "0xd6aae29659c3f33485c7884318b2a7819a8e34bc8ca20748e20ce6bbac3a5a31",
-            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416cf8553c8552f906c19286f21711721e206ee4909e",
-            "TargetAddress": "0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae"
-        },
-        {
-            "AddressArguments": [
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-                "0xda1F8EA667dc5600F5f654DF44b47F1639a83DD1"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Claim merkl wSWELL rewards",
-            "FunctionSelector": "0x71ee95c0",
-            "FunctionSignature": "claim(address[],address[],uint256[],bytes32[][])",
-            "LeafDigest": "0x6deaa33d778f7184dbe89b78d7851293b3fe23ddc8a5ac0ec1dac3d49c799955",
-            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416cda1f8ea667dc5600f5f654df44b47f1639a83dd1",
-            "TargetAddress": "0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae"
-        },
-        {
-            "AddressArguments": ["0x991d5546C4B442B4c5fdc4c8B8b8d131DEB24702"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Approve Velodrome NonFungible Position Manager to spend WETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0xf969f8bbd4d96c312c330412125da20c3e625de8683aac69361702292924b7bd",
-            "PackedArgumentAddresses": "0x991d5546c4b442b4c5fdc4c8b8b8d131deb24702",
-            "TargetAddress": "0x4200000000000000000000000000000000000006"
-        },
-        {
-            "AddressArguments": ["0x991d5546C4B442B4c5fdc4c8B8b8d131DEB24702"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Approve Velodrome NonFungible Position Manager to spend weETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0xcb3a1e20e5509ef12b34a19ba020ccda9dd7a9a32a13587a35e5e457310a2df1",
-            "PackedArgumentAddresses": "0x991d5546c4b442b4c5fdc4c8b8b8d131deb24702",
-            "TargetAddress": "0xA6cB988942610f6731e664379D15fFcfBf282b44"
-        },
-        {
-            "AddressArguments": [
-                "0x4200000000000000000000000000000000000006",
-                "0xA6cB988942610f6731e664379D15fFcfBf282b44",
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Mint VelodromeV3 WETH weETH position",
-            "FunctionSelector": "0xb5007d1f",
-            "FunctionSignature": "mint((address,address,int24,int24,int24,uint256,uint256,uint256,uint256,address,uint256,uint160))",
-            "LeafDigest": "0x743b47ce9bbb8336b5d376eacb0dd4b9bd748e1e8135197666c815e1a7a1251e",
-            "PackedArgumentAddresses": "0x4200000000000000000000000000000000000006a6cb988942610f6731e664379d15ffcfbf282b44f0bb20865277abd641a307ece5ee04e79073416c",
-            "TargetAddress": "0x991d5546C4B442B4c5fdc4c8B8b8d131DEB24702"
-        },
-        {
-            "AddressArguments": [
-                "0x0000000000000000000000000000000000000000",
-                "0x4200000000000000000000000000000000000006",
-                "0xA6cB988942610f6731e664379D15fFcfBf282b44",
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Add liquidity to VelodromeV3 WETH weETH position",
-            "FunctionSelector": "0x219f5d17",
-            "FunctionSignature": "increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))",
-            "LeafDigest": "0xb7861a7c162d200c5accb790e9580457d71b8e82d001b6fe858a4117e7200a6e",
-            "PackedArgumentAddresses": "0x00000000000000000000000000000000000000004200000000000000000000000000000000000006a6cb988942610f6731e664379d15ffcfbf282b44f0bb20865277abd641a307ece5ee04e79073416c",
-            "TargetAddress": "0x991d5546C4B442B4c5fdc4c8B8b8d131DEB24702"
-        },
-        {
-            "AddressArguments": ["0x14bAD0eE354c0161178bAcC59340Bb223F66b76C"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Approve gauge to spend VelodromeV3 position",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0x5bd7080ba2724c0d64baeed4690cae5dffdb33d1753dbecb2c0697161ea73816",
-            "PackedArgumentAddresses": "0x14bad0ee354c0161178bacc59340bb223f66b76c",
-            "TargetAddress": "0x991d5546C4B442B4c5fdc4c8B8b8d131DEB24702"
-        },
-        {
-            "AddressArguments": ["0xf0bb20865277aBd641a307eCe5Ee04E79073416C"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Remove liquidity from VelodromeV3 position",
-            "FunctionSelector": "0x0c49ccbe",
-            "FunctionSignature": "decreaseLiquidity((uint256,uint128,uint256,uint256,uint256))",
-            "LeafDigest": "0x77999dcffe89fdef3954e6fd2592d59e60826297aca404f2145bbc4fe6e7e1e6",
-            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c",
-            "TargetAddress": "0x991d5546C4B442B4c5fdc4c8B8b8d131DEB24702"
-        },
-        {
-            "AddressArguments": [
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
-                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Collect fees from VelodromeV3 position",
-            "FunctionSelector": "0xfc6f7865",
-            "FunctionSignature": "collect((uint256,address,uint128,uint128))",
-            "LeafDigest": "0x0f4cb1911bb3fbdaa0635e960a24bc8bf0490be02e6948e7ff290838f9352177",
-            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416cf0bb20865277abd641a307ece5ee04e79073416c",
-            "TargetAddress": "0x991d5546C4B442B4c5fdc4c8B8b8d131DEB24702"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Burn VelodromeV3 position",
-            "FunctionSelector": "0x42966c68",
-            "FunctionSignature": "burn(uint256)",
-            "LeafDigest": "0xb0eb186db27be8bd52019e26a055b40fcc2da40e8a4c09e875773e4667ee6f7d",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x991d5546C4B442B4c5fdc4c8B8b8d131DEB24702"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Deposit into VelodromeV3 gauge 0x14bAD0eE354c0161178bAcC59340Bb223F66b76C",
-            "FunctionSelector": "0xb6b55f25",
-            "FunctionSignature": "deposit(uint256)",
-            "LeafDigest": "0x5b8a8b7c3d23bbe685fc5a59c4f8eae948f4cb071d3c81cef6184d8a7db1cf4b",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x14bAD0eE354c0161178bAcC59340Bb223F66b76C"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Withdraw from VelodromeV3 gauge 0x14bAD0eE354c0161178bAcC59340Bb223F66b76C",
-            "FunctionSelector": "0x2e1a7d4d",
-            "FunctionSignature": "withdraw(uint256)",
-            "LeafDigest": "0x6e3754b115e5c587b90cee061f4643cb0e092460af8f701e44dfe9865472ee30",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x14bAD0eE354c0161178bAcC59340Bb223F66b76C"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Get reward from VelodromeV3 gauge 0x14bAD0eE354c0161178bAcC59340Bb223F66b76C",
-            "FunctionSelector": "0x1c4b774b",
-            "FunctionSignature": "getReward(uint256)",
-            "LeafDigest": "0x4ed0c27c225d057afd4a3ed91934c4150293aefe058f4bd52144842c3bc6a4c7",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x14bAD0eE354c0161178bAcC59340Bb223F66b76C"
-        },
-        {
-            "AddressArguments": ["0xf0bb20865277aBd641a307eCe5Ee04E79073416C"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Get reward from VelodromeV3 gauge 0x14bAD0eE354c0161178bAcC59340Bb223F66b76C",
-            "FunctionSelector": "0xc00007b0",
-            "FunctionSignature": "getReward(address)",
-            "LeafDigest": "0xd880af98248bb633f71e6d6d4c7c78eb4676e9f7825e9da5535b1d1afdceb579",
-            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c",
-            "TargetAddress": "0x14bAD0eE354c0161178bAcC59340Bb223F66b76C"
-        },
-        {
-            "AddressArguments": ["0xaAAaAaaa82812F0a1f274016514ba2cA933bF24D"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Approve CrocSwapDex (Ambient) to spend weETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0x219bd6662c76f0db744dddbb1633e7db0880bc56e290616de16fb454433c6ab7",
-            "PackedArgumentAddresses": "0xaaaaaaaa82812f0a1f274016514ba2ca933bf24d",
-            "TargetAddress": "0xA6cB988942610f6731e664379D15fFcfBf282b44"
-        },
-        {
-            "AddressArguments": [
-                "0xA6cB988942610f6731e664379D15fFcfBf282b44",
-                "0x0000000000000000000000000000000000000000",
-                "0x0000000000000000000000000000000000000000"
-            ],
-            "CanSendValue": true,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Call userCmd using 'WarmPath' with ETH ",
-            "FunctionSelector": "0xa15112f9",
-            "FunctionSignature": "userCmd(uint16,bytes)",
-            "LeafDigest": "0x6b60f2dd8d2745873bc031f961afc2b73bd895fb332315fe4d5ce90be265f724",
-            "PackedArgumentAddresses": "0xa6cb988942610f6731e664379d15ffcfbf282b4400000000000000000000000000000000000000000000000000000000000000000000000000000000",
-            "TargetAddress": "0xaAAaAaaa82812F0a1f274016514ba2cA933bF24D"
-        },
-        {
-            "AddressArguments": [
-                "0xA6cB988942610f6731e664379D15fFcfBf282b44",
-                "0x0000000000000000000000000000000000000000",
-                "0x0000000000000000000000000000000000000000"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Call userCmd using 'WarmPath' without ETH",
-            "FunctionSelector": "0xa15112f9",
-            "FunctionSignature": "userCmd(uint16,bytes)",
-            "LeafDigest": "0xb64bc248e42943b587fbb9bd2f420a63e0e6080baae8041d6bbf8daf63a954c6",
-            "PackedArgumentAddresses": "0xa6cb988942610f6731e664379d15ffcfbf282b4400000000000000000000000000000000000000000000000000000000000000000000000000000000",
-            "TargetAddress": "0xaAAaAaaa82812F0a1f274016514ba2cA933bF24D"
-        },
-        {
-            "AddressArguments": [
-                "0xA6cB988942610f6731e664379D15fFcfBf282b44",
-                "0x0000000000000000000000000000000000000000"
-            ],
-            "CanSendValue": true,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Call userCmd using 'HotPath' or 'KnockoutPath' with ETH ",
-            "FunctionSelector": "0xa15112f9",
-            "FunctionSignature": "userCmd(uint16,bytes)",
-            "LeafDigest": "0xaf9166ebf119c355071ac69037804375193143931fbfd8870215f6792a4c21a0",
-            "PackedArgumentAddresses": "0xa6cb988942610f6731e664379d15ffcfbf282b440000000000000000000000000000000000000000",
-            "TargetAddress": "0xaAAaAaaa82812F0a1f274016514ba2cA933bF24D"
-        },
-        {
-            "AddressArguments": [
-                "0xA6cB988942610f6731e664379D15fFcfBf282b44",
-                "0x0000000000000000000000000000000000000000"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Call userCmd using 'HotPath' or 'KnockoutPath' without ETH ",
-            "FunctionSelector": "0xa15112f9",
-            "FunctionSignature": "userCmd(uint16,bytes)",
-            "LeafDigest": "0x79f235ec238a4f3b8df1589a94f2ba9f9efee91e88bad29d9866ae51748b3893",
-            "PackedArgumentAddresses": "0xa6cb988942610f6731e664379d15ffcfbf282b440000000000000000000000000000000000000000",
-            "TargetAddress": "0xaAAaAaaa82812F0a1f274016514ba2cA933bF24D"
-        },
-        {
-            "AddressArguments": ["0xaAAaAaaa82812F0a1f274016514ba2cA933bF24D"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Approve CrocSwapDex (Ambient) to spend weETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0x219bd6662c76f0db744dddbb1633e7db0880bc56e290616de16fb454433c6ab7",
-            "PackedArgumentAddresses": "0xaaaaaaaa82812f0a1f274016514ba2ca933bf24d",
-            "TargetAddress": "0xA6cB988942610f6731e664379D15fFcfBf282b44"
-        },
-        {
-            "AddressArguments": [
-                "0xA6cB988942610f6731e664379D15fFcfBf282b44",
-                "0x0000000000000000000000000000000000000000"
-            ],
-            "CanSendValue": true,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Swap using CrocSwapDex (Ambient) between ETH and weETH",
-            "FunctionSelector": "0x3d719cd9",
-            "FunctionSignature": "swap(address,address,uint256,bool,bool,uint128,uint16,uint128,uint128,uint8)",
-            "LeafDigest": "0x6590f6b3a527bc0292d04ec1e8ce3a132615c9ed4a344cf3d6e6891a626870c8",
-            "PackedArgumentAddresses": "0xa6cb988942610f6731e664379d15ffcfbf282b440000000000000000000000000000000000000000",
-            "TargetAddress": "0xaAAaAaaa82812F0a1f274016514ba2cA933bF24D"
-        },
-        {
-            "AddressArguments": [
-                "0xA6cB988942610f6731e664379D15fFcfBf282b44",
-                "0x0000000000000000000000000000000000000000"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Swap using CrocSwapDex (Ambient) between weETH and ETH",
-            "FunctionSelector": "0x3d719cd9",
-            "FunctionSignature": "swap(address,address,uint256,bool,bool,uint128,uint16,uint128,uint128,uint8)",
-            "LeafDigest": "0x9c13b90d76d27e02dbcae7417966a0d9d92093b2838de39ebf1df715e6a0aef0",
-            "PackedArgumentAddresses": "0xa6cb988942610f6731e664379d15ffcfbf282b440000000000000000000000000000000000000000",
-            "TargetAddress": "0xaAAaAaaa82812F0a1f274016514ba2cA933bF24D"
-        },
-        {
-            "AddressArguments": ["0xaAAaAaaa82812F0a1f274016514ba2cA933bF24D"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Approve CrocSwapDex (Ambient) to spend SWELL",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0x105f84397398bd7c059ab7f259fde1d1c8a8933155d3df05a64af225ef656678",
-            "PackedArgumentAddresses": "0xaaaaaaaa82812f0a1f274016514ba2ca933bf24d",
-            "TargetAddress": "0x2826D136F5630adA89C1678b64A61620Aab77Aea"
-        },
-        {
-            "AddressArguments": [
-                "0x0000000000000000000000000000000000000000",
-                "0x2826D136F5630adA89C1678b64A61620Aab77Aea"
-            ],
-            "CanSendValue": true,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Swap using CrocSwapDex (Ambient) between ETH and SWELL",
-            "FunctionSelector": "0x3d719cd9",
-            "FunctionSignature": "swap(address,address,uint256,bool,bool,uint128,uint16,uint128,uint128,uint8)",
-            "LeafDigest": "0xb7b5ebe553db8b409a23e6003343bb729ff6c0c31cf5d7c32aaf46af66396a7c",
-            "PackedArgumentAddresses": "0x00000000000000000000000000000000000000002826d136f5630ada89c1678b64a61620aab77aea",
-            "TargetAddress": "0xaAAaAaaa82812F0a1f274016514ba2cA933bF24D"
-        },
-        {
-            "AddressArguments": [
-                "0x0000000000000000000000000000000000000000",
-                "0x2826D136F5630adA89C1678b64A61620Aab77Aea"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Swap using CrocSwapDex (Ambient) between SWELL and ETH",
-            "FunctionSelector": "0x3d719cd9",
-            "FunctionSignature": "swap(address,address,uint256,bool,bool,uint128,uint16,uint128,uint128,uint8)",
-            "LeafDigest": "0x102f950c442be7488eeaa7b018ad701b810b93f2aca06ff49255ede0a5a75043",
-            "PackedArgumentAddresses": "0x00000000000000000000000000000000000000002826d136f5630ada89c1678b64a61620aab77aea",
-            "TargetAddress": "0xaAAaAaaa82812F0a1f274016514ba2cA933bF24D"
-        },
-        {
-            "AddressArguments": ["0xaAAaAaaa82812F0a1f274016514ba2cA933bF24D"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Approve CrocSwapDex (Ambient) to spend SWELL",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0x105f84397398bd7c059ab7f259fde1d1c8a8933155d3df05a64af225ef656678",
-            "PackedArgumentAddresses": "0xaaaaaaaa82812f0a1f274016514ba2ca933bf24d",
-            "TargetAddress": "0x2826D136F5630adA89C1678b64A61620Aab77Aea"
-        },
-        {
-            "AddressArguments": [
-                "0x2826D136F5630adA89C1678b64A61620Aab77Aea",
-                "0x0000000000000000000000000000000000000000"
-            ],
-            "CanSendValue": true,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Swap using CrocSwapDex (Ambient) between ETH and SWELL",
-            "FunctionSelector": "0x3d719cd9",
-            "FunctionSignature": "swap(address,address,uint256,bool,bool,uint128,uint16,uint128,uint128,uint8)",
-            "LeafDigest": "0xfedeab2313334a6841ef4d626b0f12aea29bfcba18cb14ed00c5e138355a1937",
-            "PackedArgumentAddresses": "0x2826d136f5630ada89c1678b64a61620aab77aea0000000000000000000000000000000000000000",
-            "TargetAddress": "0xaAAaAaaa82812F0a1f274016514ba2cA933bF24D"
-        },
-        {
-            "AddressArguments": [
-                "0x2826D136F5630adA89C1678b64A61620Aab77Aea",
-                "0x0000000000000000000000000000000000000000"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Swap using CrocSwapDex (Ambient) between SWELL and ETH",
-            "FunctionSelector": "0x3d719cd9",
-            "FunctionSignature": "swap(address,address,uint256,bool,bool,uint128,uint16,uint128,uint128,uint8)",
-            "LeafDigest": "0x201c124405a6ec805bc82219e887395db2f7067e5b6e24499feb042e273a8947",
-            "PackedArgumentAddresses": "0x2826d136f5630ada89c1678b64a61620aab77aea0000000000000000000000000000000000000000",
-            "TargetAddress": "0xaAAaAaaa82812F0a1f274016514ba2cA933bF24D"
-        },
-        {
-            "AddressArguments": ["0xf0bb20865277aBd641a307eCe5Ee04E79073416C"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Unwrap wSwell for Swell",
-            "FunctionSelector": "0x1ab27b95",
-            "FunctionSignature": "withdrawToByLockTimestamp(address,uint256,bool)",
-            "LeafDigest": "0xde5b7da582bb6e96fe0a3e4e776b1085467226d04ab1ab8e041a12a7e409d3b7",
-            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c",
-            "TargetAddress": "0xda1F8EA667dc5600F5f654DF44b47F1639a83DD1"
-        },
-        {
-            "AddressArguments": ["0xf0bb20865277aBd641a307eCe5Ee04E79073416C"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
-            "Description": "Unwrap wSwell for Swell with multiple lock timestamps",
-            "FunctionSelector": "0x90797498",
-            "FunctionSignature": "withdrawToByLockTimestamps(address,uint256[],bool)",
-            "LeafDigest": "0x1130659504c6e017d9491a7baf67c9b9e6f1f688662aae3369e6b972bdb043d9",
-            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c",
-            "TargetAddress": "0xda1F8EA667dc5600F5f654DF44b47F1639a83DD1"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-            "Description": "",
-            "FunctionSelector": "0xc5d24601",
-            "FunctionSignature": "",
-            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x0000000000000000000000000000000000000000"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-            "Description": "",
-            "FunctionSelector": "0xc5d24601",
-            "FunctionSignature": "",
-            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x0000000000000000000000000000000000000000"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-            "Description": "",
-            "FunctionSelector": "0xc5d24601",
-            "FunctionSignature": "",
-            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x0000000000000000000000000000000000000000"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-            "Description": "",
-            "FunctionSelector": "0xc5d24601",
-            "FunctionSignature": "",
-            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x0000000000000000000000000000000000000000"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-            "Description": "",
-            "FunctionSelector": "0xc5d24601",
-            "FunctionSignature": "",
-            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x0000000000000000000000000000000000000000"
-        }
-    ],
     "MerkleTree": {
         "0": [
             "0x83e0e0734273be6e978ca6182dd830290f8d8761a518527a6ddb39f37dedd639"
@@ -974,5 +141,882 @@
             "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
             "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400"
         ]
+    },
+    "leafs": [
+        {
+            "AddressArguments": [],
+            "CanSendValue": true,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Wrap ETH for wETH",
+            "FunctionSelector": "0xd0e30db0",
+            "FunctionSignature": "deposit()",
+            "LeafDigest": "0x60ebb3beec7c3b6a04a7f6dc147c4f2844d94346c797f10f4c838522332d81e3",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x4200000000000000000000000000000000000006"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Unwrap wETH for ETH",
+            "FunctionSelector": "0x2e1a7d4d",
+            "FunctionSignature": "withdraw(uint256)",
+            "LeafDigest": "0x9ec5612f664734affc2d18e34898be20e13af4401e29109400af57e108d53642",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x4200000000000000000000000000000000000006"
+        },
+        {
+            "AddressArguments": [
+                "0x0000000000000000000000000000000000007595",
+                "0x000000000000000000000000f0Bb208600000000",
+                "0x5277AbD641A307eCE5eE04E79073416C00000000",
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
+            ],
+            "CanSendValue": true,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Bridge weETH to LayerZero endpoint: 30101",
+            "FunctionSelector": "0xc7c7f5b3",
+            "FunctionSignature": "send((uint32,bytes32,uint256,uint256,bytes,bytes,bytes),(uint256,uint256),address)",
+            "LeafDigest": "0xd363aa15588ca0c46d4dea10e1aaaab0b0ae0eb75809146a6366d023020265b0",
+            "PackedArgumentAddresses": "0x0000000000000000000000000000000000007595000000000000000000000000f0bb2086000000005277abd641a307ece5ee04e79073416c00000000f0bb20865277abd641a307ece5ee04e79073416c",
+            "TargetAddress": "0xA6cB988942610f6731e664379D15fFcfBf282b44"
+        },
+        {
+            "AddressArguments": [
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
+            ],
+            "CanSendValue": true,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Bridge ETH from swell to mainnet",
+            "FunctionSelector": "0xe11013dd",
+            "FunctionSignature": "bridgeETHTo(address,uint32,bytes)",
+            "LeafDigest": "0xce34dd343a17711a317eb1fd6120e544a90bc302ea93337e08bc572b71401060",
+            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c",
+            "TargetAddress": "0x4200000000000000000000000000000000000010"
+        },
+        {
+            "AddressArguments": [
+                "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Approve eWETH-1 to spend WETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0xb25213c04ba88bb736a980e9a2d10b40f4be36b85d6bb0d15fba4add2b11d213",
+            "PackedArgumentAddresses": "0x49c077b74292aa8f589d39034bf9c1ed1825a608",
+            "TargetAddress": "0x4200000000000000000000000000000000000006"
+        },
+        {
+            "AddressArguments": [
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Deposit WETH for eWETH-1 for 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+            "FunctionSelector": "0x6e553f65",
+            "FunctionSignature": "deposit(uint256,address)",
+            "LeafDigest": "0x7b7f93a495911e51b076c26528bc18a34ee83021b070b526ad9c8a667dcaa9f5",
+            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c",
+            "TargetAddress": "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608"
+        },
+        {
+            "AddressArguments": [
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Withdraw WETH from eWETH-1 for 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+            "FunctionSelector": "0xb460af94",
+            "FunctionSignature": "withdraw(uint256,address,address)",
+            "LeafDigest": "0x0dc05ff7d978183a3869d3fcda43cbb847e1f05300d46108b07eaa6a67854220",
+            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416cf0bb20865277abd641a307ece5ee04e79073416c",
+            "TargetAddress": "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608"
+        },
+        {
+            "AddressArguments": [
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Mint eWETH-1 using WETH for 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+            "FunctionSelector": "0x94bf804d",
+            "FunctionSignature": "mint(uint256,address)",
+            "LeafDigest": "0x180b86a677481c0f73fe6c280a77e437dab6119c9d4faa055ba288f848be1f5e",
+            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c",
+            "TargetAddress": "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608"
+        },
+        {
+            "AddressArguments": [
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Redeem eWETH-1 for WETH for 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+            "FunctionSelector": "0xba087652",
+            "FunctionSignature": "redeem(uint256,address,address)",
+            "LeafDigest": "0xcab849c8ce5986ba438bb6f679b3bd0d793b6d99365f33347348ab0b260cc75e",
+            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416cf0bb20865277abd641a307ece5ee04e79073416c",
+            "TargetAddress": "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608"
+        },
+        {
+            "AddressArguments": [
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+                "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Enable Collateral of Wrapped Ether on Euler for account #0 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+            "FunctionSelector": "0xd44fee5a",
+            "FunctionSignature": "enableCollateral(address,address)",
+            "LeafDigest": "0x86fe24f3f8f00920df508b60fd191e95ba19c0aa0d20a0e5530f8f3e2baef1fa",
+            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c49c077b74292aa8f589d39034bf9c1ed1825a608",
+            "TargetAddress": "0x08739CBede6E28E387685ba20e6409bD16969Cde"
+        },
+        {
+            "AddressArguments": [
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+                "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Disable Collateral of Wrapped Ether on Euler for account #0 : 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+            "FunctionSelector": "0xe920e8e0",
+            "FunctionSignature": "disableCollateral(address,address)",
+            "LeafDigest": "0x5dda26dced2f7bcd2cfc0d9bbc72c5e542cc3d0a4487ab760c7121ab268df6a5",
+            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c49c077b74292aa8f589d39034bf9c1ed1825a608",
+            "TargetAddress": "0x08739CBede6E28E387685ba20e6409bD16969Cde"
+        },
+        {
+            "AddressArguments": [
+                "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608",
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+                "0x00000000000000000000000000000000b460aF94",
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Call Withdraw on EVK Vault eWETH-1 via EVC on behalf of 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+            "FunctionSelector": "0x1f8b5215",
+            "FunctionSignature": "call(address,address,uint256,bytes)",
+            "LeafDigest": "0xebe09e500be25380650f1151031fa1b60dcd9ca9039588bd0ba47b0101e3c2ec",
+            "PackedArgumentAddresses": "0x49c077b74292aa8f589d39034bf9c1ed1825a608f0bb20865277abd641a307ece5ee04e79073416c00000000000000000000000000000000b460af94f0bb20865277abd641a307ece5ee04e79073416cf0bb20865277abd641a307ece5ee04e79073416c",
+            "TargetAddress": "0x08739CBede6E28E387685ba20e6409bD16969Cde"
+        },
+        {
+            "AddressArguments": [
+                "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608",
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+                "0x00000000000000000000000000000000ba087652",
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Call Redeem on EVK Vault eWETH-1 via EVC on behalf of 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+            "FunctionSelector": "0x1f8b5215",
+            "FunctionSignature": "call(address,address,uint256,bytes)",
+            "LeafDigest": "0x57f5eec443e1e2d1c181021d7af1f1c23035a238952e93c183cf5ec9cb8f5d66",
+            "PackedArgumentAddresses": "0x49c077b74292aa8f589d39034bf9c1ed1825a608f0bb20865277abd641a307ece5ee04e79073416c00000000000000000000000000000000ba087652f0bb20865277abd641a307ece5ee04e79073416cf0bb20865277abd641a307ece5ee04e79073416c",
+            "TargetAddress": "0x08739CBede6E28E387685ba20e6409bD16969Cde"
+        },
+        {
+            "AddressArguments": [
+                "0x10D0D11A8B693F4E3e33d09BBab7D4aFc3C03ef3"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Approve eweETH-1 to spend weETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0xcee9bc0f8f1055acef67e5faf9a5f4b8ead69287f87c8329d449cabb220c4be0",
+            "PackedArgumentAddresses": "0x10d0d11a8b693f4e3e33d09bbab7d4afc3c03ef3",
+            "TargetAddress": "0xA6cB988942610f6731e664379D15fFcfBf282b44"
+        },
+        {
+            "AddressArguments": [
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Deposit weETH for eweETH-1 for 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+            "FunctionSelector": "0x6e553f65",
+            "FunctionSignature": "deposit(uint256,address)",
+            "LeafDigest": "0x9107107bf5689c78137491c902fdaa095e972fc2691fa4dbfd277e55ae126643",
+            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c",
+            "TargetAddress": "0x10D0D11A8B693F4E3e33d09BBab7D4aFc3C03ef3"
+        },
+        {
+            "AddressArguments": [
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Withdraw weETH from eweETH-1 for 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+            "FunctionSelector": "0xb460af94",
+            "FunctionSignature": "withdraw(uint256,address,address)",
+            "LeafDigest": "0xca09f13f571cd6fc3690dea3c477a9f61913d4b720cb2f13d89524a2a285e334",
+            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416cf0bb20865277abd641a307ece5ee04e79073416c",
+            "TargetAddress": "0x10D0D11A8B693F4E3e33d09BBab7D4aFc3C03ef3"
+        },
+        {
+            "AddressArguments": [
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Mint eweETH-1 using weETH for 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+            "FunctionSelector": "0x94bf804d",
+            "FunctionSignature": "mint(uint256,address)",
+            "LeafDigest": "0x5afcf258c20b978214c7f0c33773dad5e1527b1141eae85c497702b592230f3f",
+            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c",
+            "TargetAddress": "0x10D0D11A8B693F4E3e33d09BBab7D4aFc3C03ef3"
+        },
+        {
+            "AddressArguments": [
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Redeem eweETH-1 for weETH for 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+            "FunctionSelector": "0xba087652",
+            "FunctionSignature": "redeem(uint256,address,address)",
+            "LeafDigest": "0xc0a898d360b32337e65429562d98a31a993203ec1c545d678c60a51fb3ac9c69",
+            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416cf0bb20865277abd641a307ece5ee04e79073416c",
+            "TargetAddress": "0x10D0D11A8B693F4E3e33d09BBab7D4aFc3C03ef3"
+        },
+        {
+            "AddressArguments": [
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+                "0x10D0D11A8B693F4E3e33d09BBab7D4aFc3C03ef3"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Enable Collateral of Wrapped eETH on Euler for account #0 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+            "FunctionSelector": "0xd44fee5a",
+            "FunctionSignature": "enableCollateral(address,address)",
+            "LeafDigest": "0xefc5d5a1eb5fba580bba38caa9fa8de26e04e056e2e10ef2900282c6f9a3203c",
+            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c10d0d11a8b693f4e3e33d09bbab7d4afc3c03ef3",
+            "TargetAddress": "0x08739CBede6E28E387685ba20e6409bD16969Cde"
+        },
+        {
+            "AddressArguments": [
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+                "0x10D0D11A8B693F4E3e33d09BBab7D4aFc3C03ef3"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Disable Collateral of Wrapped eETH on Euler for account #0 : 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+            "FunctionSelector": "0xe920e8e0",
+            "FunctionSignature": "disableCollateral(address,address)",
+            "LeafDigest": "0xea336d4b8fbff9f3a9691c7447ea0ddaddddb94b843b8f9932844280743d11b5",
+            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c10d0d11a8b693f4e3e33d09bbab7d4afc3c03ef3",
+            "TargetAddress": "0x08739CBede6E28E387685ba20e6409bD16969Cde"
+        },
+        {
+            "AddressArguments": [
+                "0x10D0D11A8B693F4E3e33d09BBab7D4aFc3C03ef3",
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+                "0x00000000000000000000000000000000b460aF94",
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Call Withdraw on EVK Vault eweETH-1 via EVC on behalf of 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+            "FunctionSelector": "0x1f8b5215",
+            "FunctionSignature": "call(address,address,uint256,bytes)",
+            "LeafDigest": "0x2b5ac82d4521930bd9a4687b43f1121185cbfb0925d2104153a4a87f56b54553",
+            "PackedArgumentAddresses": "0x10d0d11a8b693f4e3e33d09bbab7d4afc3c03ef3f0bb20865277abd641a307ece5ee04e79073416c00000000000000000000000000000000b460af94f0bb20865277abd641a307ece5ee04e79073416cf0bb20865277abd641a307ece5ee04e79073416c",
+            "TargetAddress": "0x08739CBede6E28E387685ba20e6409bD16969Cde"
+        },
+        {
+            "AddressArguments": [
+                "0x10D0D11A8B693F4E3e33d09BBab7D4aFc3C03ef3",
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+                "0x00000000000000000000000000000000ba087652",
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Call Redeem on EVK Vault eweETH-1 via EVC on behalf of 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+            "FunctionSelector": "0x1f8b5215",
+            "FunctionSignature": "call(address,address,uint256,bytes)",
+            "LeafDigest": "0x91aa5ff93309ea25c129cf0f827ccadf7891a73c5fd96f1d2131ee4b41d00c6a",
+            "PackedArgumentAddresses": "0x10d0d11a8b693f4e3e33d09bbab7d4afc3c03ef3f0bb20865277abd641a307ece5ee04e79073416c00000000000000000000000000000000ba087652f0bb20865277abd641a307ece5ee04e79073416cf0bb20865277abd641a307ece5ee04e79073416c",
+            "TargetAddress": "0x08739CBede6E28E387685ba20e6409bD16969Cde"
+        },
+        {
+            "AddressArguments": [
+                "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Approve Wrapped Ether to be repaid.",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0xb25213c04ba88bb736a980e9a2d10b40f4be36b85d6bb0d15fba4add2b11d213",
+            "PackedArgumentAddresses": "0x49c077b74292aa8f589d39034bf9c1ed1825a608",
+            "TargetAddress": "0x4200000000000000000000000000000000000006"
+        },
+        {
+            "AddressArguments": [
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+                "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Enable EVK Vault eWETH-1 as controller for subaccount #0 : 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+            "FunctionSelector": "0xc368516c",
+            "FunctionSignature": "enableController(address,address)",
+            "LeafDigest": "0x1fbbe0cb87d66c94032408a2cd7344acbab9b9aa1554dae3ac9845ab8fb8fe34",
+            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c49c077b74292aa8f589d39034bf9c1ed1825a608",
+            "TargetAddress": "0x08739CBede6E28E387685ba20e6409bD16969Cde"
+        },
+        {
+            "AddressArguments": [
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Borrow Wrapped Ether from EVK Vault eWETH-1 for account #0",
+            "FunctionSelector": "0x4b3fd148",
+            "FunctionSignature": "borrow(uint256,address)",
+            "LeafDigest": "0x5bb87ce0d53cd06d126434334ff168258275f94c6c1786913adf4fa78db41b90",
+            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c",
+            "TargetAddress": "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608"
+        },
+        {
+            "AddressArguments": [
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Repay Wrapped Ether to EVK Vault eWETH-1 for account #0",
+            "FunctionSelector": "0xacb70815",
+            "FunctionSignature": "repay(uint256,address)",
+            "LeafDigest": "0x617fbb700999b25736610e734f5bb702ddbaa32806774a19596d38d8ffe0e534",
+            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c",
+            "TargetAddress": "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608"
+        },
+        {
+            "AddressArguments": [
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Repay Wrapped Ether with shares EVK Vault eWETH-1 for account #0",
+            "FunctionSelector": "0xa9c8eb7e",
+            "FunctionSignature": "repayWithShares(uint256,address)",
+            "LeafDigest": "0x3f7540c6c36d2889d3d22f0f12667eb2d9cd0b018bca681c76d30ffcd6aa60da",
+            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c",
+            "TargetAddress": "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Disable EVK Vault eWETH-1 as controller for account #0",
+            "FunctionSelector": "0x869e50c7",
+            "FunctionSignature": "disableController()",
+            "LeafDigest": "0xbb8641cf27a7d69fd3aa4a7573edc52151788cb4416f0afbb5519a374ae1aa5e",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608"
+        },
+        {
+            "AddressArguments": [
+                "0x49C077B74292aA8F589d39034Bf9C1Ed1825a608",
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+                "0x000000000000000000000000000000004b3fd148",
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Call Borrow on EVK Vault eWETH-1 via EVC on behalf of 0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+            "FunctionSelector": "0x1f8b5215",
+            "FunctionSignature": "call(address,address,uint256,bytes)",
+            "LeafDigest": "0x4fd8ca20b88cbe8413fe49bef3494f4805da120e2fdc41846dc8465e8ab9c9a3",
+            "PackedArgumentAddresses": "0x49c077b74292aa8f589d39034bf9c1ed1825a608f0bb20865277abd641a307ece5ee04e79073416c000000000000000000000000000000004b3fd148f0bb20865277abd641a307ece5ee04e79073416c",
+            "TargetAddress": "0x08739CBede6E28E387685ba20e6409bD16969Cde"
+        },
+        {
+            "AddressArguments": [
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+                "0xf8553c8552f906C19286F21711721E206EE4909E"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Allow 0xf8553c8552f906C19286F21711721E206EE4909E to claim merkl rewards",
+            "FunctionSelector": "0xbdac7ca3",
+            "FunctionSignature": "toggleOperator(address,address)",
+            "LeafDigest": "0xd6aae29659c3f33485c7884318b2a7819a8e34bc8ca20748e20ce6bbac3a5a31",
+            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416cf8553c8552f906c19286f21711721e206ee4909e",
+            "TargetAddress": "0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae"
+        },
+        {
+            "AddressArguments": [
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+                "0xda1F8EA667dc5600F5f654DF44b47F1639a83DD1"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Claim merkl wSWELL rewards",
+            "FunctionSelector": "0x71ee95c0",
+            "FunctionSignature": "claim(address[],address[],uint256[],bytes32[][])",
+            "LeafDigest": "0x6deaa33d778f7184dbe89b78d7851293b3fe23ddc8a5ac0ec1dac3d49c799955",
+            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416cda1f8ea667dc5600f5f654df44b47f1639a83dd1",
+            "TargetAddress": "0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae"
+        },
+        {
+            "AddressArguments": [
+                "0x991d5546C4B442B4c5fdc4c8B8b8d131DEB24702"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Approve Velodrome NonFungible Position Manager to spend WETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0xf969f8bbd4d96c312c330412125da20c3e625de8683aac69361702292924b7bd",
+            "PackedArgumentAddresses": "0x991d5546c4b442b4c5fdc4c8b8b8d131deb24702",
+            "TargetAddress": "0x4200000000000000000000000000000000000006"
+        },
+        {
+            "AddressArguments": [
+                "0x991d5546C4B442B4c5fdc4c8B8b8d131DEB24702"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Approve Velodrome NonFungible Position Manager to spend weETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0xcb3a1e20e5509ef12b34a19ba020ccda9dd7a9a32a13587a35e5e457310a2df1",
+            "PackedArgumentAddresses": "0x991d5546c4b442b4c5fdc4c8b8b8d131deb24702",
+            "TargetAddress": "0xA6cB988942610f6731e664379D15fFcfBf282b44"
+        },
+        {
+            "AddressArguments": [
+                "0x4200000000000000000000000000000000000006",
+                "0xA6cB988942610f6731e664379D15fFcfBf282b44",
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Mint VelodromeV3 WETH weETH position",
+            "FunctionSelector": "0xb5007d1f",
+            "FunctionSignature": "mint((address,address,int24,int24,int24,uint256,uint256,uint256,uint256,address,uint256,uint160))",
+            "LeafDigest": "0x743b47ce9bbb8336b5d376eacb0dd4b9bd748e1e8135197666c815e1a7a1251e",
+            "PackedArgumentAddresses": "0x4200000000000000000000000000000000000006a6cb988942610f6731e664379d15ffcfbf282b44f0bb20865277abd641a307ece5ee04e79073416c",
+            "TargetAddress": "0x991d5546C4B442B4c5fdc4c8B8b8d131DEB24702"
+        },
+        {
+            "AddressArguments": [
+                "0x0000000000000000000000000000000000000000",
+                "0x4200000000000000000000000000000000000006",
+                "0xA6cB988942610f6731e664379D15fFcfBf282b44",
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Add liquidity to VelodromeV3 WETH weETH position",
+            "FunctionSelector": "0x219f5d17",
+            "FunctionSignature": "increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))",
+            "LeafDigest": "0xb7861a7c162d200c5accb790e9580457d71b8e82d001b6fe858a4117e7200a6e",
+            "PackedArgumentAddresses": "0x00000000000000000000000000000000000000004200000000000000000000000000000000000006a6cb988942610f6731e664379d15ffcfbf282b44f0bb20865277abd641a307ece5ee04e79073416c",
+            "TargetAddress": "0x991d5546C4B442B4c5fdc4c8B8b8d131DEB24702"
+        },
+        {
+            "AddressArguments": [
+                "0x14bAD0eE354c0161178bAcC59340Bb223F66b76C"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Approve gauge to spend VelodromeV3 position",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x5bd7080ba2724c0d64baeed4690cae5dffdb33d1753dbecb2c0697161ea73816",
+            "PackedArgumentAddresses": "0x14bad0ee354c0161178bacc59340bb223f66b76c",
+            "TargetAddress": "0x991d5546C4B442B4c5fdc4c8B8b8d131DEB24702"
+        },
+        {
+            "AddressArguments": [
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Remove liquidity from VelodromeV3 position",
+            "FunctionSelector": "0x0c49ccbe",
+            "FunctionSignature": "decreaseLiquidity((uint256,uint128,uint256,uint256,uint256))",
+            "LeafDigest": "0x77999dcffe89fdef3954e6fd2592d59e60826297aca404f2145bbc4fe6e7e1e6",
+            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c",
+            "TargetAddress": "0x991d5546C4B442B4c5fdc4c8B8b8d131DEB24702"
+        },
+        {
+            "AddressArguments": [
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Collect fees from VelodromeV3 position",
+            "FunctionSelector": "0xfc6f7865",
+            "FunctionSignature": "collect((uint256,address,uint128,uint128))",
+            "LeafDigest": "0x0f4cb1911bb3fbdaa0635e960a24bc8bf0490be02e6948e7ff290838f9352177",
+            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416cf0bb20865277abd641a307ece5ee04e79073416c",
+            "TargetAddress": "0x991d5546C4B442B4c5fdc4c8B8b8d131DEB24702"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Burn VelodromeV3 position",
+            "FunctionSelector": "0x42966c68",
+            "FunctionSignature": "burn(uint256)",
+            "LeafDigest": "0xb0eb186db27be8bd52019e26a055b40fcc2da40e8a4c09e875773e4667ee6f7d",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x991d5546C4B442B4c5fdc4c8B8b8d131DEB24702"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Deposit into VelodromeV3 gauge 0x14bAD0eE354c0161178bAcC59340Bb223F66b76C",
+            "FunctionSelector": "0xb6b55f25",
+            "FunctionSignature": "deposit(uint256)",
+            "LeafDigest": "0x5b8a8b7c3d23bbe685fc5a59c4f8eae948f4cb071d3c81cef6184d8a7db1cf4b",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x14bAD0eE354c0161178bAcC59340Bb223F66b76C"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Withdraw from VelodromeV3 gauge 0x14bAD0eE354c0161178bAcC59340Bb223F66b76C",
+            "FunctionSelector": "0x2e1a7d4d",
+            "FunctionSignature": "withdraw(uint256)",
+            "LeafDigest": "0x6e3754b115e5c587b90cee061f4643cb0e092460af8f701e44dfe9865472ee30",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x14bAD0eE354c0161178bAcC59340Bb223F66b76C"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Get reward from VelodromeV3 gauge 0x14bAD0eE354c0161178bAcC59340Bb223F66b76C",
+            "FunctionSelector": "0x1c4b774b",
+            "FunctionSignature": "getReward(uint256)",
+            "LeafDigest": "0x4ed0c27c225d057afd4a3ed91934c4150293aefe058f4bd52144842c3bc6a4c7",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x14bAD0eE354c0161178bAcC59340Bb223F66b76C"
+        },
+        {
+            "AddressArguments": [
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Get reward from VelodromeV3 gauge 0x14bAD0eE354c0161178bAcC59340Bb223F66b76C",
+            "FunctionSelector": "0xc00007b0",
+            "FunctionSignature": "getReward(address)",
+            "LeafDigest": "0xd880af98248bb633f71e6d6d4c7c78eb4676e9f7825e9da5535b1d1afdceb579",
+            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c",
+            "TargetAddress": "0x14bAD0eE354c0161178bAcC59340Bb223F66b76C"
+        },
+        {
+            "AddressArguments": [
+                "0xaAAaAaaa82812F0a1f274016514ba2cA933bF24D"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Approve CrocSwapDex (Ambient) to spend weETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x219bd6662c76f0db744dddbb1633e7db0880bc56e290616de16fb454433c6ab7",
+            "PackedArgumentAddresses": "0xaaaaaaaa82812f0a1f274016514ba2ca933bf24d",
+            "TargetAddress": "0xA6cB988942610f6731e664379D15fFcfBf282b44"
+        },
+        {
+            "AddressArguments": [
+                "0xA6cB988942610f6731e664379D15fFcfBf282b44",
+                "0x0000000000000000000000000000000000000000",
+                "0x0000000000000000000000000000000000000000"
+            ],
+            "CanSendValue": true,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Call userCmd using 'WarmPath' with ETH ",
+            "FunctionSelector": "0xa15112f9",
+            "FunctionSignature": "userCmd(uint16,bytes)",
+            "LeafDigest": "0x6b60f2dd8d2745873bc031f961afc2b73bd895fb332315fe4d5ce90be265f724",
+            "PackedArgumentAddresses": "0xa6cb988942610f6731e664379d15ffcfbf282b4400000000000000000000000000000000000000000000000000000000000000000000000000000000",
+            "TargetAddress": "0xaAAaAaaa82812F0a1f274016514ba2cA933bF24D"
+        },
+        {
+            "AddressArguments": [
+                "0xA6cB988942610f6731e664379D15fFcfBf282b44",
+                "0x0000000000000000000000000000000000000000",
+                "0x0000000000000000000000000000000000000000"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Call userCmd using 'WarmPath' without ETH",
+            "FunctionSelector": "0xa15112f9",
+            "FunctionSignature": "userCmd(uint16,bytes)",
+            "LeafDigest": "0xb64bc248e42943b587fbb9bd2f420a63e0e6080baae8041d6bbf8daf63a954c6",
+            "PackedArgumentAddresses": "0xa6cb988942610f6731e664379d15ffcfbf282b4400000000000000000000000000000000000000000000000000000000000000000000000000000000",
+            "TargetAddress": "0xaAAaAaaa82812F0a1f274016514ba2cA933bF24D"
+        },
+        {
+            "AddressArguments": [
+                "0xA6cB988942610f6731e664379D15fFcfBf282b44",
+                "0x0000000000000000000000000000000000000000"
+            ],
+            "CanSendValue": true,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Call userCmd using 'HotPath' or 'KnockoutPath' with ETH ",
+            "FunctionSelector": "0xa15112f9",
+            "FunctionSignature": "userCmd(uint16,bytes)",
+            "LeafDigest": "0xaf9166ebf119c355071ac69037804375193143931fbfd8870215f6792a4c21a0",
+            "PackedArgumentAddresses": "0xa6cb988942610f6731e664379d15ffcfbf282b440000000000000000000000000000000000000000",
+            "TargetAddress": "0xaAAaAaaa82812F0a1f274016514ba2cA933bF24D"
+        },
+        {
+            "AddressArguments": [
+                "0xA6cB988942610f6731e664379D15fFcfBf282b44",
+                "0x0000000000000000000000000000000000000000"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Call userCmd using 'HotPath' or 'KnockoutPath' without ETH ",
+            "FunctionSelector": "0xa15112f9",
+            "FunctionSignature": "userCmd(uint16,bytes)",
+            "LeafDigest": "0x79f235ec238a4f3b8df1589a94f2ba9f9efee91e88bad29d9866ae51748b3893",
+            "PackedArgumentAddresses": "0xa6cb988942610f6731e664379d15ffcfbf282b440000000000000000000000000000000000000000",
+            "TargetAddress": "0xaAAaAaaa82812F0a1f274016514ba2cA933bF24D"
+        },
+        {
+            "AddressArguments": [
+                "0xaAAaAaaa82812F0a1f274016514ba2cA933bF24D"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Approve CrocSwapDex (Ambient) to spend weETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x219bd6662c76f0db744dddbb1633e7db0880bc56e290616de16fb454433c6ab7",
+            "PackedArgumentAddresses": "0xaaaaaaaa82812f0a1f274016514ba2ca933bf24d",
+            "TargetAddress": "0xA6cB988942610f6731e664379D15fFcfBf282b44"
+        },
+        {
+            "AddressArguments": [
+                "0xA6cB988942610f6731e664379D15fFcfBf282b44",
+                "0x0000000000000000000000000000000000000000"
+            ],
+            "CanSendValue": true,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Swap using CrocSwapDex (Ambient) between ETH and weETH",
+            "FunctionSelector": "0x3d719cd9",
+            "FunctionSignature": "swap(address,address,uint256,bool,bool,uint128,uint16,uint128,uint128,uint8)",
+            "LeafDigest": "0x6590f6b3a527bc0292d04ec1e8ce3a132615c9ed4a344cf3d6e6891a626870c8",
+            "PackedArgumentAddresses": "0xa6cb988942610f6731e664379d15ffcfbf282b440000000000000000000000000000000000000000",
+            "TargetAddress": "0xaAAaAaaa82812F0a1f274016514ba2cA933bF24D"
+        },
+        {
+            "AddressArguments": [
+                "0xA6cB988942610f6731e664379D15fFcfBf282b44",
+                "0x0000000000000000000000000000000000000000"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Swap using CrocSwapDex (Ambient) between weETH and ETH",
+            "FunctionSelector": "0x3d719cd9",
+            "FunctionSignature": "swap(address,address,uint256,bool,bool,uint128,uint16,uint128,uint128,uint8)",
+            "LeafDigest": "0x9c13b90d76d27e02dbcae7417966a0d9d92093b2838de39ebf1df715e6a0aef0",
+            "PackedArgumentAddresses": "0xa6cb988942610f6731e664379d15ffcfbf282b440000000000000000000000000000000000000000",
+            "TargetAddress": "0xaAAaAaaa82812F0a1f274016514ba2cA933bF24D"
+        },
+        {
+            "AddressArguments": [
+                "0xaAAaAaaa82812F0a1f274016514ba2cA933bF24D"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Approve CrocSwapDex (Ambient) to spend SWELL",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x105f84397398bd7c059ab7f259fde1d1c8a8933155d3df05a64af225ef656678",
+            "PackedArgumentAddresses": "0xaaaaaaaa82812f0a1f274016514ba2ca933bf24d",
+            "TargetAddress": "0x2826D136F5630adA89C1678b64A61620Aab77Aea"
+        },
+        {
+            "AddressArguments": [
+                "0x0000000000000000000000000000000000000000",
+                "0x2826D136F5630adA89C1678b64A61620Aab77Aea"
+            ],
+            "CanSendValue": true,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Swap using CrocSwapDex (Ambient) between ETH and SWELL",
+            "FunctionSelector": "0x3d719cd9",
+            "FunctionSignature": "swap(address,address,uint256,bool,bool,uint128,uint16,uint128,uint128,uint8)",
+            "LeafDigest": "0xb7b5ebe553db8b409a23e6003343bb729ff6c0c31cf5d7c32aaf46af66396a7c",
+            "PackedArgumentAddresses": "0x00000000000000000000000000000000000000002826d136f5630ada89c1678b64a61620aab77aea",
+            "TargetAddress": "0xaAAaAaaa82812F0a1f274016514ba2cA933bF24D"
+        },
+        {
+            "AddressArguments": [
+                "0x0000000000000000000000000000000000000000",
+                "0x2826D136F5630adA89C1678b64A61620Aab77Aea"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Swap using CrocSwapDex (Ambient) between SWELL and ETH",
+            "FunctionSelector": "0x3d719cd9",
+            "FunctionSignature": "swap(address,address,uint256,bool,bool,uint128,uint16,uint128,uint128,uint8)",
+            "LeafDigest": "0x102f950c442be7488eeaa7b018ad701b810b93f2aca06ff49255ede0a5a75043",
+            "PackedArgumentAddresses": "0x00000000000000000000000000000000000000002826d136f5630ada89c1678b64a61620aab77aea",
+            "TargetAddress": "0xaAAaAaaa82812F0a1f274016514ba2cA933bF24D"
+        },
+        {
+            "AddressArguments": [
+                "0xaAAaAaaa82812F0a1f274016514ba2cA933bF24D"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Approve CrocSwapDex (Ambient) to spend SWELL",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x105f84397398bd7c059ab7f259fde1d1c8a8933155d3df05a64af225ef656678",
+            "PackedArgumentAddresses": "0xaaaaaaaa82812f0a1f274016514ba2ca933bf24d",
+            "TargetAddress": "0x2826D136F5630adA89C1678b64A61620Aab77Aea"
+        },
+        {
+            "AddressArguments": [
+                "0x2826D136F5630adA89C1678b64A61620Aab77Aea",
+                "0x0000000000000000000000000000000000000000"
+            ],
+            "CanSendValue": true,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Swap using CrocSwapDex (Ambient) between ETH and SWELL",
+            "FunctionSelector": "0x3d719cd9",
+            "FunctionSignature": "swap(address,address,uint256,bool,bool,uint128,uint16,uint128,uint128,uint8)",
+            "LeafDigest": "0xfedeab2313334a6841ef4d626b0f12aea29bfcba18cb14ed00c5e138355a1937",
+            "PackedArgumentAddresses": "0x2826d136f5630ada89c1678b64a61620aab77aea0000000000000000000000000000000000000000",
+            "TargetAddress": "0xaAAaAaaa82812F0a1f274016514ba2cA933bF24D"
+        },
+        {
+            "AddressArguments": [
+                "0x2826D136F5630adA89C1678b64A61620Aab77Aea",
+                "0x0000000000000000000000000000000000000000"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Swap using CrocSwapDex (Ambient) between SWELL and ETH",
+            "FunctionSelector": "0x3d719cd9",
+            "FunctionSignature": "swap(address,address,uint256,bool,bool,uint128,uint16,uint128,uint128,uint8)",
+            "LeafDigest": "0x201c124405a6ec805bc82219e887395db2f7067e5b6e24499feb042e273a8947",
+            "PackedArgumentAddresses": "0x2826d136f5630ada89c1678b64a61620aab77aea0000000000000000000000000000000000000000",
+            "TargetAddress": "0xaAAaAaaa82812F0a1f274016514ba2cA933bF24D"
+        },
+        {
+            "AddressArguments": [
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Unwrap wSwell for Swell",
+            "FunctionSelector": "0x1ab27b95",
+            "FunctionSignature": "withdrawToByLockTimestamp(address,uint256,bool)",
+            "LeafDigest": "0xde5b7da582bb6e96fe0a3e4e776b1085467226d04ab1ab8e041a12a7e409d3b7",
+            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c",
+            "TargetAddress": "0xda1F8EA667dc5600F5f654DF44b47F1639a83DD1"
+        },
+        {
+            "AddressArguments": [
+                "0xf0bb20865277aBd641a307eCe5Ee04E79073416C"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+            "Description": "Unwrap wSwell for Swell with multiple lock timestamps",
+            "FunctionSelector": "0x90797498",
+            "FunctionSignature": "withdrawToByLockTimestamps(address,uint256[],bool)",
+            "LeafDigest": "0x1130659504c6e017d9491a7baf67c9b9e6f1f688662aae3369e6b972bdb043d9",
+            "PackedArgumentAddresses": "0xf0bb20865277abd641a307ece5ee04e79073416c",
+            "TargetAddress": "0xda1F8EA667dc5600F5f654DF44b47F1639a83DD1"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        }
+    ],
+    "metadata": {
+        "AccountantAddress": "0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198",
+        "BoringVaultAddress": "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+        "DecoderAndSanitizerAddress": "0xBFcCaEf3F198cabBdfd96d4EB0526A7FBFdFFDbA",
+        "DigestComposition": [
+            "Bytes20(DECODER_AND_SANITIZER_ADDRESS)",
+            "Bytes20(TARGET_ADDRESS)",
+            "Bytes1(CAN_SEND_VALUE)",
+            "Bytes4(TARGET_FUNCTION_SELECTOR)",
+            "Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"
+        ],
+        "LeafCount": 59,
+        "ManageRoot": "0x83e0e0734273be6e978ca6182dd830290f8d8761a518527a6ddb39f37dedd639",
+        "ManagerAddress": "0xDEa7AF4a96A762c9d43A7eE02acecD20A3C6D8B6",
+        "TreeCapacity": 64
     }
 }

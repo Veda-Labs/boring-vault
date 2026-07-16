@@ -1,19 +1,28 @@
 {
-    "metadata": {
-        "AccountantAddress": "0x05A1552c5e18F5A0BB9571b5F2D6a4765ebdA32b",
-        "BoringVaultAddress": "0x86B5780b606940Eb59A062aA85a07959518c0161",
-        "DecoderAndSanitizerAddress": "0xf6cF44791ee924597f8D1EFf98562435aFae29B8",
-        "DigestComposition": [
-            "Bytes20(DECODER_AND_SANITIZER_ADDRESS)",
-            "Bytes20(TARGET_ADDRESS)",
-            "Bytes1(CAN_SEND_VALUE)",
-            "Bytes4(TARGET_FUNCTION_SELECTOR)",
-            "Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"
+    "MerkleTree": {
+        "0": [
+            "0x8ae9a9f5bff409e8c71e8f57b2b4deb23b70de8723cd8b0d33ee75af40dd29d4"
         ],
-        "LeafCount": 2,
-        "ManageRoot": "0x8ae9a9f5bff409e8c71e8f57b2b4deb23b70de8723cd8b0d33ee75af40dd29d4",
-        "ManagerAddress": "0x66aae0ee1f68c658401c7d8D6E417202A99545d7",
-        "TreeCapacity": 8
+        "1": [
+            "0x77506759ed87b716412620005e3b1d53ea2d290c455f66aa2e7ecf5444eb36bb",
+            "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe"
+        ],
+        "2": [
+            "0xe88150f361c4dcdd673717cf9e91e8b20d1ae6ed21aa6b15be98e39f85429d19",
+            "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
+            "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
+            "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba"
+        ],
+        "3": [
+            "0xabf7f164a5c1d6c265d370c7583b1be72f1a3594c4efaa49d9edfcbf9bf0c14b",
+            "0xad93b0b62efcb9a3a221806d1da7ec0cc8649b73062c279fcfb2f5cf8444a80a",
+            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400"
+        ]
     },
     "leafs": [
         {
@@ -112,29 +121,20 @@
             "TargetAddress": "0x0000000000000000000000000000000000000000"
         }
     ],
-    "MerkleTree": {
-        "0": [
-            "0x8ae9a9f5bff409e8c71e8f57b2b4deb23b70de8723cd8b0d33ee75af40dd29d4"
+    "metadata": {
+        "AccountantAddress": "0x05A1552c5e18F5A0BB9571b5F2D6a4765ebdA32b",
+        "BoringVaultAddress": "0x86B5780b606940Eb59A062aA85a07959518c0161",
+        "DecoderAndSanitizerAddress": "0xf6cF44791ee924597f8D1EFf98562435aFae29B8",
+        "DigestComposition": [
+            "Bytes20(DECODER_AND_SANITIZER_ADDRESS)",
+            "Bytes20(TARGET_ADDRESS)",
+            "Bytes1(CAN_SEND_VALUE)",
+            "Bytes4(TARGET_FUNCTION_SELECTOR)",
+            "Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"
         ],
-        "1": [
-            "0x77506759ed87b716412620005e3b1d53ea2d290c455f66aa2e7ecf5444eb36bb",
-            "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe"
-        ],
-        "2": [
-            "0xe88150f361c4dcdd673717cf9e91e8b20d1ae6ed21aa6b15be98e39f85429d19",
-            "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
-            "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
-            "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba"
-        ],
-        "3": [
-            "0xabf7f164a5c1d6c265d370c7583b1be72f1a3594c4efaa49d9edfcbf9bf0c14b",
-            "0xad93b0b62efcb9a3a221806d1da7ec0cc8649b73062c279fcfb2f5cf8444a80a",
-            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400"
-        ]
+        "LeafCount": 2,
+        "ManageRoot": "0x8ae9a9f5bff409e8c71e8f57b2b4deb23b70de8723cd8b0d33ee75af40dd29d4",
+        "ManagerAddress": "0x66aae0ee1f68c658401c7d8D6E417202A99545d7",
+        "TreeCapacity": 8
     }
 }

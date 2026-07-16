@@ -1,1583 +1,4 @@
 {
-    "metadata": {
-        "AccountantAddress": "0x55ee6E1ADF848a2Fc831B07564223396ef6258d4",
-        "BoringVaultAddress": "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
-        "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-        "DigestComposition": [
-            "Bytes20(DECODER_AND_SANITIZER_ADDRESS)",
-            "Bytes20(TARGET_ADDRESS)",
-            "Bytes1(CAN_SEND_VALUE)",
-            "Bytes4(TARGET_FUNCTION_SELECTOR)",
-            "Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"
-        ],
-        "LeafCount": 116,
-        "ManageRoot": "0xa5e8a29438d519169fbe5c05d6efd90a8e7e00d804e89dc719d3fba428afd1b8",
-        "ManagerAddress": "0x58d32BCfa335B1EE9E25A291408409ceA890Be6b",
-        "TreeCapacity": 128
-    },
-    "leafs": [
-        {
-            "AddressArguments": ["0xEd158C4b336A6FCb5B193A5570e3a571f6cbe690"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve UniswapV3 Router to spend WETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0x2fd88882bc956b4f874167f3a75fb564c5c9360da3c512a6b4c124b0a1638cc4",
-            "PackedArgumentAddresses": "0xed158c4b336a6fcb5b193a5570e3a571f6cbe690",
-            "TargetAddress": "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
-        },
-        {
-            "AddressArguments": ["0xEd158C4b336A6FCb5B193A5570e3a571f6cbe690"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve UniswapV3 Router to spend weETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0x42952956ffad4bfb4e5bdf525525d6590b43917aa02b071add92a033008da7ec",
-            "PackedArgumentAddresses": "0xed158c4b336a6fcb5b193a5570e3a571f6cbe690",
-            "TargetAddress": "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
-        },
-        {
-            "AddressArguments": ["0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve UniswapV3 NonFungible Position Manager to spend WETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0xc0d18ba70498c7f45f72979c7e013969bc5f85d7f13ba3088e7d8b3dfe733afa",
-            "PackedArgumentAddresses": "0xfe5e8c83ffe4d9627a75eaa7fee864768db989bd",
-            "TargetAddress": "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
-        },
-        {
-            "AddressArguments": ["0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve UniswapV3 NonFungible Position Manager to spend weETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0x4fe0d1e331adfbaa52d8d7bc40804120df0df14ce7edb9aad4b819182b803cda",
-            "PackedArgumentAddresses": "0xfe5e8c83ffe4d9627a75eaa7fee864768db989bd",
-            "TargetAddress": "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
-        },
-        {
-            "AddressArguments": [
-                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
-                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Mint UniswapV3 WETH weETH position",
-            "FunctionSelector": "0x88316456",
-            "FunctionSignature": "mint((address,address,uint24,int24,int24,uint256,uint256,uint256,uint256,address,uint256))",
-            "LeafDigest": "0xdd9631f928859120f5980c987fed5ef1d90fc3b76a676e8cf77192a9faaaab3b",
-            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e75907dcc39b4d1c53cb31e1abc0e358b43987fef80f7b83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD"
-        },
-        {
-            "AddressArguments": [
-                "0x0000000000000000000000000000000000000000",
-                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
-                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Add liquidity to UniswapV3 WETH weETH position",
-            "FunctionSelector": "0x219f5d17",
-            "FunctionSignature": "increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))",
-            "LeafDigest": "0x4cc0f7752ba54e30babb904a07af33b6d799f2d6b5faacd1ef5e632be9354d73",
-            "PackedArgumentAddresses": "0x00000000000000000000000000000000000000002f6f07cdcf3588944bf4c42ac74ff24bf56e75907dcc39b4d1c53cb31e1abc0e358b43987fef80f7b83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD"
-        },
-        {
-            "AddressArguments": [
-                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
-                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Swap WETH for weETH using UniswapV3 router",
-            "FunctionSelector": "0xc04b8d59",
-            "FunctionSignature": "exactInput((bytes,address,uint256,uint256,uint256))",
-            "LeafDigest": "0xd016eb49b74c7fdab8a02176784e612c6c299851443b9027ed76c0fa51a507b4",
-            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e75907dcc39b4d1c53cb31e1abc0e358b43987fef80f7b83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0xEd158C4b336A6FCb5B193A5570e3a571f6cbe690"
-        },
-        {
-            "AddressArguments": [
-                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
-                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Swap weETH for WETH using UniswapV3 router",
-            "FunctionSelector": "0xc04b8d59",
-            "FunctionSignature": "exactInput((bytes,address,uint256,uint256,uint256))",
-            "LeafDigest": "0xe1e1d4658433873e50aefb89daada264ae59d52338403978d76e48baf9c3a9cd",
-            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f72f6f07cdcf3588944bf4c42ac74ff24bf56e7590b83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0xEd158C4b336A6FCb5B193A5570e3a571f6cbe690"
-        },
-        {
-            "AddressArguments": ["0xEd158C4b336A6FCb5B193A5570e3a571f6cbe690"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve UniswapV3 Router to spend beraETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0x6029cd726d27289c6d1ef17e1aa55bd5d7b98f10ef8c01df7d893be33475bc4c",
-            "PackedArgumentAddresses": "0xed158c4b336a6fcb5b193a5570e3a571f6cbe690",
-            "TargetAddress": "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d"
-        },
-        {
-            "AddressArguments": ["0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve UniswapV3 NonFungible Position Manager to spend beraETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0x8b87549e890086b6e48c455dfd6b99cfde42685f84616d364bcf607c3a352a25",
-            "PackedArgumentAddresses": "0xfe5e8c83ffe4d9627a75eaa7fee864768db989bd",
-            "TargetAddress": "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d"
-        },
-        {
-            "AddressArguments": [
-                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
-                "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Mint UniswapV3 WETH beraETH position",
-            "FunctionSelector": "0x88316456",
-            "FunctionSignature": "mint((address,address,uint24,int24,int24,uint256,uint256,uint256,uint256,address,uint256))",
-            "LeafDigest": "0x03b5562410471b2099db3e7bd20b372970af0eb0facad273e8de61c4566a7744",
-            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e75906fc6545d5cde268d5c7f1e476d444f39c995120db83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD"
-        },
-        {
-            "AddressArguments": [
-                "0x0000000000000000000000000000000000000000",
-                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
-                "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Add liquidity to UniswapV3 WETH beraETH position",
-            "FunctionSelector": "0x219f5d17",
-            "FunctionSignature": "increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))",
-            "LeafDigest": "0xfce56787d33c420e76fcdf377cdfb374b8086e0887a926e8d66b5b22ea27a5ca",
-            "PackedArgumentAddresses": "0x00000000000000000000000000000000000000002f6f07cdcf3588944bf4c42ac74ff24bf56e75906fc6545d5cde268d5c7f1e476d444f39c995120db83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD"
-        },
-        {
-            "AddressArguments": [
-                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
-                "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Swap WETH for beraETH using UniswapV3 router",
-            "FunctionSelector": "0xc04b8d59",
-            "FunctionSignature": "exactInput((bytes,address,uint256,uint256,uint256))",
-            "LeafDigest": "0x45250632f78a7802f84a8dacb6b613b74fe8d4201270fc21b8e817b77dc52ed8",
-            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e75906fc6545d5cde268d5c7f1e476d444f39c995120db83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0xEd158C4b336A6FCb5B193A5570e3a571f6cbe690"
-        },
-        {
-            "AddressArguments": [
-                "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d",
-                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Swap beraETH for WETH using UniswapV3 router",
-            "FunctionSelector": "0xc04b8d59",
-            "FunctionSignature": "exactInput((bytes,address,uint256,uint256,uint256))",
-            "LeafDigest": "0x844fabed2cd6912a7bbd12836378821b2033d08363052e8ec89e727bd1ddcb87",
-            "PackedArgumentAddresses": "0x6fc6545d5cde268d5c7f1e476d444f39c995120d2f6f07cdcf3588944bf4c42ac74ff24bf56e7590b83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0xEd158C4b336A6FCb5B193A5570e3a571f6cbe690"
-        },
-        {
-            "AddressArguments": [
-                "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d",
-                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Mint UniswapV3 beraETH weETH position",
-            "FunctionSelector": "0x88316456",
-            "FunctionSignature": "mint((address,address,uint24,int24,int24,uint256,uint256,uint256,uint256,address,uint256))",
-            "LeafDigest": "0x3a187d72cd8364286fb56f366d9fdc725f919bd218cd4fd4e992f15b45131137",
-            "PackedArgumentAddresses": "0x6fc6545d5cde268d5c7f1e476d444f39c995120d7dcc39b4d1c53cb31e1abc0e358b43987fef80f7b83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD"
-        },
-        {
-            "AddressArguments": [
-                "0x0000000000000000000000000000000000000000",
-                "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d",
-                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Add liquidity to UniswapV3 beraETH weETH position",
-            "FunctionSelector": "0x219f5d17",
-            "FunctionSignature": "increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))",
-            "LeafDigest": "0x4f081ddcecc7b0174365ab31f5a5eda8870b00967068651257d06756f1d10236",
-            "PackedArgumentAddresses": "0x00000000000000000000000000000000000000006fc6545d5cde268d5c7f1e476d444f39c995120d7dcc39b4d1c53cb31e1abc0e358b43987fef80f7b83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD"
-        },
-        {
-            "AddressArguments": [
-                "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d",
-                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Swap beraETH for weETH using UniswapV3 router",
-            "FunctionSelector": "0xc04b8d59",
-            "FunctionSignature": "exactInput((bytes,address,uint256,uint256,uint256))",
-            "LeafDigest": "0x0f34f547f7719d2fe0a8bca67f795043d36ecbaf7d2fd01ee4be5653eb460a8a",
-            "PackedArgumentAddresses": "0x6fc6545d5cde268d5c7f1e476d444f39c995120d7dcc39b4d1c53cb31e1abc0e358b43987fef80f7b83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0xEd158C4b336A6FCb5B193A5570e3a571f6cbe690"
-        },
-        {
-            "AddressArguments": [
-                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
-                "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Swap weETH for beraETH using UniswapV3 router",
-            "FunctionSelector": "0xc04b8d59",
-            "FunctionSignature": "exactInput((bytes,address,uint256,uint256,uint256))",
-            "LeafDigest": "0x1c8d2d4ba00233b40b350532e75306a70f8e24ab2fd9143cb24b5ea3a0de8841",
-            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f76fc6545d5cde268d5c7f1e476d444f39c995120db83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0xEd158C4b336A6FCb5B193A5570e3a571f6cbe690"
-        },
-        {
-            "AddressArguments": ["0xB83742330443f7413DBD2aBdfc046dB0474a944e"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Remove liquidity from UniswapV3 position",
-            "FunctionSelector": "0x0c49ccbe",
-            "FunctionSignature": "decreaseLiquidity((uint256,uint128,uint256,uint256,uint256))",
-            "LeafDigest": "0xa77e1676572857cc382d007e650f72c53640899090af3b081eb5fefc4307cfd2",
-            "PackedArgumentAddresses": "0xb83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD"
-        },
-        {
-            "AddressArguments": [
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Collect fees from UniswapV3 position",
-            "FunctionSelector": "0xfc6f7865",
-            "FunctionSignature": "collect((uint256,address,uint128,uint128))",
-            "LeafDigest": "0x37d6c1b7939ed49c49b99e67e608109a469c34d814d11fffc1ad16becffa5d64",
-            "PackedArgumentAddresses": "0xb83742330443f7413dbd2abdfc046db0474a944eb83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Burn UniswapV3 position",
-            "FunctionSelector": "0x42966c68",
-            "FunctionSignature": "burn(uint256)",
-            "LeafDigest": "0x00600f5849ce1c17bcef7cd6267c56a02646613c9d845e76508ede2211ca83cb",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD"
-        },
-        {
-            "AddressArguments": ["0x679a7C63FC83b6A4D9C1F931891d705483d4791F"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve Kodiak router to spend WETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0xcf936215bcd8fefd908ba97349227d2fbcd4eebad36bd03b892d0e3cf4848325",
-            "PackedArgumentAddresses": "0x679a7c63fc83b6a4d9c1f931891d705483d4791f",
-            "TargetAddress": "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
-        },
-        {
-            "AddressArguments": ["0x679a7C63FC83b6A4D9C1F931891d705483d4791F"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve Kodiak router to spend weETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0x193efe5e882617cecd302116c72f0472333612491726df4e9b4cfb323a2c2f85",
-            "PackedArgumentAddresses": "0x679a7c63fc83b6a4d9c1f931891d705483d4791f",
-            "TargetAddress": "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
-        },
-        {
-            "AddressArguments": ["0x679a7C63FC83b6A4D9C1F931891d705483d4791F"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve Kodiak router to spend KODI WETH-weETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0x2ac55d7c21f923be5c68b3dca46d8315936402541b2d43fc6ecc33845ba60126",
-            "PackedArgumentAddresses": "0x679a7c63fc83b6a4d9c1f931891d705483d4791f",
-            "TargetAddress": "0xA0cAbFc04Fc420b3d31BA431d18eB5bD33B3f334"
-        },
-        {
-            "AddressArguments": [
-                "0xA0cAbFc04Fc420b3d31BA431d18eB5bD33B3f334",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Add Liquidity in Kodiak Island WETH-weETH-0.05%",
-            "FunctionSelector": "0x74dbc248",
-            "FunctionSignature": "addLiquidity(address,uint256,uint256,uint256,uint256,uint256,address)",
-            "LeafDigest": "0xd31a3f823dfaa9d04aaf310b9a07244fd5f91da451509b9e4ee3f05383a6e0cf",
-            "PackedArgumentAddresses": "0xa0cabfc04fc420b3d31ba431d18eb5bd33b3f334b83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0x679a7C63FC83b6A4D9C1F931891d705483d4791F"
-        },
-        {
-            "AddressArguments": [
-                "0xA0cAbFc04Fc420b3d31BA431d18eB5bD33B3f334",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Remove Liquidity from Kodiak Island WETH-weETH-0.05%",
-            "FunctionSelector": "0x59f842b2",
-            "FunctionSignature": "removeLiquidity(address,uint256,uint256,uint256,address)",
-            "LeafDigest": "0x7d82e9398697e741d6a4698aee307902c3a2eb8dcff736579ff77e424e1eb673",
-            "PackedArgumentAddresses": "0xa0cabfc04fc420b3d31ba431d18eb5bd33b3f334b83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0x679a7C63FC83b6A4D9C1F931891d705483d4791F"
-        },
-        {
-            "AddressArguments": ["0x679a7C63FC83b6A4D9C1F931891d705483d4791F"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve Kodiak router to spend beraETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0x5780f2d984728e29c09386c37766e36b851ce2054aafc9f150cc600697e39026",
-            "PackedArgumentAddresses": "0x679a7c63fc83b6a4d9c1f931891d705483d4791f",
-            "TargetAddress": "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d"
-        },
-        {
-            "AddressArguments": ["0x679a7C63FC83b6A4D9C1F931891d705483d4791F"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve Kodiak router to spend KODI WETH-beraETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0x613d60f111759a0deccb565827e00e3ff52cc126d5571076a7ebb45e678dcfab",
-            "PackedArgumentAddresses": "0x679a7c63fc83b6a4d9c1f931891d705483d4791f",
-            "TargetAddress": "0x03bCcF796cDef61064c4a2EffdD21f1AC8C29E92"
-        },
-        {
-            "AddressArguments": [
-                "0x03bCcF796cDef61064c4a2EffdD21f1AC8C29E92",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Add Liquidity in Kodiak Island WETH-beraETH-0.05%",
-            "FunctionSelector": "0x74dbc248",
-            "FunctionSignature": "addLiquidity(address,uint256,uint256,uint256,uint256,uint256,address)",
-            "LeafDigest": "0x6e0f3b079f5c632400572bf1801aa0cb1fa553ffbe002f29b1dd6fb2f69c6536",
-            "PackedArgumentAddresses": "0x03bccf796cdef61064c4a2effdd21f1ac8c29e92b83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0x679a7C63FC83b6A4D9C1F931891d705483d4791F"
-        },
-        {
-            "AddressArguments": [
-                "0x03bCcF796cDef61064c4a2EffdD21f1AC8C29E92",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Remove Liquidity from Kodiak Island WETH-beraETH-0.05%",
-            "FunctionSelector": "0x59f842b2",
-            "FunctionSignature": "removeLiquidity(address,uint256,uint256,uint256,address)",
-            "LeafDigest": "0x16ecd61a9998f0f19ee9020b2894e801f1816d3750a373ef7cf7f9cf02bd2984",
-            "PackedArgumentAddresses": "0x03bccf796cdef61064c4a2effdd21f1ac8c29e92b83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0x679a7C63FC83b6A4D9C1F931891d705483d4791F"
-        },
-        {
-            "AddressArguments": ["0x679a7C63FC83b6A4D9C1F931891d705483d4791F"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve Kodiak router to spend weETH-OT",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0x4bb6659b1aece5870992d94b52d4f6f45939053050be8cdc30bafb3f78d8cdad",
-            "PackedArgumentAddresses": "0x679a7c63fc83b6a4d9c1f931891d705483d4791f",
-            "TargetAddress": "0x46C7BdE4422b6798A09e76B555F2fea8D7FfADdc"
-        },
-        {
-            "AddressArguments": ["0x679a7C63FC83b6A4D9C1F931891d705483d4791F"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve Kodiak router to spend KODI weETH-OT-weETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0xd16d36fc6188109ec002807014340a5e037d2849e855aca4517489b11060966b",
-            "PackedArgumentAddresses": "0x679a7c63fc83b6a4d9c1f931891d705483d4791f",
-            "TargetAddress": "0xAd63328f4F4b8681dB713ce2eB353596628fc3B2"
-        },
-        {
-            "AddressArguments": [
-                "0xAd63328f4F4b8681dB713ce2eB353596628fc3B2",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Add Liquidity in Kodiak Island weETH-OT-weETH-0.05%",
-            "FunctionSelector": "0x74dbc248",
-            "FunctionSignature": "addLiquidity(address,uint256,uint256,uint256,uint256,uint256,address)",
-            "LeafDigest": "0x75921a5ecc1d70b233bcf7b6c896a72216ed340969083a1be543872916340dbe",
-            "PackedArgumentAddresses": "0xad63328f4f4b8681db713ce2eb353596628fc3b2b83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0x679a7C63FC83b6A4D9C1F931891d705483d4791F"
-        },
-        {
-            "AddressArguments": [
-                "0xAd63328f4F4b8681dB713ce2eB353596628fc3B2",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Remove Liquidity from Kodiak Island weETH-OT-weETH-0.05%",
-            "FunctionSelector": "0x59f842b2",
-            "FunctionSignature": "removeLiquidity(address,uint256,uint256,uint256,address)",
-            "LeafDigest": "0x100a559053aaf8a8bf0ebf381602533069d2e2864acea095b0ad5d3fdffa711b",
-            "PackedArgumentAddresses": "0xad63328f4f4b8681db713ce2eb353596628fc3b2b83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0x679a7C63FC83b6A4D9C1F931891d705483d4791F"
-        },
-        {
-            "AddressArguments": ["0x679a7C63FC83b6A4D9C1F931891d705483d4791F"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve Kodiak router to spend KODI beraETH-weETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0xf005e89c23d6847adbc63102911505ef4aad6c90ce92d01085685f40f437edb8",
-            "PackedArgumentAddresses": "0x679a7c63fc83b6a4d9c1f931891d705483d4791f",
-            "TargetAddress": "0x2f8C651E2F576C8c4B6DE3c32210d9b4A4461d5c"
-        },
-        {
-            "AddressArguments": [
-                "0x2f8C651E2F576C8c4B6DE3c32210d9b4A4461d5c",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Add Liquidity in Kodiak Island beraETH-weETH-0.05%",
-            "FunctionSelector": "0x74dbc248",
-            "FunctionSignature": "addLiquidity(address,uint256,uint256,uint256,uint256,uint256,address)",
-            "LeafDigest": "0x6ae4f9ef4e253bdaa3856f4c2b66f4236f43208e0821d136a8314345cf4761f5",
-            "PackedArgumentAddresses": "0x2f8c651e2f576c8c4b6de3c32210d9b4a4461d5cb83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0x679a7C63FC83b6A4D9C1F931891d705483d4791F"
-        },
-        {
-            "AddressArguments": [
-                "0x2f8C651E2F576C8c4B6DE3c32210d9b4A4461d5c",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Remove Liquidity from Kodiak Island beraETH-weETH-0.05%",
-            "FunctionSelector": "0x59f842b2",
-            "FunctionSignature": "removeLiquidity(address,uint256,uint256,uint256,address)",
-            "LeafDigest": "0x08e4bf802660224859e6ffebfcd8c4c31fe95550de365eace9c1099619eccf6e",
-            "PackedArgumentAddresses": "0x2f8c651e2f576c8c4b6de3c32210d9b4a4461d5cb83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0x679a7C63FC83b6A4D9C1F931891d705483d4791F"
-        },
-        {
-            "AddressArguments": ["0x003Ca23Fd5F0ca87D01F6eC6CD14A8AE60c2b97D"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve Dolomite DepositWithdraw Router to spend WETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0x0598c0c92f48636d66414243ca43e89346f977d9a298cf5773d07a9de24536a2",
-            "PackedArgumentAddresses": "0x003ca23fd5f0ca87d01f6ec6cd14a8ae60c2b97d",
-            "TargetAddress": "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
-        },
-        {
-            "AddressArguments": ["0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Deposit WETH into Dolomite DepositWithdraw Router Market ID: 0",
-            "FunctionSelector": "0xfe491ee7",
-            "FunctionSignature": "depositWei(uint256,uint256,uint256)",
-            "LeafDigest": "0xbaa9483dacf5ca75297d1d9f4a7f6f2d7e51db06fb53f5baffb77ba7c71e4482",
-            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
-            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
-        },
-        {
-            "AddressArguments": ["0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Deposit WETH into Dolomite DepositWithdraw Router Market ID: 0 Default Account",
-            "FunctionSelector": "0xbc6efe31",
-            "FunctionSignature": "depositWeiIntoDefaultAccount(uint256,uint256)",
-            "LeafDigest": "0x978e439f977592b1ba9c54523ddc0cccd93052d1dcb995c0d4de45da41aa540e",
-            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
-            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
-        },
-        {
-            "AddressArguments": ["0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Withdraw WETH from Dolomite DepositWithdraw Router Market ID: 0",
-            "FunctionSelector": "0xc38fd74e",
-            "FunctionSignature": "withdrawWei(uint256,uint256,uint256,uint8)",
-            "LeafDigest": "0xe219aaff3d2326f001dc02b4a958c8882fc8f33d4ce82576d3c846a9a64715ae",
-            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
-            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
-        },
-        {
-            "AddressArguments": ["0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Withdraw WETH from Dolomite DepositWithdraw Router Market ID: 0 default account",
-            "FunctionSelector": "0x807cb86a",
-            "FunctionSignature": "withdrawWeiFromDefaultAccount(uint256,uint256,uint8)",
-            "LeafDigest": "0xb2466ed33052a574a47e81d8fd366c99646e690bfeede53a32cce422dbe25649",
-            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
-            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
-        },
-        {
-            "AddressArguments": ["0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Deposit Par scaled WETH into Dolomite DepositWithdraw Router Market ID: 0",
-            "FunctionSelector": "0x7e54cf02",
-            "FunctionSignature": "depositPar(uint256,uint256,uint256)",
-            "LeafDigest": "0xe18d89ca3734ab8abdb20b5ce9ed100352502e3b825a426193deb1ba0886b01d",
-            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
-            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
-        },
-        {
-            "AddressArguments": ["0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Deposit Par scaled WETH into Dolomite DepositWithdraw Router Market ID: 0 in default account",
-            "FunctionSelector": "0x12237319",
-            "FunctionSignature": "depositParIntoDefaultAccount(uint256,uint256)",
-            "LeafDigest": "0x84caff66ed3b61bdc3a946afedbb1a320a0ba5ce46d3c5fd348b0b868ebeb22e",
-            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
-            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
-        },
-        {
-            "AddressArguments": ["0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Withdraw Par scaled WETH from Dolomite DepositWithdraw Router Market ID: 0",
-            "FunctionSelector": "0xcfeb65fe",
-            "FunctionSignature": "withdrawPar(uint256,uint256,uint256,uint8)",
-            "LeafDigest": "0xc7f0044c49435b4f0f12674c8528777d7ef181f106f4e73a7064a163412b160a",
-            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
-            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
-        },
-        {
-            "AddressArguments": ["0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Withdraw Par scaled WETH from Dolomite DepositWithdraw Router Market ID: 0",
-            "FunctionSelector": "0xd8ddf431",
-            "FunctionSignature": "withdrawParFromDefaultAccount(uint256,uint256,uint8)",
-            "LeafDigest": "0x8f270d9453be7e6b60cfdcc3cbf17c2f29520bbbad68681f21bcad59fe518634",
-            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
-            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
-        },
-        {
-            "AddressArguments": ["0x003Ca23Fd5F0ca87D01F6eC6CD14A8AE60c2b97D"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve Dolomite DepositWithdraw Router to spend weETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0xb5d974d57547454625bf2541ee80531385f5311b5b077de0d4f1c2702ef86836",
-            "PackedArgumentAddresses": "0x003ca23fd5f0ca87d01f6ec6cd14a8ae60c2b97d",
-            "TargetAddress": "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
-        },
-        {
-            "AddressArguments": ["0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Deposit weETH into Dolomite DepositWithdraw Router Market ID: 29",
-            "FunctionSelector": "0xfe491ee7",
-            "FunctionSignature": "depositWei(uint256,uint256,uint256)",
-            "LeafDigest": "0x6144e8e7f4a1fafcbd1e9f3b623cc47d4e010a8f314cbd4c697408c021c7dc6b",
-            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f7",
-            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
-        },
-        {
-            "AddressArguments": ["0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Deposit weETH into Dolomite DepositWithdraw Router Market ID: 29 Default Account",
-            "FunctionSelector": "0xbc6efe31",
-            "FunctionSignature": "depositWeiIntoDefaultAccount(uint256,uint256)",
-            "LeafDigest": "0x7a3d5ab4fa8691a18397c9bf517d5500b817035ccf9fdc4aaa35cb6ff83df854",
-            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f7",
-            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
-        },
-        {
-            "AddressArguments": ["0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Withdraw weETH from Dolomite DepositWithdraw Router Market ID: 29",
-            "FunctionSelector": "0xc38fd74e",
-            "FunctionSignature": "withdrawWei(uint256,uint256,uint256,uint8)",
-            "LeafDigest": "0x0bb0202d86456af42380c2e1e828146825ca4fcea55fb2a577d79c8f676f6be4",
-            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f7",
-            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
-        },
-        {
-            "AddressArguments": ["0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Withdraw weETH from Dolomite DepositWithdraw Router Market ID: 29 default account",
-            "FunctionSelector": "0x807cb86a",
-            "FunctionSignature": "withdrawWeiFromDefaultAccount(uint256,uint256,uint8)",
-            "LeafDigest": "0x7880ea31ad4bcc5d317da3e889f2a3f7233c4958039882d838ba150cea0b8136",
-            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f7",
-            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
-        },
-        {
-            "AddressArguments": ["0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Deposit Par scaled weETH into Dolomite DepositWithdraw Router Market ID: 29",
-            "FunctionSelector": "0x7e54cf02",
-            "FunctionSignature": "depositPar(uint256,uint256,uint256)",
-            "LeafDigest": "0xc783420c9dd6c9ffc9c9b378fd01ccf2cf97bd79f721fdf3665315f1ce0463b9",
-            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f7",
-            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
-        },
-        {
-            "AddressArguments": ["0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Deposit Par scaled weETH into Dolomite DepositWithdraw Router Market ID: 29 in default account",
-            "FunctionSelector": "0x12237319",
-            "FunctionSignature": "depositParIntoDefaultAccount(uint256,uint256)",
-            "LeafDigest": "0x3c03bb27bf860b19b0f3970fd136feafcbe3fdac73f6085f8a307670c9027932",
-            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f7",
-            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
-        },
-        {
-            "AddressArguments": ["0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Withdraw Par scaled weETH from Dolomite DepositWithdraw Router Market ID: 29",
-            "FunctionSelector": "0xcfeb65fe",
-            "FunctionSignature": "withdrawPar(uint256,uint256,uint256,uint8)",
-            "LeafDigest": "0x275f6460e5224e802e6d440019051e574b29c0590e6a9ac7977caddb197209bd",
-            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f7",
-            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
-        },
-        {
-            "AddressArguments": ["0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Withdraw Par scaled weETH from Dolomite DepositWithdraw Router Market ID: 29",
-            "FunctionSelector": "0xd8ddf431",
-            "FunctionSignature": "withdrawParFromDefaultAccount(uint256,uint256,uint8)",
-            "LeafDigest": "0xb89477a66d6791225fa127096b04aca947c70241e6c933f5ac93925962cd29e9",
-            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f7",
-            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
-        },
-        {
-            "AddressArguments": ["0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Use WETH as collateral on Dolomite BorrowPosition Market ID: 0",
-            "FunctionSelector": "0xbb0a6fa5",
-            "FunctionSignature": "openBorrowPosition(uint256,uint256,uint256,uint256,uint8)",
-            "LeafDigest": "0xaa478975eb733600dea0244128342e35adf3e816c5f342cada004e53fbaf5ca4",
-            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
-            "TargetAddress": "0xC06271eb97d960F4034DDF953e16271CcB2B10BD"
-        },
-        {
-            "AddressArguments": ["0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Close Borrow Position of WETH in Dolomite BorrowPosition Market ID: 0",
-            "FunctionSelector": "0x8fb8b6c7",
-            "FunctionSignature": "closeBorrowPosition(uint256,uint256,uint256[])",
-            "LeafDigest": "0xf04ffeddcdb11f978bb458319e5d8ee2de90e030cb4d2b0e6efa11dc5f7d7a1a",
-            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
-            "TargetAddress": "0xC06271eb97d960F4034DDF953e16271CcB2B10BD"
-        },
-        {
-            "AddressArguments": ["0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Repay Borrow Position of WETH in Dolomite BorrowPosition Market ID: 0",
-            "FunctionSelector": "0xb0463d5c",
-            "FunctionSignature": "repayAllForBorrowPosition(uint256,uint256,uint256,uint8)",
-            "LeafDigest": "0x7d8546d5cefb3284e25e46032d667bb4690fd6353524e973e4ccab90a642ac6d",
-            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
-            "TargetAddress": "0xC06271eb97d960F4034DDF953e16271CcB2B10BD"
-        },
-        {
-            "AddressArguments": ["0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Transfer Borrow Position of WETH in Dolomite BorrowPosition Market ID: 0 to additional subaccount",
-            "FunctionSelector": "0x58e8cf03",
-            "FunctionSignature": "transferBetweenAccounts(uint256,uint256,uint256,uint256,uint8)",
-            "LeafDigest": "0x6421efdab420036a1fb3f538fd242337aaefb3f754026c9b86fc0302fb8c3901",
-            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
-            "TargetAddress": "0xC06271eb97d960F4034DDF953e16271CcB2B10BD"
-        },
-        {
-            "AddressArguments": ["0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Use weETH as collateral on Dolomite BorrowPosition Market ID: 29",
-            "FunctionSelector": "0xbb0a6fa5",
-            "FunctionSignature": "openBorrowPosition(uint256,uint256,uint256,uint256,uint8)",
-            "LeafDigest": "0x28190fffcfc24c8716d12524bc17a0aa48c1163dd36525152b48ccda135c04b1",
-            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f7",
-            "TargetAddress": "0xC06271eb97d960F4034DDF953e16271CcB2B10BD"
-        },
-        {
-            "AddressArguments": ["0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Close Borrow Position of weETH in Dolomite BorrowPosition Market ID: 29",
-            "FunctionSelector": "0x8fb8b6c7",
-            "FunctionSignature": "closeBorrowPosition(uint256,uint256,uint256[])",
-            "LeafDigest": "0xd5dc76ee26ae5ce5338b17e9a6294ee908e85546fe14253f5fd7a38909897604",
-            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f7",
-            "TargetAddress": "0xC06271eb97d960F4034DDF953e16271CcB2B10BD"
-        },
-        {
-            "AddressArguments": ["0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Repay Borrow Position of weETH in Dolomite BorrowPosition Market ID: 29",
-            "FunctionSelector": "0xb0463d5c",
-            "FunctionSignature": "repayAllForBorrowPosition(uint256,uint256,uint256,uint8)",
-            "LeafDigest": "0x906e1434c8fa5398e033e9d46f5dc7e57abf1fe072c665eca9a12b931f6aa32e",
-            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f7",
-            "TargetAddress": "0xC06271eb97d960F4034DDF953e16271CcB2B10BD"
-        },
-        {
-            "AddressArguments": ["0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Transfer Borrow Position of weETH in Dolomite BorrowPosition Market ID: 29 to additional subaccount",
-            "FunctionSelector": "0x58e8cf03",
-            "FunctionSignature": "transferBetweenAccounts(uint256,uint256,uint256,uint256,uint8)",
-            "LeafDigest": "0x9c62bc4d54c0b6b8b7f6d21a01a98def25e718cc48719adf19d59df1af9d81b1",
-            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f7",
-            "TargetAddress": "0xC06271eb97d960F4034DDF953e16271CcB2B10BD"
-        },
-        {
-            "AddressArguments": ["0xf7b5127B510E568fdC39e6Bb54e2081BFaD489AF"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve dWETH to spend WETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0xf5702ba164cf90903bfd643de483b7bbb5e7dc894c2c969bad43013d9d905410",
-            "PackedArgumentAddresses": "0xf7b5127b510e568fdc39e6bb54e2081bfad489af",
-            "TargetAddress": "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
-        },
-        {
-            "AddressArguments": ["0xB83742330443f7413DBD2aBdfc046dB0474a944e"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Deposit WETH for dWETH",
-            "FunctionSelector": "0x6e553f65",
-            "FunctionSignature": "deposit(uint256,address)",
-            "LeafDigest": "0x212faaf89c40011c0625801fd0dee45b264bd51a203f51faaf64544765e69d0d",
-            "PackedArgumentAddresses": "0xb83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0xf7b5127B510E568fdC39e6Bb54e2081BFaD489AF"
-        },
-        {
-            "AddressArguments": [
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Withdraw WETH from dWETH",
-            "FunctionSelector": "0xb460af94",
-            "FunctionSignature": "withdraw(uint256,address,address)",
-            "LeafDigest": "0xf34f9f723d308f59ddf11cd91f9703eea3594f1020e857228902953f1bae3a90",
-            "PackedArgumentAddresses": "0xb83742330443f7413dbd2abdfc046db0474a944eb83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0xf7b5127B510E568fdC39e6Bb54e2081BFaD489AF"
-        },
-        {
-            "AddressArguments": ["0xB83742330443f7413DBD2aBdfc046dB0474a944e"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Mint dWETH using WETH",
-            "FunctionSelector": "0x94bf804d",
-            "FunctionSignature": "mint(uint256,address)",
-            "LeafDigest": "0xc710ae892b1686eb002a9053bdd890584216dbbece3c71de99574b50bc727e1a",
-            "PackedArgumentAddresses": "0xb83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0xf7b5127B510E568fdC39e6Bb54e2081BFaD489AF"
-        },
-        {
-            "AddressArguments": [
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Redeem dWETH for WETH",
-            "FunctionSelector": "0xba087652",
-            "FunctionSignature": "redeem(uint256,address,address)",
-            "LeafDigest": "0xa2ea7e65e42fc4e938d6ab01b297a34264d93642cfa5bee7f0207d83757a67a2",
-            "PackedArgumentAddresses": "0xb83742330443f7413dbd2abdfc046db0474a944eb83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0xf7b5127B510E568fdC39e6Bb54e2081BFaD489AF"
-        },
-        {
-            "AddressArguments": ["0x48282e3B990625CBDcb885E4a4D83B6e9D5C8442"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve dweETH to spend weETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0xcac841468515e1b7e7108063ca7ed351560f710baeedbeb0ea602903ae6a0992",
-            "PackedArgumentAddresses": "0x48282e3b990625cbdcb885e4a4d83b6e9d5c8442",
-            "TargetAddress": "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
-        },
-        {
-            "AddressArguments": ["0xB83742330443f7413DBD2aBdfc046dB0474a944e"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Deposit weETH for dweETH",
-            "FunctionSelector": "0x6e553f65",
-            "FunctionSignature": "deposit(uint256,address)",
-            "LeafDigest": "0x22d7dc8a84adaae3e0dc93b335bf0d8c9f622d9f61befea571d7a1a952bf676c",
-            "PackedArgumentAddresses": "0xb83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0x48282e3B990625CBDcb885E4a4D83B6e9D5C8442"
-        },
-        {
-            "AddressArguments": [
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Withdraw weETH from dweETH",
-            "FunctionSelector": "0xb460af94",
-            "FunctionSignature": "withdraw(uint256,address,address)",
-            "LeafDigest": "0x5f7b85637f382ea3c3c46eb1d4036684f98209cf64eab743346e0c1343cbb335",
-            "PackedArgumentAddresses": "0xb83742330443f7413dbd2abdfc046db0474a944eb83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0x48282e3B990625CBDcb885E4a4D83B6e9D5C8442"
-        },
-        {
-            "AddressArguments": ["0xB83742330443f7413DBD2aBdfc046dB0474a944e"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Mint dweETH using weETH",
-            "FunctionSelector": "0x94bf804d",
-            "FunctionSignature": "mint(uint256,address)",
-            "LeafDigest": "0x3562aafcbfabd1cbae287c31d75b211544323be0d61b7e8b4072528d7fac069c",
-            "PackedArgumentAddresses": "0xb83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0x48282e3B990625CBDcb885E4a4D83B6e9D5C8442"
-        },
-        {
-            "AddressArguments": [
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Redeem dweETH for weETH",
-            "FunctionSelector": "0xba087652",
-            "FunctionSignature": "redeem(uint256,address,address)",
-            "LeafDigest": "0xf52cc08a06a4c21edef5e072c53265230410cbf8b5bb77564b69b962d009e603",
-            "PackedArgumentAddresses": "0xb83742330443f7413dbd2abdfc046db0474a944eb83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0x48282e3B990625CBDcb885E4a4D83B6e9D5C8442"
-        },
-        {
-            "AddressArguments": ["0x0B8B5e0ec1dc908E0d8513cC03E91Eb479Ab6Ea9"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve 0x0B8B5e0ec1dc908E0d8513cC03E91Eb479Ab6Ea9 to spend weETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0x9eada739ad83dc02bc966255b0706a1740f49654f7f74c877f3cc178d396a754",
-            "PackedArgumentAddresses": "0x0b8b5e0ec1dc908e0d8513cc03e91eb479ab6ea9",
-            "TargetAddress": "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
-        },
-        {
-            "AddressArguments": ["0x0B8B5e0ec1dc908E0d8513cC03E91Eb479Ab6Ea9"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve 0x0B8B5e0ec1dc908E0d8513cC03E91Eb479Ab6Ea9 to spend weETH-OT",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0x28290bf1ef87793504f260796a247adae048d1e03376465910bb6e4effee83f9",
-            "PackedArgumentAddresses": "0x0b8b5e0ec1dc908e0d8513cc03e91eb479ab6ea9",
-            "TargetAddress": "0x46C7BdE4422b6798A09e76B555F2fea8D7FfADdc"
-        },
-        {
-            "AddressArguments": ["0x0B8B5e0ec1dc908E0d8513cC03E91Eb479Ab6Ea9"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve 0x0B8B5e0ec1dc908E0d8513cC03E91Eb479Ab6Ea9 to spend weETH-YT",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0xf16cb6524189ba7ad8c78f845f4342c9cc715b52edd922ddbfa2c093277db50c",
-            "PackedArgumentAddresses": "0x0b8b5e0ec1dc908e0d8513cc03e91eb479ab6ea9",
-            "TargetAddress": "0x98577aC3C6b376fc9Ee56377FEcAb6D751e40610"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Deposit weETH into GoldiVault 0x0B8B5e0ec1dc908E0d8513cC03E91Eb479Ab6Ea9",
-            "FunctionSelector": "0xb6b55f25",
-            "FunctionSignature": "deposit(uint256)",
-            "LeafDigest": "0x2a9c7a0f2f927bb24099ae28e121e391ae47971691ef8d31facd47856c2adf00",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x0B8B5e0ec1dc908E0d8513cC03E91Eb479Ab6Ea9"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Redeem OT in weETH GoldiVault",
-            "FunctionSelector": "0x24f31269",
-            "FunctionSignature": "redeemOwnership(uint256)",
-            "LeafDigest": "0x035540876dc0c31339265c374e33aacc8cec90bc53c2b4759c7d0cc12c0172f5",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x0B8B5e0ec1dc908E0d8513cC03E91Eb479Ab6Ea9"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Redeem YT in weETH GoldiVault",
-            "FunctionSelector": "0x258d3c33",
-            "FunctionSignature": "redeemYield(uint256)",
-            "LeafDigest": "0x22ba7fe6939845e288410f7917ed4cd90ab9daa41fd1ea42bb5a9f419bec99c5",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x0B8B5e0ec1dc908E0d8513cC03E91Eb479Ab6Ea9"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Compound rewards in weETH GoldiVault",
-            "FunctionSelector": "0xf69e2046",
-            "FunctionSignature": "compound()",
-            "LeafDigest": "0xb53f767ab7eab30e6ea8f17cfa1637212afc52339f76c7e7a6353a114cd3a2a1",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x0B8B5e0ec1dc908E0d8513cC03E91Eb479Ab6Ea9"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Buy YT weETH via GoldiVault",
-            "FunctionSelector": "0x2d39e15c",
-            "FunctionSignature": "buyYT(uint256,uint256,uint256)",
-            "LeafDigest": "0x5f6cf83f85e0ee4cd45e82a02d581607c8649f772a030a5e8e7ab33701c28872",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x0B8B5e0ec1dc908E0d8513cC03E91Eb479Ab6Ea9"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Sell YT weETH via GoldiVault",
-            "FunctionSelector": "0x9f7f8add",
-            "FunctionSignature": "sellYT(uint256,uint256,uint256)",
-            "LeafDigest": "0xb8d6d2027557e4e9de778fee85b4b4f709525538ae858f97135e07109febe1db",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x0B8B5e0ec1dc908E0d8513cC03E91Eb479Ab6Ea9"
-        },
-        {
-            "AddressArguments": ["0x3B0145f3CFA64BC66F5742F512f871665309075d"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve rberaETH to spend WETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0x559000dff73b82ed0a1ad54b29bd787eb28b5c0b6d0c6b97d5a7aa83fba9dd87",
-            "PackedArgumentAddresses": "0x3b0145f3cfa64bc66f5742f512f871665309075d",
-            "TargetAddress": "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
-        },
-        {
-            "AddressArguments": ["0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Deposit and wrap WETH into beraETH",
-            "FunctionSelector": "0xe0e50bfb",
-            "FunctionSignature": "depositAndWrap(address,uint256,uint256)",
-            "LeafDigest": "0x328157c44d07e1b31b72032b681ca5e2bd086404eff4edf8e901579bf832b1f1",
-            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
-            "TargetAddress": "0x3B0145f3CFA64BC66F5742F512f871665309075d"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Unwrap beraETH",
-            "FunctionSelector": "0xde0e9a3e",
-            "FunctionSignature": "unwrap(uint256)",
-            "LeafDigest": "0xa07964faa3da6c49c823146ab6841692315085d20c01df1477f337a6de263f65",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d"
-        },
-        {
-            "AddressArguments": ["0xC9475e18E2C5C26EA6ADCD55fabE07920beA887e"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve etherFiL2SyncPool to spend WETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0xad23c1db8f5ae3c9ed3a6dc138b48cc566fb398aa6dc134809bbc8e98013b7af",
-            "PackedArgumentAddresses": "0xc9475e18e2c5c26ea6adcd55fabe07920bea887e",
-            "TargetAddress": "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
-        },
-        {
-            "AddressArguments": [
-                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Deposit ETH into WeETH",
-            "FunctionSelector": "0x8b6099db",
-            "FunctionSignature": "deposit(address,uint256,uint256,address)",
-            "LeafDigest": "0xbab93438977c8f79aab54c3ecaf3c1f8a78acdd826422f183f2a5cd4642b4a87",
-            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590b83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0xC9475e18E2C5C26EA6ADCD55fabE07920beA887e"
-        },
-        {
-            "AddressArguments": ["0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve Ooga Booga Router to spend iBGT",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0x280239e81ff011edf3cf6a6191442411d809c8f8053f2d0abe424fb7b13fe42a",
-            "PackedArgumentAddresses": "0xfd88ad4849ba0f729d6ff4bc27ff948ab1ac3de7",
-            "TargetAddress": "0xac03CABA51e17c86c921E1f6CBFBdC91F8BB2E6b"
-        },
-        {
-            "AddressArguments": [
-                "0xac03CABA51e17c86c921E1f6CBFBdC91F8BB2E6b",
-                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
-                "0x415744995e9D35A00189C216c37546E9139F5C2c"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Swap iBGT for WETH",
-            "FunctionSelector": "0xd46cadbc",
-            "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
-            "LeafDigest": "0x1dc4b2bba1fac42836498bcbd3114f7d9e661dc4f45c46ae515c11c35a0ce7d0",
-            "PackedArgumentAddresses": "0xac03caba51e17c86c921e1f6cbfbdc91f8bb2e6b2f6f07cdcf3588944bf4c42ac74ff24bf56e7590b83742330443f7413dbd2abdfc046db0474a944e415744995e9d35a00189c216c37546e9139f5c2c",
-            "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
-        },
-        {
-            "AddressArguments": [
-                "0xac03CABA51e17c86c921E1f6CBFBdC91F8BB2E6b",
-                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
-                "0x415744995e9D35A00189C216c37546E9139F5C2c"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Swap iBGT for weETH",
-            "FunctionSelector": "0xd46cadbc",
-            "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
-            "LeafDigest": "0x35e2f10dfa8f57aa17e6e390f4bcdfac4f46d9831d4bd7d6b064ca13a5e7c5ec",
-            "PackedArgumentAddresses": "0xac03caba51e17c86c921e1f6cbfbdc91f8bb2e6b7dcc39b4d1c53cb31e1abc0e358b43987fef80f7b83742330443f7413dbd2abdfc046db0474a944e415744995e9d35a00189c216c37546e9139f5c2c",
-            "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
-        },
-        {
-            "AddressArguments": [
-                "0xac03CABA51e17c86c921E1f6CBFBdC91F8BB2E6b",
-                "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
-                "0x415744995e9D35A00189C216c37546E9139F5C2c"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Swap iBGT for beraETH",
-            "FunctionSelector": "0xd46cadbc",
-            "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
-            "LeafDigest": "0x86835e20360d42f36d9851dd07cd671177193f3cc1daa4cfc53bb406591a6f8e",
-            "PackedArgumentAddresses": "0xac03caba51e17c86c921e1f6cbfbdc91f8bb2e6b6fc6545d5cde268d5c7f1e476d444f39c995120db83742330443f7413dbd2abdfc046db0474a944e415744995e9d35a00189c216c37546e9139f5c2c",
-            "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
-        },
-        {
-            "AddressArguments": ["0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve Ooga Booga Router to spend WETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0x6111b324be162832c95194100fc788555f02960d49487bcec8684cc22175b318",
-            "PackedArgumentAddresses": "0xfd88ad4849ba0f729d6ff4bc27ff948ab1ac3de7",
-            "TargetAddress": "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
-        },
-        {
-            "AddressArguments": [
-                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
-                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
-                "0x415744995e9D35A00189C216c37546E9139F5C2c"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Swap WETH for weETH",
-            "FunctionSelector": "0xd46cadbc",
-            "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
-            "LeafDigest": "0x9cc8a95470d061381bd123a4ac224e55d00a5c056b8a90673daccb3fb823c81d",
-            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e75907dcc39b4d1c53cb31e1abc0e358b43987fef80f7b83742330443f7413dbd2abdfc046db0474a944e415744995e9d35a00189c216c37546e9139f5c2c",
-            "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
-        },
-        {
-            "AddressArguments": [
-                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
-                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
-                "0x415744995e9D35A00189C216c37546E9139F5C2c"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Swap weETH for WETH",
-            "FunctionSelector": "0xd46cadbc",
-            "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
-            "LeafDigest": "0x909d800a707ae01143afc99ae88cde1f26d0dce79a5877356362039d145c7550",
-            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f72f6f07cdcf3588944bf4c42ac74ff24bf56e7590b83742330443f7413dbd2abdfc046db0474a944e415744995e9d35a00189c216c37546e9139f5c2c",
-            "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
-        },
-        {
-            "AddressArguments": [
-                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
-                "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
-                "0x415744995e9D35A00189C216c37546E9139F5C2c"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Swap WETH for beraETH",
-            "FunctionSelector": "0xd46cadbc",
-            "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
-            "LeafDigest": "0x0c867686f22093a8ed78e67c4e20e7065f1032b61100829f9ec9247ad39c1100",
-            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e75906fc6545d5cde268d5c7f1e476d444f39c995120db83742330443f7413dbd2abdfc046db0474a944e415744995e9d35a00189c216c37546e9139f5c2c",
-            "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
-        },
-        {
-            "AddressArguments": [
-                "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d",
-                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
-                "0x415744995e9D35A00189C216c37546E9139F5C2c"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Swap beraETH for WETH",
-            "FunctionSelector": "0xd46cadbc",
-            "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
-            "LeafDigest": "0x6d465cfbceb03c32671e2f4c0766d19e8160e44787f1fb59d2b4690552d62908",
-            "PackedArgumentAddresses": "0x6fc6545d5cde268d5c7f1e476d444f39c995120d2f6f07cdcf3588944bf4c42ac74ff24bf56e7590b83742330443f7413dbd2abdfc046db0474a944e415744995e9d35a00189c216c37546e9139f5c2c",
-            "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
-        },
-        {
-            "AddressArguments": [
-                "0x656b95E550C07a9ffe548bd4085c72418Ceb1dba",
-                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
-                "0x415744995e9D35A00189C216c37546E9139F5C2c"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Swap BGT for WETH",
-            "FunctionSelector": "0xd46cadbc",
-            "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
-            "LeafDigest": "0x3468ac966e29d0b436948eb0f8e0ece60e4b765574ce86814170fbb52fc1f854",
-            "PackedArgumentAddresses": "0x656b95e550c07a9ffe548bd4085c72418ceb1dba2f6f07cdcf3588944bf4c42ac74ff24bf56e7590b83742330443f7413dbd2abdfc046db0474a944e415744995e9d35a00189c216c37546e9139f5c2c",
-            "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
-        },
-        {
-            "AddressArguments": ["0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve Ooga Booga Router to spend weETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0xf3c4d75a760874c30b734651a1f151ccc6944c82454624c38543bbc02d18de1f",
-            "PackedArgumentAddresses": "0xfd88ad4849ba0f729d6ff4bc27ff948ab1ac3de7",
-            "TargetAddress": "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
-        },
-        {
-            "AddressArguments": [
-                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
-                "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
-                "0x415744995e9D35A00189C216c37546E9139F5C2c"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Swap weETH for beraETH",
-            "FunctionSelector": "0xd46cadbc",
-            "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
-            "LeafDigest": "0x407c991583c5c8f322ad8be1ae710746b73674e4eb2cee6131a70ba2eec81bb6",
-            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f76fc6545d5cde268d5c7f1e476d444f39c995120db83742330443f7413dbd2abdfc046db0474a944e415744995e9d35a00189c216c37546e9139f5c2c",
-            "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
-        },
-        {
-            "AddressArguments": [
-                "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d",
-                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
-                "0x415744995e9D35A00189C216c37546E9139F5C2c"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Swap beraETH for weETH",
-            "FunctionSelector": "0xd46cadbc",
-            "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
-            "LeafDigest": "0x7cea42033b127940d57839c2eeaf0870ee3567b47176f6e5a2a073fe7314fd93",
-            "PackedArgumentAddresses": "0x6fc6545d5cde268d5c7f1e476d444f39c995120d7dcc39b4d1c53cb31e1abc0e358b43987fef80f7b83742330443f7413dbd2abdfc046db0474a944e415744995e9d35a00189c216c37546e9139f5c2c",
-            "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
-        },
-        {
-            "AddressArguments": [
-                "0x656b95E550C07a9ffe548bd4085c72418Ceb1dba",
-                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
-                "0x415744995e9D35A00189C216c37546E9139F5C2c"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Swap BGT for weETH",
-            "FunctionSelector": "0xd46cadbc",
-            "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
-            "LeafDigest": "0x8feca2a405a1878fd9d97628eb4b686a0bfe1014819a12a2b04a5cdf6b41b203",
-            "PackedArgumentAddresses": "0x656b95e550c07a9ffe548bd4085c72418ceb1dba7dcc39b4d1c53cb31e1abc0e358b43987fef80f7b83742330443f7413dbd2abdfc046db0474a944e415744995e9d35a00189c216c37546e9139f5c2c",
-            "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
-        },
-        {
-            "AddressArguments": ["0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve Ooga Booga Router to spend beraETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0xe0b4ff29b9247a0c47424c797d1a414f25d6ae80e634d036c16aeb0f8d906650",
-            "PackedArgumentAddresses": "0xfd88ad4849ba0f729d6ff4bc27ff948ab1ac3de7",
-            "TargetAddress": "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d"
-        },
-        {
-            "AddressArguments": [
-                "0x656b95E550C07a9ffe548bd4085c72418Ceb1dba",
-                "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d",
-                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
-                "0x415744995e9D35A00189C216c37546E9139F5C2c"
-            ],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Swap BGT for beraETH",
-            "FunctionSelector": "0xd46cadbc",
-            "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
-            "LeafDigest": "0xb5a68f30ff444df301af0732168c3195531337eefc58525b945f3ae25b30a83b",
-            "PackedArgumentAddresses": "0x656b95e550c07a9ffe548bd4085c72418ceb1dba6fc6545d5cde268d5c7f1e476d444f39c995120db83742330443f7413dbd2abdfc046db0474a944e415744995e9d35a00189c216c37546e9139f5c2c",
-            "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
-        },
-        {
-            "AddressArguments": ["0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve Ooga Booga Router to spend BGT",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0xd255e2005f4faf7443abc3683ebb1c16f179442cc159c12342a27a7a4bafdd30",
-            "PackedArgumentAddresses": "0xfd88ad4849ba0f729d6ff4bc27ff948ab1ac3de7",
-            "TargetAddress": "0x656b95E550C07a9ffe548bd4085c72418Ceb1dba"
-        },
-        {
-            "AddressArguments": ["0x16ed36cB22b298085d10b119030408C7BbfFC24E"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve Infrared Vault to spend KODI WETH-weETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0xccfb7ec45a88bf9820033071d20c49c129a74e2e4d7c0f9ccdb44aca12c8f63c",
-            "PackedArgumentAddresses": "0x16ed36cb22b298085d10b119030408c7bbffc24e",
-            "TargetAddress": "0xA0cAbFc04Fc420b3d31BA431d18eB5bD33B3f334"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Stake KODI WETH-weETH into Infrared Vault",
-            "FunctionSelector": "0xa694fc3a",
-            "FunctionSignature": "stake(uint256)",
-            "LeafDigest": "0x01cec3ade4b3392372ca4a5f678aa989d30962f1446e274e8a2a2faaf5b10853",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x16ed36cB22b298085d10b119030408C7BbfFC24E"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Withdraw KODI WETH-weETH from Infrared Vault",
-            "FunctionSelector": "0x2e1a7d4d",
-            "FunctionSignature": "withdraw(uint256)",
-            "LeafDigest": "0x4217599eeedd0bc49b1308478fb4995b94e1c4017372bbd384cc6b07306d3fec",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x16ed36cB22b298085d10b119030408C7BbfFC24E"
-        },
-        {
-            "AddressArguments": ["0xB83742330443f7413DBD2aBdfc046dB0474a944e"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Get Reward for user from KODI WETH-weETH Infrared Vault",
-            "FunctionSelector": "0xef790a82",
-            "FunctionSignature": "getRewardForUser(address)",
-            "LeafDigest": "0xf1d75e5cef299083d39c7b571470c9265799bf5f2be6e60b8cb4ba3c57635b19",
-            "PackedArgumentAddresses": "0xb83742330443f7413dbd2abdfc046db0474a944e",
-            "TargetAddress": "0x16ed36cB22b298085d10b119030408C7BbfFC24E"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Get Reward for KODI WETH-weETH Infrared Vault",
-            "FunctionSelector": "0x3d18b912",
-            "FunctionSignature": "getReward()",
-            "LeafDigest": "0x220355e7373495581fe4678731a138084f45a1d621e0a8e5f6e2da9f0279f503",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x16ed36cB22b298085d10b119030408C7BbfFC24E"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Exit from KODI WETH-weETH Infrared Vault",
-            "FunctionSelector": "0xe9fad8ee",
-            "FunctionSignature": "exit()",
-            "LeafDigest": "0xa3a686016225bd85b79a661e8360ea41406bce03df753e13426a379fc956be85",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x16ed36cB22b298085d10b119030408C7BbfFC24E"
-        },
-        {
-            "AddressArguments": ["0x55ee6E1ADF848a2Fc831B07564223396ef6258d4"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve Accountant to spend WETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0x7ca350ad96abfe1d4699ac15f07aedf9a7393931050feb27b91dd86a844b0072",
-            "PackedArgumentAddresses": "0x55ee6e1adf848a2fc831b07564223396ef6258d4",
-            "TargetAddress": "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
-        },
-        {
-            "AddressArguments": ["0x55ee6E1ADF848a2Fc831B07564223396ef6258d4"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Approve Accountant to spend weETH",
-            "FunctionSelector": "0x095ea7b3",
-            "FunctionSignature": "approve(address,uint256)",
-            "LeafDigest": "0x70931bf5b1bddb7a500c323799e4948913d8bfa6d8029091d3456a1f432e024e",
-            "PackedArgumentAddresses": "0x55ee6e1adf848a2fc831b07564223396ef6258d4",
-            "TargetAddress": "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
-        },
-        {
-            "AddressArguments": ["0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Claim fees in WETH",
-            "FunctionSelector": "0x15a0ea6a",
-            "FunctionSignature": "claimFees(address)",
-            "LeafDigest": "0xf70b62c30f460918d62bf3548d3c5c826eb61740140a86e12a141ac48a9f0db2",
-            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
-            "TargetAddress": "0x55ee6E1ADF848a2Fc831B07564223396ef6258d4"
-        },
-        {
-            "AddressArguments": ["0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Claim yield in WETH",
-            "FunctionSelector": "0x999927df",
-            "FunctionSignature": "claimYield(address)",
-            "LeafDigest": "0x2abfe1664cf376074a125346ec22cf9b20bb7f9f6485cbf71d40a2fd49fa77a4",
-            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
-            "TargetAddress": "0x55ee6E1ADF848a2Fc831B07564223396ef6258d4"
-        },
-        {
-            "AddressArguments": ["0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Claim fees in weETH",
-            "FunctionSelector": "0x15a0ea6a",
-            "FunctionSignature": "claimFees(address)",
-            "LeafDigest": "0x6a4d1c3a0dca7b9f5ae1a88dbb311cea9cf13dda044936bc99e793fa9fbf1c7e",
-            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f7",
-            "TargetAddress": "0x55ee6E1ADF848a2Fc831B07564223396ef6258d4"
-        },
-        {
-            "AddressArguments": ["0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
-            "Description": "Claim yield in weETH",
-            "FunctionSelector": "0x999927df",
-            "FunctionSignature": "claimYield(address)",
-            "LeafDigest": "0x7041f6331fb69f5407db6647db8b0318d33346a128dd731215fc18ef8b8b82e6",
-            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f7",
-            "TargetAddress": "0x55ee6E1ADF848a2Fc831B07564223396ef6258d4"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-            "Description": "",
-            "FunctionSelector": "0xc5d24601",
-            "FunctionSignature": "",
-            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x0000000000000000000000000000000000000000"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-            "Description": "",
-            "FunctionSelector": "0xc5d24601",
-            "FunctionSignature": "",
-            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x0000000000000000000000000000000000000000"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-            "Description": "",
-            "FunctionSelector": "0xc5d24601",
-            "FunctionSignature": "",
-            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x0000000000000000000000000000000000000000"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-            "Description": "",
-            "FunctionSelector": "0xc5d24601",
-            "FunctionSignature": "",
-            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x0000000000000000000000000000000000000000"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-            "Description": "",
-            "FunctionSelector": "0xc5d24601",
-            "FunctionSignature": "",
-            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x0000000000000000000000000000000000000000"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-            "Description": "",
-            "FunctionSelector": "0xc5d24601",
-            "FunctionSignature": "",
-            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x0000000000000000000000000000000000000000"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-            "Description": "",
-            "FunctionSelector": "0xc5d24601",
-            "FunctionSignature": "",
-            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x0000000000000000000000000000000000000000"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-            "Description": "",
-            "FunctionSelector": "0xc5d24601",
-            "FunctionSignature": "",
-            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x0000000000000000000000000000000000000000"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-            "Description": "",
-            "FunctionSelector": "0xc5d24601",
-            "FunctionSignature": "",
-            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x0000000000000000000000000000000000000000"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-            "Description": "",
-            "FunctionSelector": "0xc5d24601",
-            "FunctionSignature": "",
-            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x0000000000000000000000000000000000000000"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-            "Description": "",
-            "FunctionSelector": "0xc5d24601",
-            "FunctionSignature": "",
-            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x0000000000000000000000000000000000000000"
-        },
-        {
-            "AddressArguments": [],
-            "CanSendValue": false,
-            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
-            "Description": "",
-            "FunctionSelector": "0xc5d24601",
-            "FunctionSignature": "",
-            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
-            "PackedArgumentAddresses": "0x",
-            "TargetAddress": "0x0000000000000000000000000000000000000000"
-        }
-    ],
     "MerkleTree": {
         "0": [
             "0xa5e8a29438d519169fbe5c05d6efd90a8e7e00d804e89dc719d3fba428afd1b8"
@@ -1850,5 +271,1716 @@
             "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
             "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400"
         ]
+    },
+    "leafs": [
+        {
+            "AddressArguments": [
+                "0xEd158C4b336A6FCb5B193A5570e3a571f6cbe690"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve UniswapV3 Router to spend WETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x2fd88882bc956b4f874167f3a75fb564c5c9360da3c512a6b4c124b0a1638cc4",
+            "PackedArgumentAddresses": "0xed158c4b336a6fcb5b193a5570e3a571f6cbe690",
+            "TargetAddress": "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
+        },
+        {
+            "AddressArguments": [
+                "0xEd158C4b336A6FCb5B193A5570e3a571f6cbe690"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve UniswapV3 Router to spend weETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x42952956ffad4bfb4e5bdf525525d6590b43917aa02b071add92a033008da7ec",
+            "PackedArgumentAddresses": "0xed158c4b336a6fcb5b193a5570e3a571f6cbe690",
+            "TargetAddress": "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
+        },
+        {
+            "AddressArguments": [
+                "0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve UniswapV3 NonFungible Position Manager to spend WETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0xc0d18ba70498c7f45f72979c7e013969bc5f85d7f13ba3088e7d8b3dfe733afa",
+            "PackedArgumentAddresses": "0xfe5e8c83ffe4d9627a75eaa7fee864768db989bd",
+            "TargetAddress": "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
+        },
+        {
+            "AddressArguments": [
+                "0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve UniswapV3 NonFungible Position Manager to spend weETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x4fe0d1e331adfbaa52d8d7bc40804120df0df14ce7edb9aad4b819182b803cda",
+            "PackedArgumentAddresses": "0xfe5e8c83ffe4d9627a75eaa7fee864768db989bd",
+            "TargetAddress": "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
+        },
+        {
+            "AddressArguments": [
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
+                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Mint UniswapV3 WETH weETH position",
+            "FunctionSelector": "0x88316456",
+            "FunctionSignature": "mint((address,address,uint24,int24,int24,uint256,uint256,uint256,uint256,address,uint256))",
+            "LeafDigest": "0xdd9631f928859120f5980c987fed5ef1d90fc3b76a676e8cf77192a9faaaab3b",
+            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e75907dcc39b4d1c53cb31e1abc0e358b43987fef80f7b83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD"
+        },
+        {
+            "AddressArguments": [
+                "0x0000000000000000000000000000000000000000",
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
+                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Add liquidity to UniswapV3 WETH weETH position",
+            "FunctionSelector": "0x219f5d17",
+            "FunctionSignature": "increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))",
+            "LeafDigest": "0x4cc0f7752ba54e30babb904a07af33b6d799f2d6b5faacd1ef5e632be9354d73",
+            "PackedArgumentAddresses": "0x00000000000000000000000000000000000000002f6f07cdcf3588944bf4c42ac74ff24bf56e75907dcc39b4d1c53cb31e1abc0e358b43987fef80f7b83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD"
+        },
+        {
+            "AddressArguments": [
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
+                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Swap WETH for weETH using UniswapV3 router",
+            "FunctionSelector": "0xc04b8d59",
+            "FunctionSignature": "exactInput((bytes,address,uint256,uint256,uint256))",
+            "LeafDigest": "0xd016eb49b74c7fdab8a02176784e612c6c299851443b9027ed76c0fa51a507b4",
+            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e75907dcc39b4d1c53cb31e1abc0e358b43987fef80f7b83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0xEd158C4b336A6FCb5B193A5570e3a571f6cbe690"
+        },
+        {
+            "AddressArguments": [
+                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Swap weETH for WETH using UniswapV3 router",
+            "FunctionSelector": "0xc04b8d59",
+            "FunctionSignature": "exactInput((bytes,address,uint256,uint256,uint256))",
+            "LeafDigest": "0xe1e1d4658433873e50aefb89daada264ae59d52338403978d76e48baf9c3a9cd",
+            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f72f6f07cdcf3588944bf4c42ac74ff24bf56e7590b83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0xEd158C4b336A6FCb5B193A5570e3a571f6cbe690"
+        },
+        {
+            "AddressArguments": [
+                "0xEd158C4b336A6FCb5B193A5570e3a571f6cbe690"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve UniswapV3 Router to spend beraETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x6029cd726d27289c6d1ef17e1aa55bd5d7b98f10ef8c01df7d893be33475bc4c",
+            "PackedArgumentAddresses": "0xed158c4b336a6fcb5b193a5570e3a571f6cbe690",
+            "TargetAddress": "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d"
+        },
+        {
+            "AddressArguments": [
+                "0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve UniswapV3 NonFungible Position Manager to spend beraETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x8b87549e890086b6e48c455dfd6b99cfde42685f84616d364bcf607c3a352a25",
+            "PackedArgumentAddresses": "0xfe5e8c83ffe4d9627a75eaa7fee864768db989bd",
+            "TargetAddress": "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d"
+        },
+        {
+            "AddressArguments": [
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
+                "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Mint UniswapV3 WETH beraETH position",
+            "FunctionSelector": "0x88316456",
+            "FunctionSignature": "mint((address,address,uint24,int24,int24,uint256,uint256,uint256,uint256,address,uint256))",
+            "LeafDigest": "0x03b5562410471b2099db3e7bd20b372970af0eb0facad273e8de61c4566a7744",
+            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e75906fc6545d5cde268d5c7f1e476d444f39c995120db83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD"
+        },
+        {
+            "AddressArguments": [
+                "0x0000000000000000000000000000000000000000",
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
+                "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Add liquidity to UniswapV3 WETH beraETH position",
+            "FunctionSelector": "0x219f5d17",
+            "FunctionSignature": "increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))",
+            "LeafDigest": "0xfce56787d33c420e76fcdf377cdfb374b8086e0887a926e8d66b5b22ea27a5ca",
+            "PackedArgumentAddresses": "0x00000000000000000000000000000000000000002f6f07cdcf3588944bf4c42ac74ff24bf56e75906fc6545d5cde268d5c7f1e476d444f39c995120db83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD"
+        },
+        {
+            "AddressArguments": [
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
+                "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Swap WETH for beraETH using UniswapV3 router",
+            "FunctionSelector": "0xc04b8d59",
+            "FunctionSignature": "exactInput((bytes,address,uint256,uint256,uint256))",
+            "LeafDigest": "0x45250632f78a7802f84a8dacb6b613b74fe8d4201270fc21b8e817b77dc52ed8",
+            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e75906fc6545d5cde268d5c7f1e476d444f39c995120db83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0xEd158C4b336A6FCb5B193A5570e3a571f6cbe690"
+        },
+        {
+            "AddressArguments": [
+                "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d",
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Swap beraETH for WETH using UniswapV3 router",
+            "FunctionSelector": "0xc04b8d59",
+            "FunctionSignature": "exactInput((bytes,address,uint256,uint256,uint256))",
+            "LeafDigest": "0x844fabed2cd6912a7bbd12836378821b2033d08363052e8ec89e727bd1ddcb87",
+            "PackedArgumentAddresses": "0x6fc6545d5cde268d5c7f1e476d444f39c995120d2f6f07cdcf3588944bf4c42ac74ff24bf56e7590b83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0xEd158C4b336A6FCb5B193A5570e3a571f6cbe690"
+        },
+        {
+            "AddressArguments": [
+                "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d",
+                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Mint UniswapV3 beraETH weETH position",
+            "FunctionSelector": "0x88316456",
+            "FunctionSignature": "mint((address,address,uint24,int24,int24,uint256,uint256,uint256,uint256,address,uint256))",
+            "LeafDigest": "0x3a187d72cd8364286fb56f366d9fdc725f919bd218cd4fd4e992f15b45131137",
+            "PackedArgumentAddresses": "0x6fc6545d5cde268d5c7f1e476d444f39c995120d7dcc39b4d1c53cb31e1abc0e358b43987fef80f7b83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD"
+        },
+        {
+            "AddressArguments": [
+                "0x0000000000000000000000000000000000000000",
+                "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d",
+                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Add liquidity to UniswapV3 beraETH weETH position",
+            "FunctionSelector": "0x219f5d17",
+            "FunctionSignature": "increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))",
+            "LeafDigest": "0x4f081ddcecc7b0174365ab31f5a5eda8870b00967068651257d06756f1d10236",
+            "PackedArgumentAddresses": "0x00000000000000000000000000000000000000006fc6545d5cde268d5c7f1e476d444f39c995120d7dcc39b4d1c53cb31e1abc0e358b43987fef80f7b83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD"
+        },
+        {
+            "AddressArguments": [
+                "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d",
+                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Swap beraETH for weETH using UniswapV3 router",
+            "FunctionSelector": "0xc04b8d59",
+            "FunctionSignature": "exactInput((bytes,address,uint256,uint256,uint256))",
+            "LeafDigest": "0x0f34f547f7719d2fe0a8bca67f795043d36ecbaf7d2fd01ee4be5653eb460a8a",
+            "PackedArgumentAddresses": "0x6fc6545d5cde268d5c7f1e476d444f39c995120d7dcc39b4d1c53cb31e1abc0e358b43987fef80f7b83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0xEd158C4b336A6FCb5B193A5570e3a571f6cbe690"
+        },
+        {
+            "AddressArguments": [
+                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
+                "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Swap weETH for beraETH using UniswapV3 router",
+            "FunctionSelector": "0xc04b8d59",
+            "FunctionSignature": "exactInput((bytes,address,uint256,uint256,uint256))",
+            "LeafDigest": "0x1c8d2d4ba00233b40b350532e75306a70f8e24ab2fd9143cb24b5ea3a0de8841",
+            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f76fc6545d5cde268d5c7f1e476d444f39c995120db83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0xEd158C4b336A6FCb5B193A5570e3a571f6cbe690"
+        },
+        {
+            "AddressArguments": [
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Remove liquidity from UniswapV3 position",
+            "FunctionSelector": "0x0c49ccbe",
+            "FunctionSignature": "decreaseLiquidity((uint256,uint128,uint256,uint256,uint256))",
+            "LeafDigest": "0xa77e1676572857cc382d007e650f72c53640899090af3b081eb5fefc4307cfd2",
+            "PackedArgumentAddresses": "0xb83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD"
+        },
+        {
+            "AddressArguments": [
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Collect fees from UniswapV3 position",
+            "FunctionSelector": "0xfc6f7865",
+            "FunctionSignature": "collect((uint256,address,uint128,uint128))",
+            "LeafDigest": "0x37d6c1b7939ed49c49b99e67e608109a469c34d814d11fffc1ad16becffa5d64",
+            "PackedArgumentAddresses": "0xb83742330443f7413dbd2abdfc046db0474a944eb83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Burn UniswapV3 position",
+            "FunctionSelector": "0x42966c68",
+            "FunctionSignature": "burn(uint256)",
+            "LeafDigest": "0x00600f5849ce1c17bcef7cd6267c56a02646613c9d845e76508ede2211ca83cb",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD"
+        },
+        {
+            "AddressArguments": [
+                "0x679a7C63FC83b6A4D9C1F931891d705483d4791F"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve Kodiak router to spend WETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0xcf936215bcd8fefd908ba97349227d2fbcd4eebad36bd03b892d0e3cf4848325",
+            "PackedArgumentAddresses": "0x679a7c63fc83b6a4d9c1f931891d705483d4791f",
+            "TargetAddress": "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
+        },
+        {
+            "AddressArguments": [
+                "0x679a7C63FC83b6A4D9C1F931891d705483d4791F"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve Kodiak router to spend weETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x193efe5e882617cecd302116c72f0472333612491726df4e9b4cfb323a2c2f85",
+            "PackedArgumentAddresses": "0x679a7c63fc83b6a4d9c1f931891d705483d4791f",
+            "TargetAddress": "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
+        },
+        {
+            "AddressArguments": [
+                "0x679a7C63FC83b6A4D9C1F931891d705483d4791F"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve Kodiak router to spend KODI WETH-weETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x2ac55d7c21f923be5c68b3dca46d8315936402541b2d43fc6ecc33845ba60126",
+            "PackedArgumentAddresses": "0x679a7c63fc83b6a4d9c1f931891d705483d4791f",
+            "TargetAddress": "0xA0cAbFc04Fc420b3d31BA431d18eB5bD33B3f334"
+        },
+        {
+            "AddressArguments": [
+                "0xA0cAbFc04Fc420b3d31BA431d18eB5bD33B3f334",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Add Liquidity in Kodiak Island WETH-weETH-0.05%",
+            "FunctionSelector": "0x74dbc248",
+            "FunctionSignature": "addLiquidity(address,uint256,uint256,uint256,uint256,uint256,address)",
+            "LeafDigest": "0xd31a3f823dfaa9d04aaf310b9a07244fd5f91da451509b9e4ee3f05383a6e0cf",
+            "PackedArgumentAddresses": "0xa0cabfc04fc420b3d31ba431d18eb5bd33b3f334b83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0x679a7C63FC83b6A4D9C1F931891d705483d4791F"
+        },
+        {
+            "AddressArguments": [
+                "0xA0cAbFc04Fc420b3d31BA431d18eB5bD33B3f334",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Remove Liquidity from Kodiak Island WETH-weETH-0.05%",
+            "FunctionSelector": "0x59f842b2",
+            "FunctionSignature": "removeLiquidity(address,uint256,uint256,uint256,address)",
+            "LeafDigest": "0x7d82e9398697e741d6a4698aee307902c3a2eb8dcff736579ff77e424e1eb673",
+            "PackedArgumentAddresses": "0xa0cabfc04fc420b3d31ba431d18eb5bd33b3f334b83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0x679a7C63FC83b6A4D9C1F931891d705483d4791F"
+        },
+        {
+            "AddressArguments": [
+                "0x679a7C63FC83b6A4D9C1F931891d705483d4791F"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve Kodiak router to spend beraETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x5780f2d984728e29c09386c37766e36b851ce2054aafc9f150cc600697e39026",
+            "PackedArgumentAddresses": "0x679a7c63fc83b6a4d9c1f931891d705483d4791f",
+            "TargetAddress": "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d"
+        },
+        {
+            "AddressArguments": [
+                "0x679a7C63FC83b6A4D9C1F931891d705483d4791F"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve Kodiak router to spend KODI WETH-beraETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x613d60f111759a0deccb565827e00e3ff52cc126d5571076a7ebb45e678dcfab",
+            "PackedArgumentAddresses": "0x679a7c63fc83b6a4d9c1f931891d705483d4791f",
+            "TargetAddress": "0x03bCcF796cDef61064c4a2EffdD21f1AC8C29E92"
+        },
+        {
+            "AddressArguments": [
+                "0x03bCcF796cDef61064c4a2EffdD21f1AC8C29E92",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Add Liquidity in Kodiak Island WETH-beraETH-0.05%",
+            "FunctionSelector": "0x74dbc248",
+            "FunctionSignature": "addLiquidity(address,uint256,uint256,uint256,uint256,uint256,address)",
+            "LeafDigest": "0x6e0f3b079f5c632400572bf1801aa0cb1fa553ffbe002f29b1dd6fb2f69c6536",
+            "PackedArgumentAddresses": "0x03bccf796cdef61064c4a2effdd21f1ac8c29e92b83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0x679a7C63FC83b6A4D9C1F931891d705483d4791F"
+        },
+        {
+            "AddressArguments": [
+                "0x03bCcF796cDef61064c4a2EffdD21f1AC8C29E92",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Remove Liquidity from Kodiak Island WETH-beraETH-0.05%",
+            "FunctionSelector": "0x59f842b2",
+            "FunctionSignature": "removeLiquidity(address,uint256,uint256,uint256,address)",
+            "LeafDigest": "0x16ecd61a9998f0f19ee9020b2894e801f1816d3750a373ef7cf7f9cf02bd2984",
+            "PackedArgumentAddresses": "0x03bccf796cdef61064c4a2effdd21f1ac8c29e92b83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0x679a7C63FC83b6A4D9C1F931891d705483d4791F"
+        },
+        {
+            "AddressArguments": [
+                "0x679a7C63FC83b6A4D9C1F931891d705483d4791F"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve Kodiak router to spend weETH-OT",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x4bb6659b1aece5870992d94b52d4f6f45939053050be8cdc30bafb3f78d8cdad",
+            "PackedArgumentAddresses": "0x679a7c63fc83b6a4d9c1f931891d705483d4791f",
+            "TargetAddress": "0x46C7BdE4422b6798A09e76B555F2fea8D7FfADdc"
+        },
+        {
+            "AddressArguments": [
+                "0x679a7C63FC83b6A4D9C1F931891d705483d4791F"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve Kodiak router to spend KODI weETH-OT-weETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0xd16d36fc6188109ec002807014340a5e037d2849e855aca4517489b11060966b",
+            "PackedArgumentAddresses": "0x679a7c63fc83b6a4d9c1f931891d705483d4791f",
+            "TargetAddress": "0xAd63328f4F4b8681dB713ce2eB353596628fc3B2"
+        },
+        {
+            "AddressArguments": [
+                "0xAd63328f4F4b8681dB713ce2eB353596628fc3B2",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Add Liquidity in Kodiak Island weETH-OT-weETH-0.05%",
+            "FunctionSelector": "0x74dbc248",
+            "FunctionSignature": "addLiquidity(address,uint256,uint256,uint256,uint256,uint256,address)",
+            "LeafDigest": "0x75921a5ecc1d70b233bcf7b6c896a72216ed340969083a1be543872916340dbe",
+            "PackedArgumentAddresses": "0xad63328f4f4b8681db713ce2eb353596628fc3b2b83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0x679a7C63FC83b6A4D9C1F931891d705483d4791F"
+        },
+        {
+            "AddressArguments": [
+                "0xAd63328f4F4b8681dB713ce2eB353596628fc3B2",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Remove Liquidity from Kodiak Island weETH-OT-weETH-0.05%",
+            "FunctionSelector": "0x59f842b2",
+            "FunctionSignature": "removeLiquidity(address,uint256,uint256,uint256,address)",
+            "LeafDigest": "0x100a559053aaf8a8bf0ebf381602533069d2e2864acea095b0ad5d3fdffa711b",
+            "PackedArgumentAddresses": "0xad63328f4f4b8681db713ce2eb353596628fc3b2b83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0x679a7C63FC83b6A4D9C1F931891d705483d4791F"
+        },
+        {
+            "AddressArguments": [
+                "0x679a7C63FC83b6A4D9C1F931891d705483d4791F"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve Kodiak router to spend KODI beraETH-weETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0xf005e89c23d6847adbc63102911505ef4aad6c90ce92d01085685f40f437edb8",
+            "PackedArgumentAddresses": "0x679a7c63fc83b6a4d9c1f931891d705483d4791f",
+            "TargetAddress": "0x2f8C651E2F576C8c4B6DE3c32210d9b4A4461d5c"
+        },
+        {
+            "AddressArguments": [
+                "0x2f8C651E2F576C8c4B6DE3c32210d9b4A4461d5c",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Add Liquidity in Kodiak Island beraETH-weETH-0.05%",
+            "FunctionSelector": "0x74dbc248",
+            "FunctionSignature": "addLiquidity(address,uint256,uint256,uint256,uint256,uint256,address)",
+            "LeafDigest": "0x6ae4f9ef4e253bdaa3856f4c2b66f4236f43208e0821d136a8314345cf4761f5",
+            "PackedArgumentAddresses": "0x2f8c651e2f576c8c4b6de3c32210d9b4a4461d5cb83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0x679a7C63FC83b6A4D9C1F931891d705483d4791F"
+        },
+        {
+            "AddressArguments": [
+                "0x2f8C651E2F576C8c4B6DE3c32210d9b4A4461d5c",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Remove Liquidity from Kodiak Island beraETH-weETH-0.05%",
+            "FunctionSelector": "0x59f842b2",
+            "FunctionSignature": "removeLiquidity(address,uint256,uint256,uint256,address)",
+            "LeafDigest": "0x08e4bf802660224859e6ffebfcd8c4c31fe95550de365eace9c1099619eccf6e",
+            "PackedArgumentAddresses": "0x2f8c651e2f576c8c4b6de3c32210d9b4a4461d5cb83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0x679a7C63FC83b6A4D9C1F931891d705483d4791F"
+        },
+        {
+            "AddressArguments": [
+                "0x003Ca23Fd5F0ca87D01F6eC6CD14A8AE60c2b97D"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve Dolomite DepositWithdraw Router to spend WETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x0598c0c92f48636d66414243ca43e89346f977d9a298cf5773d07a9de24536a2",
+            "PackedArgumentAddresses": "0x003ca23fd5f0ca87d01f6ec6cd14a8ae60c2b97d",
+            "TargetAddress": "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
+        },
+        {
+            "AddressArguments": [
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Deposit WETH into Dolomite DepositWithdraw Router Market ID: 0",
+            "FunctionSelector": "0xfe491ee7",
+            "FunctionSignature": "depositWei(uint256,uint256,uint256)",
+            "LeafDigest": "0xbaa9483dacf5ca75297d1d9f4a7f6f2d7e51db06fb53f5baffb77ba7c71e4482",
+            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
+            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
+        },
+        {
+            "AddressArguments": [
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Deposit WETH into Dolomite DepositWithdraw Router Market ID: 0 Default Account",
+            "FunctionSelector": "0xbc6efe31",
+            "FunctionSignature": "depositWeiIntoDefaultAccount(uint256,uint256)",
+            "LeafDigest": "0x978e439f977592b1ba9c54523ddc0cccd93052d1dcb995c0d4de45da41aa540e",
+            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
+            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
+        },
+        {
+            "AddressArguments": [
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Withdraw WETH from Dolomite DepositWithdraw Router Market ID: 0",
+            "FunctionSelector": "0xc38fd74e",
+            "FunctionSignature": "withdrawWei(uint256,uint256,uint256,uint8)",
+            "LeafDigest": "0xe219aaff3d2326f001dc02b4a958c8882fc8f33d4ce82576d3c846a9a64715ae",
+            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
+            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
+        },
+        {
+            "AddressArguments": [
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Withdraw WETH from Dolomite DepositWithdraw Router Market ID: 0 default account",
+            "FunctionSelector": "0x807cb86a",
+            "FunctionSignature": "withdrawWeiFromDefaultAccount(uint256,uint256,uint8)",
+            "LeafDigest": "0xb2466ed33052a574a47e81d8fd366c99646e690bfeede53a32cce422dbe25649",
+            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
+            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
+        },
+        {
+            "AddressArguments": [
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Deposit Par scaled WETH into Dolomite DepositWithdraw Router Market ID: 0",
+            "FunctionSelector": "0x7e54cf02",
+            "FunctionSignature": "depositPar(uint256,uint256,uint256)",
+            "LeafDigest": "0xe18d89ca3734ab8abdb20b5ce9ed100352502e3b825a426193deb1ba0886b01d",
+            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
+            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
+        },
+        {
+            "AddressArguments": [
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Deposit Par scaled WETH into Dolomite DepositWithdraw Router Market ID: 0 in default account",
+            "FunctionSelector": "0x12237319",
+            "FunctionSignature": "depositParIntoDefaultAccount(uint256,uint256)",
+            "LeafDigest": "0x84caff66ed3b61bdc3a946afedbb1a320a0ba5ce46d3c5fd348b0b868ebeb22e",
+            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
+            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
+        },
+        {
+            "AddressArguments": [
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Withdraw Par scaled WETH from Dolomite DepositWithdraw Router Market ID: 0",
+            "FunctionSelector": "0xcfeb65fe",
+            "FunctionSignature": "withdrawPar(uint256,uint256,uint256,uint8)",
+            "LeafDigest": "0xc7f0044c49435b4f0f12674c8528777d7ef181f106f4e73a7064a163412b160a",
+            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
+            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
+        },
+        {
+            "AddressArguments": [
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Withdraw Par scaled WETH from Dolomite DepositWithdraw Router Market ID: 0",
+            "FunctionSelector": "0xd8ddf431",
+            "FunctionSignature": "withdrawParFromDefaultAccount(uint256,uint256,uint8)",
+            "LeafDigest": "0x8f270d9453be7e6b60cfdcc3cbf17c2f29520bbbad68681f21bcad59fe518634",
+            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
+            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
+        },
+        {
+            "AddressArguments": [
+                "0x003Ca23Fd5F0ca87D01F6eC6CD14A8AE60c2b97D"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve Dolomite DepositWithdraw Router to spend weETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0xb5d974d57547454625bf2541ee80531385f5311b5b077de0d4f1c2702ef86836",
+            "PackedArgumentAddresses": "0x003ca23fd5f0ca87d01f6ec6cd14a8ae60c2b97d",
+            "TargetAddress": "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
+        },
+        {
+            "AddressArguments": [
+                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Deposit weETH into Dolomite DepositWithdraw Router Market ID: 29",
+            "FunctionSelector": "0xfe491ee7",
+            "FunctionSignature": "depositWei(uint256,uint256,uint256)",
+            "LeafDigest": "0x6144e8e7f4a1fafcbd1e9f3b623cc47d4e010a8f314cbd4c697408c021c7dc6b",
+            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f7",
+            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
+        },
+        {
+            "AddressArguments": [
+                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Deposit weETH into Dolomite DepositWithdraw Router Market ID: 29 Default Account",
+            "FunctionSelector": "0xbc6efe31",
+            "FunctionSignature": "depositWeiIntoDefaultAccount(uint256,uint256)",
+            "LeafDigest": "0x7a3d5ab4fa8691a18397c9bf517d5500b817035ccf9fdc4aaa35cb6ff83df854",
+            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f7",
+            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
+        },
+        {
+            "AddressArguments": [
+                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Withdraw weETH from Dolomite DepositWithdraw Router Market ID: 29",
+            "FunctionSelector": "0xc38fd74e",
+            "FunctionSignature": "withdrawWei(uint256,uint256,uint256,uint8)",
+            "LeafDigest": "0x0bb0202d86456af42380c2e1e828146825ca4fcea55fb2a577d79c8f676f6be4",
+            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f7",
+            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
+        },
+        {
+            "AddressArguments": [
+                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Withdraw weETH from Dolomite DepositWithdraw Router Market ID: 29 default account",
+            "FunctionSelector": "0x807cb86a",
+            "FunctionSignature": "withdrawWeiFromDefaultAccount(uint256,uint256,uint8)",
+            "LeafDigest": "0x7880ea31ad4bcc5d317da3e889f2a3f7233c4958039882d838ba150cea0b8136",
+            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f7",
+            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
+        },
+        {
+            "AddressArguments": [
+                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Deposit Par scaled weETH into Dolomite DepositWithdraw Router Market ID: 29",
+            "FunctionSelector": "0x7e54cf02",
+            "FunctionSignature": "depositPar(uint256,uint256,uint256)",
+            "LeafDigest": "0xc783420c9dd6c9ffc9c9b378fd01ccf2cf97bd79f721fdf3665315f1ce0463b9",
+            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f7",
+            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
+        },
+        {
+            "AddressArguments": [
+                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Deposit Par scaled weETH into Dolomite DepositWithdraw Router Market ID: 29 in default account",
+            "FunctionSelector": "0x12237319",
+            "FunctionSignature": "depositParIntoDefaultAccount(uint256,uint256)",
+            "LeafDigest": "0x3c03bb27bf860b19b0f3970fd136feafcbe3fdac73f6085f8a307670c9027932",
+            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f7",
+            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
+        },
+        {
+            "AddressArguments": [
+                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Withdraw Par scaled weETH from Dolomite DepositWithdraw Router Market ID: 29",
+            "FunctionSelector": "0xcfeb65fe",
+            "FunctionSignature": "withdrawPar(uint256,uint256,uint256,uint8)",
+            "LeafDigest": "0x275f6460e5224e802e6d440019051e574b29c0590e6a9ac7977caddb197209bd",
+            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f7",
+            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
+        },
+        {
+            "AddressArguments": [
+                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Withdraw Par scaled weETH from Dolomite DepositWithdraw Router Market ID: 29",
+            "FunctionSelector": "0xd8ddf431",
+            "FunctionSignature": "withdrawParFromDefaultAccount(uint256,uint256,uint8)",
+            "LeafDigest": "0xb89477a66d6791225fa127096b04aca947c70241e6c933f5ac93925962cd29e9",
+            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f7",
+            "TargetAddress": "0xd6a31B6AeA4d26A19bF479b5032D9DDc481187e6"
+        },
+        {
+            "AddressArguments": [
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Use WETH as collateral on Dolomite BorrowPosition Market ID: 0",
+            "FunctionSelector": "0xbb0a6fa5",
+            "FunctionSignature": "openBorrowPosition(uint256,uint256,uint256,uint256,uint8)",
+            "LeafDigest": "0xaa478975eb733600dea0244128342e35adf3e816c5f342cada004e53fbaf5ca4",
+            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
+            "TargetAddress": "0xC06271eb97d960F4034DDF953e16271CcB2B10BD"
+        },
+        {
+            "AddressArguments": [
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Close Borrow Position of WETH in Dolomite BorrowPosition Market ID: 0",
+            "FunctionSelector": "0x8fb8b6c7",
+            "FunctionSignature": "closeBorrowPosition(uint256,uint256,uint256[])",
+            "LeafDigest": "0xf04ffeddcdb11f978bb458319e5d8ee2de90e030cb4d2b0e6efa11dc5f7d7a1a",
+            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
+            "TargetAddress": "0xC06271eb97d960F4034DDF953e16271CcB2B10BD"
+        },
+        {
+            "AddressArguments": [
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Repay Borrow Position of WETH in Dolomite BorrowPosition Market ID: 0",
+            "FunctionSelector": "0xb0463d5c",
+            "FunctionSignature": "repayAllForBorrowPosition(uint256,uint256,uint256,uint8)",
+            "LeafDigest": "0x7d8546d5cefb3284e25e46032d667bb4690fd6353524e973e4ccab90a642ac6d",
+            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
+            "TargetAddress": "0xC06271eb97d960F4034DDF953e16271CcB2B10BD"
+        },
+        {
+            "AddressArguments": [
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Transfer Borrow Position of WETH in Dolomite BorrowPosition Market ID: 0 to additional subaccount",
+            "FunctionSelector": "0x58e8cf03",
+            "FunctionSignature": "transferBetweenAccounts(uint256,uint256,uint256,uint256,uint8)",
+            "LeafDigest": "0x6421efdab420036a1fb3f538fd242337aaefb3f754026c9b86fc0302fb8c3901",
+            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
+            "TargetAddress": "0xC06271eb97d960F4034DDF953e16271CcB2B10BD"
+        },
+        {
+            "AddressArguments": [
+                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Use weETH as collateral on Dolomite BorrowPosition Market ID: 29",
+            "FunctionSelector": "0xbb0a6fa5",
+            "FunctionSignature": "openBorrowPosition(uint256,uint256,uint256,uint256,uint8)",
+            "LeafDigest": "0x28190fffcfc24c8716d12524bc17a0aa48c1163dd36525152b48ccda135c04b1",
+            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f7",
+            "TargetAddress": "0xC06271eb97d960F4034DDF953e16271CcB2B10BD"
+        },
+        {
+            "AddressArguments": [
+                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Close Borrow Position of weETH in Dolomite BorrowPosition Market ID: 29",
+            "FunctionSelector": "0x8fb8b6c7",
+            "FunctionSignature": "closeBorrowPosition(uint256,uint256,uint256[])",
+            "LeafDigest": "0xd5dc76ee26ae5ce5338b17e9a6294ee908e85546fe14253f5fd7a38909897604",
+            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f7",
+            "TargetAddress": "0xC06271eb97d960F4034DDF953e16271CcB2B10BD"
+        },
+        {
+            "AddressArguments": [
+                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Repay Borrow Position of weETH in Dolomite BorrowPosition Market ID: 29",
+            "FunctionSelector": "0xb0463d5c",
+            "FunctionSignature": "repayAllForBorrowPosition(uint256,uint256,uint256,uint8)",
+            "LeafDigest": "0x906e1434c8fa5398e033e9d46f5dc7e57abf1fe072c665eca9a12b931f6aa32e",
+            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f7",
+            "TargetAddress": "0xC06271eb97d960F4034DDF953e16271CcB2B10BD"
+        },
+        {
+            "AddressArguments": [
+                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Transfer Borrow Position of weETH in Dolomite BorrowPosition Market ID: 29 to additional subaccount",
+            "FunctionSelector": "0x58e8cf03",
+            "FunctionSignature": "transferBetweenAccounts(uint256,uint256,uint256,uint256,uint8)",
+            "LeafDigest": "0x9c62bc4d54c0b6b8b7f6d21a01a98def25e718cc48719adf19d59df1af9d81b1",
+            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f7",
+            "TargetAddress": "0xC06271eb97d960F4034DDF953e16271CcB2B10BD"
+        },
+        {
+            "AddressArguments": [
+                "0xf7b5127B510E568fdC39e6Bb54e2081BFaD489AF"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve dWETH to spend WETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0xf5702ba164cf90903bfd643de483b7bbb5e7dc894c2c969bad43013d9d905410",
+            "PackedArgumentAddresses": "0xf7b5127b510e568fdc39e6bb54e2081bfad489af",
+            "TargetAddress": "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
+        },
+        {
+            "AddressArguments": [
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Deposit WETH for dWETH",
+            "FunctionSelector": "0x6e553f65",
+            "FunctionSignature": "deposit(uint256,address)",
+            "LeafDigest": "0x212faaf89c40011c0625801fd0dee45b264bd51a203f51faaf64544765e69d0d",
+            "PackedArgumentAddresses": "0xb83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0xf7b5127B510E568fdC39e6Bb54e2081BFaD489AF"
+        },
+        {
+            "AddressArguments": [
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Withdraw WETH from dWETH",
+            "FunctionSelector": "0xb460af94",
+            "FunctionSignature": "withdraw(uint256,address,address)",
+            "LeafDigest": "0xf34f9f723d308f59ddf11cd91f9703eea3594f1020e857228902953f1bae3a90",
+            "PackedArgumentAddresses": "0xb83742330443f7413dbd2abdfc046db0474a944eb83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0xf7b5127B510E568fdC39e6Bb54e2081BFaD489AF"
+        },
+        {
+            "AddressArguments": [
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Mint dWETH using WETH",
+            "FunctionSelector": "0x94bf804d",
+            "FunctionSignature": "mint(uint256,address)",
+            "LeafDigest": "0xc710ae892b1686eb002a9053bdd890584216dbbece3c71de99574b50bc727e1a",
+            "PackedArgumentAddresses": "0xb83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0xf7b5127B510E568fdC39e6Bb54e2081BFaD489AF"
+        },
+        {
+            "AddressArguments": [
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Redeem dWETH for WETH",
+            "FunctionSelector": "0xba087652",
+            "FunctionSignature": "redeem(uint256,address,address)",
+            "LeafDigest": "0xa2ea7e65e42fc4e938d6ab01b297a34264d93642cfa5bee7f0207d83757a67a2",
+            "PackedArgumentAddresses": "0xb83742330443f7413dbd2abdfc046db0474a944eb83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0xf7b5127B510E568fdC39e6Bb54e2081BFaD489AF"
+        },
+        {
+            "AddressArguments": [
+                "0x48282e3B990625CBDcb885E4a4D83B6e9D5C8442"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve dweETH to spend weETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0xcac841468515e1b7e7108063ca7ed351560f710baeedbeb0ea602903ae6a0992",
+            "PackedArgumentAddresses": "0x48282e3b990625cbdcb885e4a4d83b6e9d5c8442",
+            "TargetAddress": "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
+        },
+        {
+            "AddressArguments": [
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Deposit weETH for dweETH",
+            "FunctionSelector": "0x6e553f65",
+            "FunctionSignature": "deposit(uint256,address)",
+            "LeafDigest": "0x22d7dc8a84adaae3e0dc93b335bf0d8c9f622d9f61befea571d7a1a952bf676c",
+            "PackedArgumentAddresses": "0xb83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0x48282e3B990625CBDcb885E4a4D83B6e9D5C8442"
+        },
+        {
+            "AddressArguments": [
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Withdraw weETH from dweETH",
+            "FunctionSelector": "0xb460af94",
+            "FunctionSignature": "withdraw(uint256,address,address)",
+            "LeafDigest": "0x5f7b85637f382ea3c3c46eb1d4036684f98209cf64eab743346e0c1343cbb335",
+            "PackedArgumentAddresses": "0xb83742330443f7413dbd2abdfc046db0474a944eb83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0x48282e3B990625CBDcb885E4a4D83B6e9D5C8442"
+        },
+        {
+            "AddressArguments": [
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Mint dweETH using weETH",
+            "FunctionSelector": "0x94bf804d",
+            "FunctionSignature": "mint(uint256,address)",
+            "LeafDigest": "0x3562aafcbfabd1cbae287c31d75b211544323be0d61b7e8b4072528d7fac069c",
+            "PackedArgumentAddresses": "0xb83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0x48282e3B990625CBDcb885E4a4D83B6e9D5C8442"
+        },
+        {
+            "AddressArguments": [
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Redeem dweETH for weETH",
+            "FunctionSelector": "0xba087652",
+            "FunctionSignature": "redeem(uint256,address,address)",
+            "LeafDigest": "0xf52cc08a06a4c21edef5e072c53265230410cbf8b5bb77564b69b962d009e603",
+            "PackedArgumentAddresses": "0xb83742330443f7413dbd2abdfc046db0474a944eb83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0x48282e3B990625CBDcb885E4a4D83B6e9D5C8442"
+        },
+        {
+            "AddressArguments": [
+                "0x0B8B5e0ec1dc908E0d8513cC03E91Eb479Ab6Ea9"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve 0x0B8B5e0ec1dc908E0d8513cC03E91Eb479Ab6Ea9 to spend weETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x9eada739ad83dc02bc966255b0706a1740f49654f7f74c877f3cc178d396a754",
+            "PackedArgumentAddresses": "0x0b8b5e0ec1dc908e0d8513cc03e91eb479ab6ea9",
+            "TargetAddress": "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
+        },
+        {
+            "AddressArguments": [
+                "0x0B8B5e0ec1dc908E0d8513cC03E91Eb479Ab6Ea9"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve 0x0B8B5e0ec1dc908E0d8513cC03E91Eb479Ab6Ea9 to spend weETH-OT",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x28290bf1ef87793504f260796a247adae048d1e03376465910bb6e4effee83f9",
+            "PackedArgumentAddresses": "0x0b8b5e0ec1dc908e0d8513cc03e91eb479ab6ea9",
+            "TargetAddress": "0x46C7BdE4422b6798A09e76B555F2fea8D7FfADdc"
+        },
+        {
+            "AddressArguments": [
+                "0x0B8B5e0ec1dc908E0d8513cC03E91Eb479Ab6Ea9"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve 0x0B8B5e0ec1dc908E0d8513cC03E91Eb479Ab6Ea9 to spend weETH-YT",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0xf16cb6524189ba7ad8c78f845f4342c9cc715b52edd922ddbfa2c093277db50c",
+            "PackedArgumentAddresses": "0x0b8b5e0ec1dc908e0d8513cc03e91eb479ab6ea9",
+            "TargetAddress": "0x98577aC3C6b376fc9Ee56377FEcAb6D751e40610"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Deposit weETH into GoldiVault 0x0B8B5e0ec1dc908E0d8513cC03E91Eb479Ab6Ea9",
+            "FunctionSelector": "0xb6b55f25",
+            "FunctionSignature": "deposit(uint256)",
+            "LeafDigest": "0x2a9c7a0f2f927bb24099ae28e121e391ae47971691ef8d31facd47856c2adf00",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0B8B5e0ec1dc908E0d8513cC03E91Eb479Ab6Ea9"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Redeem OT in weETH GoldiVault",
+            "FunctionSelector": "0x24f31269",
+            "FunctionSignature": "redeemOwnership(uint256)",
+            "LeafDigest": "0x035540876dc0c31339265c374e33aacc8cec90bc53c2b4759c7d0cc12c0172f5",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0B8B5e0ec1dc908E0d8513cC03E91Eb479Ab6Ea9"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Redeem YT in weETH GoldiVault",
+            "FunctionSelector": "0x258d3c33",
+            "FunctionSignature": "redeemYield(uint256)",
+            "LeafDigest": "0x22ba7fe6939845e288410f7917ed4cd90ab9daa41fd1ea42bb5a9f419bec99c5",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0B8B5e0ec1dc908E0d8513cC03E91Eb479Ab6Ea9"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Compound rewards in weETH GoldiVault",
+            "FunctionSelector": "0xf69e2046",
+            "FunctionSignature": "compound()",
+            "LeafDigest": "0xb53f767ab7eab30e6ea8f17cfa1637212afc52339f76c7e7a6353a114cd3a2a1",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0B8B5e0ec1dc908E0d8513cC03E91Eb479Ab6Ea9"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Buy YT weETH via GoldiVault",
+            "FunctionSelector": "0x2d39e15c",
+            "FunctionSignature": "buyYT(uint256,uint256,uint256)",
+            "LeafDigest": "0x5f6cf83f85e0ee4cd45e82a02d581607c8649f772a030a5e8e7ab33701c28872",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0B8B5e0ec1dc908E0d8513cC03E91Eb479Ab6Ea9"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Sell YT weETH via GoldiVault",
+            "FunctionSelector": "0x9f7f8add",
+            "FunctionSignature": "sellYT(uint256,uint256,uint256)",
+            "LeafDigest": "0xb8d6d2027557e4e9de778fee85b4b4f709525538ae858f97135e07109febe1db",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0B8B5e0ec1dc908E0d8513cC03E91Eb479Ab6Ea9"
+        },
+        {
+            "AddressArguments": [
+                "0x3B0145f3CFA64BC66F5742F512f871665309075d"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve rberaETH to spend WETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x559000dff73b82ed0a1ad54b29bd787eb28b5c0b6d0c6b97d5a7aa83fba9dd87",
+            "PackedArgumentAddresses": "0x3b0145f3cfa64bc66f5742f512f871665309075d",
+            "TargetAddress": "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
+        },
+        {
+            "AddressArguments": [
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Deposit and wrap WETH into beraETH",
+            "FunctionSelector": "0xe0e50bfb",
+            "FunctionSignature": "depositAndWrap(address,uint256,uint256)",
+            "LeafDigest": "0x328157c44d07e1b31b72032b681ca5e2bd086404eff4edf8e901579bf832b1f1",
+            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
+            "TargetAddress": "0x3B0145f3CFA64BC66F5742F512f871665309075d"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Unwrap beraETH",
+            "FunctionSelector": "0xde0e9a3e",
+            "FunctionSignature": "unwrap(uint256)",
+            "LeafDigest": "0xa07964faa3da6c49c823146ab6841692315085d20c01df1477f337a6de263f65",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d"
+        },
+        {
+            "AddressArguments": [
+                "0xC9475e18E2C5C26EA6ADCD55fabE07920beA887e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve etherFiL2SyncPool to spend WETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0xad23c1db8f5ae3c9ed3a6dc138b48cc566fb398aa6dc134809bbc8e98013b7af",
+            "PackedArgumentAddresses": "0xc9475e18e2c5c26ea6adcd55fabe07920bea887e",
+            "TargetAddress": "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
+        },
+        {
+            "AddressArguments": [
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Deposit ETH into WeETH",
+            "FunctionSelector": "0x8b6099db",
+            "FunctionSignature": "deposit(address,uint256,uint256,address)",
+            "LeafDigest": "0xbab93438977c8f79aab54c3ecaf3c1f8a78acdd826422f183f2a5cd4642b4a87",
+            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590b83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0xC9475e18E2C5C26EA6ADCD55fabE07920beA887e"
+        },
+        {
+            "AddressArguments": [
+                "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve Ooga Booga Router to spend iBGT",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x280239e81ff011edf3cf6a6191442411d809c8f8053f2d0abe424fb7b13fe42a",
+            "PackedArgumentAddresses": "0xfd88ad4849ba0f729d6ff4bc27ff948ab1ac3de7",
+            "TargetAddress": "0xac03CABA51e17c86c921E1f6CBFBdC91F8BB2E6b"
+        },
+        {
+            "AddressArguments": [
+                "0xac03CABA51e17c86c921E1f6CBFBdC91F8BB2E6b",
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
+                "0x415744995e9D35A00189C216c37546E9139F5C2c"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Swap iBGT for WETH",
+            "FunctionSelector": "0xd46cadbc",
+            "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
+            "LeafDigest": "0x1dc4b2bba1fac42836498bcbd3114f7d9e661dc4f45c46ae515c11c35a0ce7d0",
+            "PackedArgumentAddresses": "0xac03caba51e17c86c921e1f6cbfbdc91f8bb2e6b2f6f07cdcf3588944bf4c42ac74ff24bf56e7590b83742330443f7413dbd2abdfc046db0474a944e415744995e9d35a00189c216c37546e9139f5c2c",
+            "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
+        },
+        {
+            "AddressArguments": [
+                "0xac03CABA51e17c86c921E1f6CBFBdC91F8BB2E6b",
+                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
+                "0x415744995e9D35A00189C216c37546E9139F5C2c"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Swap iBGT for weETH",
+            "FunctionSelector": "0xd46cadbc",
+            "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
+            "LeafDigest": "0x35e2f10dfa8f57aa17e6e390f4bcdfac4f46d9831d4bd7d6b064ca13a5e7c5ec",
+            "PackedArgumentAddresses": "0xac03caba51e17c86c921e1f6cbfbdc91f8bb2e6b7dcc39b4d1c53cb31e1abc0e358b43987fef80f7b83742330443f7413dbd2abdfc046db0474a944e415744995e9d35a00189c216c37546e9139f5c2c",
+            "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
+        },
+        {
+            "AddressArguments": [
+                "0xac03CABA51e17c86c921E1f6CBFBdC91F8BB2E6b",
+                "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
+                "0x415744995e9D35A00189C216c37546E9139F5C2c"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Swap iBGT for beraETH",
+            "FunctionSelector": "0xd46cadbc",
+            "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
+            "LeafDigest": "0x86835e20360d42f36d9851dd07cd671177193f3cc1daa4cfc53bb406591a6f8e",
+            "PackedArgumentAddresses": "0xac03caba51e17c86c921e1f6cbfbdc91f8bb2e6b6fc6545d5cde268d5c7f1e476d444f39c995120db83742330443f7413dbd2abdfc046db0474a944e415744995e9d35a00189c216c37546e9139f5c2c",
+            "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
+        },
+        {
+            "AddressArguments": [
+                "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve Ooga Booga Router to spend WETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x6111b324be162832c95194100fc788555f02960d49487bcec8684cc22175b318",
+            "PackedArgumentAddresses": "0xfd88ad4849ba0f729d6ff4bc27ff948ab1ac3de7",
+            "TargetAddress": "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
+        },
+        {
+            "AddressArguments": [
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
+                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
+                "0x415744995e9D35A00189C216c37546E9139F5C2c"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Swap WETH for weETH",
+            "FunctionSelector": "0xd46cadbc",
+            "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
+            "LeafDigest": "0x9cc8a95470d061381bd123a4ac224e55d00a5c056b8a90673daccb3fb823c81d",
+            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e75907dcc39b4d1c53cb31e1abc0e358b43987fef80f7b83742330443f7413dbd2abdfc046db0474a944e415744995e9d35a00189c216c37546e9139f5c2c",
+            "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
+        },
+        {
+            "AddressArguments": [
+                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
+                "0x415744995e9D35A00189C216c37546E9139F5C2c"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Swap weETH for WETH",
+            "FunctionSelector": "0xd46cadbc",
+            "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
+            "LeafDigest": "0x909d800a707ae01143afc99ae88cde1f26d0dce79a5877356362039d145c7550",
+            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f72f6f07cdcf3588944bf4c42ac74ff24bf56e7590b83742330443f7413dbd2abdfc046db0474a944e415744995e9d35a00189c216c37546e9139f5c2c",
+            "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
+        },
+        {
+            "AddressArguments": [
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
+                "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
+                "0x415744995e9D35A00189C216c37546E9139F5C2c"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Swap WETH for beraETH",
+            "FunctionSelector": "0xd46cadbc",
+            "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
+            "LeafDigest": "0x0c867686f22093a8ed78e67c4e20e7065f1032b61100829f9ec9247ad39c1100",
+            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e75906fc6545d5cde268d5c7f1e476d444f39c995120db83742330443f7413dbd2abdfc046db0474a944e415744995e9d35a00189c216c37546e9139f5c2c",
+            "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
+        },
+        {
+            "AddressArguments": [
+                "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d",
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
+                "0x415744995e9D35A00189C216c37546E9139F5C2c"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Swap beraETH for WETH",
+            "FunctionSelector": "0xd46cadbc",
+            "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
+            "LeafDigest": "0x6d465cfbceb03c32671e2f4c0766d19e8160e44787f1fb59d2b4690552d62908",
+            "PackedArgumentAddresses": "0x6fc6545d5cde268d5c7f1e476d444f39c995120d2f6f07cdcf3588944bf4c42ac74ff24bf56e7590b83742330443f7413dbd2abdfc046db0474a944e415744995e9d35a00189c216c37546e9139f5c2c",
+            "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
+        },
+        {
+            "AddressArguments": [
+                "0x656b95E550C07a9ffe548bd4085c72418Ceb1dba",
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
+                "0x415744995e9D35A00189C216c37546E9139F5C2c"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Swap BGT for WETH",
+            "FunctionSelector": "0xd46cadbc",
+            "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
+            "LeafDigest": "0x3468ac966e29d0b436948eb0f8e0ece60e4b765574ce86814170fbb52fc1f854",
+            "PackedArgumentAddresses": "0x656b95e550c07a9ffe548bd4085c72418ceb1dba2f6f07cdcf3588944bf4c42ac74ff24bf56e7590b83742330443f7413dbd2abdfc046db0474a944e415744995e9d35a00189c216c37546e9139f5c2c",
+            "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
+        },
+        {
+            "AddressArguments": [
+                "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve Ooga Booga Router to spend weETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0xf3c4d75a760874c30b734651a1f151ccc6944c82454624c38543bbc02d18de1f",
+            "PackedArgumentAddresses": "0xfd88ad4849ba0f729d6ff4bc27ff948ab1ac3de7",
+            "TargetAddress": "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
+        },
+        {
+            "AddressArguments": [
+                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
+                "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
+                "0x415744995e9D35A00189C216c37546E9139F5C2c"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Swap weETH for beraETH",
+            "FunctionSelector": "0xd46cadbc",
+            "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
+            "LeafDigest": "0x407c991583c5c8f322ad8be1ae710746b73674e4eb2cee6131a70ba2eec81bb6",
+            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f76fc6545d5cde268d5c7f1e476d444f39c995120db83742330443f7413dbd2abdfc046db0474a944e415744995e9d35a00189c216c37546e9139f5c2c",
+            "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
+        },
+        {
+            "AddressArguments": [
+                "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d",
+                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
+                "0x415744995e9D35A00189C216c37546E9139F5C2c"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Swap beraETH for weETH",
+            "FunctionSelector": "0xd46cadbc",
+            "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
+            "LeafDigest": "0x7cea42033b127940d57839c2eeaf0870ee3567b47176f6e5a2a073fe7314fd93",
+            "PackedArgumentAddresses": "0x6fc6545d5cde268d5c7f1e476d444f39c995120d7dcc39b4d1c53cb31e1abc0e358b43987fef80f7b83742330443f7413dbd2abdfc046db0474a944e415744995e9d35a00189c216c37546e9139f5c2c",
+            "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
+        },
+        {
+            "AddressArguments": [
+                "0x656b95E550C07a9ffe548bd4085c72418Ceb1dba",
+                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
+                "0x415744995e9D35A00189C216c37546E9139F5C2c"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Swap BGT for weETH",
+            "FunctionSelector": "0xd46cadbc",
+            "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
+            "LeafDigest": "0x8feca2a405a1878fd9d97628eb4b686a0bfe1014819a12a2b04a5cdf6b41b203",
+            "PackedArgumentAddresses": "0x656b95e550c07a9ffe548bd4085c72418ceb1dba7dcc39b4d1c53cb31e1abc0e358b43987fef80f7b83742330443f7413dbd2abdfc046db0474a944e415744995e9d35a00189c216c37546e9139f5c2c",
+            "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
+        },
+        {
+            "AddressArguments": [
+                "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve Ooga Booga Router to spend beraETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0xe0b4ff29b9247a0c47424c797d1a414f25d6ae80e634d036c16aeb0f8d906650",
+            "PackedArgumentAddresses": "0xfd88ad4849ba0f729d6ff4bc27ff948ab1ac3de7",
+            "TargetAddress": "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d"
+        },
+        {
+            "AddressArguments": [
+                "0x656b95E550C07a9ffe548bd4085c72418Ceb1dba",
+                "0x6fc6545d5cDE268D5C7f1e476D444F39c995120d",
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
+                "0x415744995e9D35A00189C216c37546E9139F5C2c"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Swap BGT for beraETH",
+            "FunctionSelector": "0xd46cadbc",
+            "FunctionSignature": "swap((address,uint256,address,uint256,uint256,address),bytes,address,uint32)",
+            "LeafDigest": "0xb5a68f30ff444df301af0732168c3195531337eefc58525b945f3ae25b30a83b",
+            "PackedArgumentAddresses": "0x656b95e550c07a9ffe548bd4085c72418ceb1dba6fc6545d5cde268d5c7f1e476d444f39c995120db83742330443f7413dbd2abdfc046db0474a944e415744995e9d35a00189c216c37546e9139f5c2c",
+            "TargetAddress": "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
+        },
+        {
+            "AddressArguments": [
+                "0xFd88aD4849BA0F729D6fF4bC27Ff948Ab1Ac3dE7"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve Ooga Booga Router to spend BGT",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0xd255e2005f4faf7443abc3683ebb1c16f179442cc159c12342a27a7a4bafdd30",
+            "PackedArgumentAddresses": "0xfd88ad4849ba0f729d6ff4bc27ff948ab1ac3de7",
+            "TargetAddress": "0x656b95E550C07a9ffe548bd4085c72418Ceb1dba"
+        },
+        {
+            "AddressArguments": [
+                "0x16ed36cB22b298085d10b119030408C7BbfFC24E"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve Infrared Vault to spend KODI WETH-weETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0xccfb7ec45a88bf9820033071d20c49c129a74e2e4d7c0f9ccdb44aca12c8f63c",
+            "PackedArgumentAddresses": "0x16ed36cb22b298085d10b119030408c7bbffc24e",
+            "TargetAddress": "0xA0cAbFc04Fc420b3d31BA431d18eB5bD33B3f334"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Stake KODI WETH-weETH into Infrared Vault",
+            "FunctionSelector": "0xa694fc3a",
+            "FunctionSignature": "stake(uint256)",
+            "LeafDigest": "0x01cec3ade4b3392372ca4a5f678aa989d30962f1446e274e8a2a2faaf5b10853",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x16ed36cB22b298085d10b119030408C7BbfFC24E"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Withdraw KODI WETH-weETH from Infrared Vault",
+            "FunctionSelector": "0x2e1a7d4d",
+            "FunctionSignature": "withdraw(uint256)",
+            "LeafDigest": "0x4217599eeedd0bc49b1308478fb4995b94e1c4017372bbd384cc6b07306d3fec",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x16ed36cB22b298085d10b119030408C7BbfFC24E"
+        },
+        {
+            "AddressArguments": [
+                "0xB83742330443f7413DBD2aBdfc046dB0474a944e"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Get Reward for user from KODI WETH-weETH Infrared Vault",
+            "FunctionSelector": "0xef790a82",
+            "FunctionSignature": "getRewardForUser(address)",
+            "LeafDigest": "0xf1d75e5cef299083d39c7b571470c9265799bf5f2be6e60b8cb4ba3c57635b19",
+            "PackedArgumentAddresses": "0xb83742330443f7413dbd2abdfc046db0474a944e",
+            "TargetAddress": "0x16ed36cB22b298085d10b119030408C7BbfFC24E"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Get Reward for KODI WETH-weETH Infrared Vault",
+            "FunctionSelector": "0x3d18b912",
+            "FunctionSignature": "getReward()",
+            "LeafDigest": "0x220355e7373495581fe4678731a138084f45a1d621e0a8e5f6e2da9f0279f503",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x16ed36cB22b298085d10b119030408C7BbfFC24E"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Exit from KODI WETH-weETH Infrared Vault",
+            "FunctionSelector": "0xe9fad8ee",
+            "FunctionSignature": "exit()",
+            "LeafDigest": "0xa3a686016225bd85b79a661e8360ea41406bce03df753e13426a379fc956be85",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x16ed36cB22b298085d10b119030408C7BbfFC24E"
+        },
+        {
+            "AddressArguments": [
+                "0x55ee6E1ADF848a2Fc831B07564223396ef6258d4"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve Accountant to spend WETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x7ca350ad96abfe1d4699ac15f07aedf9a7393931050feb27b91dd86a844b0072",
+            "PackedArgumentAddresses": "0x55ee6e1adf848a2fc831b07564223396ef6258d4",
+            "TargetAddress": "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
+        },
+        {
+            "AddressArguments": [
+                "0x55ee6E1ADF848a2Fc831B07564223396ef6258d4"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Approve Accountant to spend weETH",
+            "FunctionSelector": "0x095ea7b3",
+            "FunctionSignature": "approve(address,uint256)",
+            "LeafDigest": "0x70931bf5b1bddb7a500c323799e4948913d8bfa6d8029091d3456a1f432e024e",
+            "PackedArgumentAddresses": "0x55ee6e1adf848a2fc831b07564223396ef6258d4",
+            "TargetAddress": "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
+        },
+        {
+            "AddressArguments": [
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Claim fees in WETH",
+            "FunctionSelector": "0x15a0ea6a",
+            "FunctionSignature": "claimFees(address)",
+            "LeafDigest": "0xf70b62c30f460918d62bf3548d3c5c826eb61740140a86e12a141ac48a9f0db2",
+            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
+            "TargetAddress": "0x55ee6E1ADF848a2Fc831B07564223396ef6258d4"
+        },
+        {
+            "AddressArguments": [
+                "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Claim yield in WETH",
+            "FunctionSelector": "0x999927df",
+            "FunctionSignature": "claimYield(address)",
+            "LeafDigest": "0x2abfe1664cf376074a125346ec22cf9b20bb7f9f6485cbf71d40a2fd49fa77a4",
+            "PackedArgumentAddresses": "0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590",
+            "TargetAddress": "0x55ee6E1ADF848a2Fc831B07564223396ef6258d4"
+        },
+        {
+            "AddressArguments": [
+                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Claim fees in weETH",
+            "FunctionSelector": "0x15a0ea6a",
+            "FunctionSignature": "claimFees(address)",
+            "LeafDigest": "0x6a4d1c3a0dca7b9f5ae1a88dbb311cea9cf13dda044936bc99e793fa9fbf1c7e",
+            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f7",
+            "TargetAddress": "0x55ee6E1ADF848a2Fc831B07564223396ef6258d4"
+        },
+        {
+            "AddressArguments": [
+                "0x7DCC39B4d1C53CB31e1aBc0e358b43987FEF80f7"
+            ],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+            "Description": "Claim yield in weETH",
+            "FunctionSelector": "0x999927df",
+            "FunctionSignature": "claimYield(address)",
+            "LeafDigest": "0x7041f6331fb69f5407db6647db8b0318d33346a128dd731215fc18ef8b8b82e6",
+            "PackedArgumentAddresses": "0x7dcc39b4d1c53cb31e1abc0e358b43987fef80f7",
+            "TargetAddress": "0x55ee6E1ADF848a2Fc831B07564223396ef6258d4"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        },
+        {
+            "AddressArguments": [],
+            "CanSendValue": false,
+            "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+            "Description": "",
+            "FunctionSelector": "0xc5d24601",
+            "FunctionSignature": "",
+            "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+            "PackedArgumentAddresses": "0x",
+            "TargetAddress": "0x0000000000000000000000000000000000000000"
+        }
+    ],
+    "metadata": {
+        "AccountantAddress": "0x55ee6E1ADF848a2Fc831B07564223396ef6258d4",
+        "BoringVaultAddress": "0xB83742330443f7413DBD2aBdfc046dB0474a944e",
+        "DecoderAndSanitizerAddress": "0x661B04bF5C0D66F8D923fEC2FCD0C9b20C96c150",
+        "DigestComposition": [
+            "Bytes20(DECODER_AND_SANITIZER_ADDRESS)",
+            "Bytes20(TARGET_ADDRESS)",
+            "Bytes1(CAN_SEND_VALUE)",
+            "Bytes4(TARGET_FUNCTION_SELECTOR)",
+            "Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"
+        ],
+        "LeafCount": 116,
+        "ManageRoot": "0xa5e8a29438d519169fbe5c05d6efd90a8e7e00d804e89dc719d3fba428afd1b8",
+        "ManagerAddress": "0x58d32BCfa335B1EE9E25A291408409ceA890Be6b",
+        "TreeCapacity": 128
     }
 }
