@@ -35,8 +35,17 @@ def main():
                 open(p, "w", encoding="utf-8").write(canon)
     if check:
         if noncanon:
-            print(f"{len(noncanon)} leaf file(s) not canonical — run scripts/normalize_leaves.py:")
-            for p in noncanon[:20]: print("  " + p)
+            # ::error:: makes this show as an annotation on the GitHub PR check.
+            print(
+                f"::error::{len(noncanon)} leaf JSON file(s) are not canonical. "
+                f"Fix by running `python3 scripts/normalize_leaves.py` and committing the result."
+            )
+            print(f"{len(noncanon)} leaf file(s) not canonical:")
+            for p in noncanon[:20]:
+                print("  " + p)
+            if len(noncanon) > 20:
+                print(f"  ... and {len(noncanon) - 20} more")
+            print("\nTo fix: run  python3 scripts/normalize_leaves.py  then commit the changes.")
             sys.exit(1)
         print(f"all {len(files)} leaf files canonical")
     else:
