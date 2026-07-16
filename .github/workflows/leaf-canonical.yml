@@ -1,0 +1,20 @@
+name: leaf-canonical
+
+# Leaf JSON is written by forge's vm.serialize* with an unstable key order, which
+# makes the files diff wholesale on every regeneration. scripts/normalize_leaves.py
+# canonicalizes them (sorted keys, fixed indent — content-preserving); this check
+# fails a PR if a regenerated leaf file wasn't normalized before committing.
+on:
+  pull_request:
+    paths:
+      - "leafs/**"
+      - "scripts/normalize_leaves.py"
+      - ".github/workflows/leaf-canonical.yml"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check leaf JSON is canonical
+        run: python3 scripts/normalize_leaves.py --check
