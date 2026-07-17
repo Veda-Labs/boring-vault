@@ -105,13 +105,6 @@ contract CreateSentoraMerkleRootScript is Script, MerkleTreeHelper {
         itbPositionManager = 0x1D4066c9c1A720A71B8e8097eE23bDD56570D644;
         _addLeafsForITBPositionManagerLocal(leafs, itbPositionManager, itbTokensUsed2, "Sentora Morpho LBTC/PYUSD Surplus Harvester");
 
-        // ========================== Aave V3 (Core Market) ==========================
-        ERC20[] memory aaveSupplyAssets = new ERC20[](2);
-        aaveSupplyAssets[0] = getERC20(sourceChain, "LBTC");
-        aaveSupplyAssets[1] = getERC20(sourceChain, "USDT");
-        ERC20[] memory aaveBorrowAssets = new ERC20[](0);
-        _addAaveV3Leafs(leafs, aaveSupplyAssets, aaveBorrowAssets);
-
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
