@@ -20,7 +20,7 @@ contract CreateSentoraMerkleRootScript is Script, MerkleTreeHelper {
     address public boringVault = 0x13Cc1b39cb259BA10cd174EAe42012e698ed7c51;
     address public managerAddress = 0xdd5C7C5206558e4eA66a58592fEaE13424ED6F07;
     address public accountantAddress = 0x42135D908efa4E6aFd7E9B73D5A1bA55955F93fA;
-    address public rawDataDecoderAndSanitizer = 0xBf6199F596D7296875Faa175Ed02Dc3940C1682E;
+    address public rawDataDecoderAndSanitizer = 0x0a88a3405f83E84D255c57010C2Eb70971fC7A2A;
 
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
     address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
@@ -41,7 +41,7 @@ contract CreateSentoraMerkleRootScript is Script, MerkleTreeHelper {
         setAddress(false, mainnet, "accountantAddress", accountantAddress);
         setAddress(false, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](128);
+        ManageLeaf[] memory leafs = new ManageLeaf[](256);
 
         // ========================== Odos/1inch ==========================
         address[] memory assets = new address[](5);
@@ -78,6 +78,28 @@ contract CreateSentoraMerkleRootScript is Script, MerkleTreeHelper {
         itbTokensUsed2[1] = getERC20(sourceChain, "PYUSD");
         itbPositionManager = 0x6CAD5fCb29d98c4968A79eA7dB286c5986389009;
         _addLeafsForITBPositionManagerLocal(leafs, itbPositionManager, itbTokensUsed2, "Morpho LBTC (PYUSD) + PYUSD Supervised Loan");
+
+        ERC20[] memory itbTokensUsed3 = new ERC20[](2);
+        itbTokensUsed3[0] = getERC20(sourceChain, "LBTC");
+        itbTokensUsed3[1] = getERC20(sourceChain, "USDT");
+        itbPositionManager = 0x8012BA33Edd79a2eEd438C6e61Fe3b95084706C6;
+        _addLeafsForITBPositionManagerLocal(leafs, itbPositionManager, itbTokensUsed3, "Sentora Supervised Loan");
+        itbPositionManager = 0x9801a38563a4B01B3Ae4745Ff0229d7Fe61772fa;
+        _addLeafsForITBPositionManagerLocal(leafs, itbPositionManager, itbTokensUsed3, "Sentora Loan Manager");
+        itbPositionManager = 0x0129a42a4dE8F84A51F5983a64461bc3943D0B5B;
+        _addLeafsForITBPositionManagerLocal(leafs, itbPositionManager, itbTokensUsed3, "Sentora Yield Position");
+        itbPositionManager = 0xCd4F37BA2E12230B1919753adbdFbc60ecF70f7f;
+        _addLeafsForITBPositionManagerLocal(leafs, itbPositionManager, itbTokensUsed3, "Sentora Asset Oracle");
+        itbPositionManager = 0x1B8caa44a93a1A537066b7891F2c654Adc31a9D4;
+        _addLeafsForITBPositionManagerLocal(leafs, itbPositionManager, itbTokensUsed3, "Sentora Surplus Harvester");
+
+        // ========================== Aave V3 (Core Market) ==========================
+        ERC20[] memory aaveSupplyAssets = new ERC20[](3);
+        aaveSupplyAssets[0] = getERC20(sourceChain, "LBTC");
+        aaveSupplyAssets[1] = getERC20(sourceChain, "USDT");
+        aaveSupplyAssets[2] = getERC20(sourceChain, "PRIME");
+        ERC20[] memory aaveBorrowAssets = new ERC20[](0);
+        _addAaveV3Leafs(leafs, aaveSupplyAssets, aaveBorrowAssets);
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
