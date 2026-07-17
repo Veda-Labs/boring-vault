@@ -93,6 +93,18 @@ contract CreateSentoraMerkleRootScript is Script, MerkleTreeHelper {
         itbPositionManager = 0x1B8caa44a93a1A537066b7891F2c654Adc31a9D4;
         _addLeafsForITBPositionManagerLocal(leafs, itbPositionManager, itbTokensUsed3, "Sentora Surplus Harvester");
 
+        // Morpho LBTC/PYUSD position managers (tokens: LBTC + PYUSD, PRIME handled internally by Sentora contracts)
+        itbPositionManager = 0xff9968b429530B59b715fB937801B7949C9F6843;
+        _addLeafsForITBPositionManagerLocal(leafs, itbPositionManager, itbTokensUsed2, "Sentora Morpho LBTC/PYUSD Supervised Loan");
+        itbPositionManager = 0x75Af596Bf2930c33d6D44cf52Dc5B4d08abf5051;
+        _addLeafsForITBPositionManagerLocal(leafs, itbPositionManager, itbTokensUsed2, "Sentora Morpho LBTC/PYUSD Loan Manager");
+        itbPositionManager = 0x87B338c495964c9cf6C5022D382a8200e9E5aBd8;
+        _addLeafsForITBPositionManagerLocal(leafs, itbPositionManager, itbTokensUsed2, "Sentora Morpho LBTC/PYUSD Yield Position");
+        itbPositionManager = 0x017D2882B28330F6b6a2803dbf134E8863CBA26C;
+        _addLeafsForITBPositionManagerLocal(leafs, itbPositionManager, itbTokensUsed2, "Sentora Morpho LBTC/PYUSD Asset Oracle");
+        itbPositionManager = 0x1D4066c9c1A720A71B8e8097eE23bDD56570D644;
+        _addLeafsForITBPositionManagerLocal(leafs, itbPositionManager, itbTokensUsed2, "Sentora Morpho LBTC/PYUSD Surplus Harvester");
+
         // ========================== Aave V3 (Core Market) ==========================
         ERC20[] memory aaveSupplyAssets = new ERC20[](2);
         aaveSupplyAssets[0] = getERC20(sourceChain, "LBTC");
