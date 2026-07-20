@@ -2915,6 +2915,7 @@ contract ChainValues {
         values[hyperEVM]["PENDLE"] = 0xD6Eb81136884713E843936843E286FD2a85A205A.toBytes32();
         values[hyperEVM]["USDT"] = 0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb.toBytes32();
         values[hyperEVM]["USDC"] = 0xb88339CB7199b77E23DB6E890353E22632Ba630f.toBytes32();
+        values[hyperEVM]["NEST"] = 0x07c57E32a3C29D5659bda1d3EFC2E7BF004E3035.toBytes32();
         values[hyperEVM]["USDTOFTAdapter"] = 0x904861a24F30EC96ea7CFC3bE9EA4B476d237e98.toBytes32();
         values[hyperEVM]["ZRO"] = address(1).toBytes32();
 
@@ -2962,6 +2963,10 @@ contract ChainValues {
         // Project X
         values[hyperEVM]["uniswapV3NonFungiblePositionManager"] = 0xeaD19AE861c29bBb2101E834922B2FEee69B9091.toBytes32();
         values[hyperEVM]["uniV3Router"] = 0x1EbDFC75FfE3ba3de61E7138a3E8706aC841Af9B.toBytes32();
+
+        // Nest DEX
+        values[hyperEVM]["nestNonFungiblePositionManager"] = 0xEAF58788a405F3253814b4559391a22bE8616250.toBytes32();
+        values[hyperEVM]["nestGaugeRewarder"] = 0xfF0124cf664240e5573282511042d7033C3f22eA.toBytes32();
 
         // Ooga Booga
         values[hyperEVM]["OBRouter"] = 0x5fbD1B5AA82d09359C05428647871fe9aDd3F411.toBytes32();

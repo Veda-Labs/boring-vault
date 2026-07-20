@@ -71,6 +71,7 @@ interface PancakeSwapV3MasterChef {
 
 interface CamelotNonFungiblePositionManager {
     function ownerOf(uint256 tokenId) external view returns (address);
+    function balanceOf(address owner) external view returns (uint256);
     function positions(uint256 tokenId)
         external
         view

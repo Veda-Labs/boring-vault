@@ -5727,6 +5727,146 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
     }
 
+    // ========================================= Nest DEX =========================================
+
+    function _addNestLeafs(ManageLeaf[] memory leafs, address[] memory token0, address[] memory token1) internal {
+        require(token0.length == token1.length, "Token arrays must be of equal length");
+        for (uint256 i; i < token0.length; ++i) {
+            (token0[i], token1[i]) = token0[i] < token1[i] ? (token0[i], token1[i]) : (token1[i], token0[i]);
+            // Approvals
+            if (
+                !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token0[i]][getAddress(
+                    sourceChain, "nestNonFungiblePositionManager"
+                )]
+            ) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    token0[i],
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve Nest NonFungible Position Manager to spend ", ERC20(token0[i]).symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "nestNonFungiblePositionManager");
+                ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token0[i]][getAddress(
+                    sourceChain, "nestNonFungiblePositionManager"
+                )] = true;
+            }
+            if (
+                !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token1[i]][getAddress(
+                    sourceChain, "nestNonFungiblePositionManager"
+                )]
+            ) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    token1[i],
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve Nest NonFungible Position Manager to spend ", ERC20(token1[i]).symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "nestNonFungiblePositionManager");
+                ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][token1[i]][getAddress(
+                    sourceChain, "nestNonFungiblePositionManager"
+                )] = true;
+            }
+
+            // Minting
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "nestNonFungiblePositionManager"),
+                false,
+                "mint((address,address,int24,int24,uint256,uint256,uint256,uint256,address,uint256))",
+                new address[](3),
+                string.concat("Mint Nest ", ERC20(token0[i]).symbol(), " ", ERC20(token1[i]).symbol(), " position"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = token0[i];
+            leafs[leafIndex].argumentAddresses[1] = token1[i];
+            leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+            // Increase liquidity
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "nestNonFungiblePositionManager"),
+                false,
+                "increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))",
+                new address[](4),
+                string.concat(
+                    "Add liquidity to Nest ", ERC20(token0[i]).symbol(), " ", ERC20(token1[i]).symbol(), " position"
+                ),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(0);
+            leafs[leafIndex].argumentAddresses[1] = token0[i];
+            leafs[leafIndex].argumentAddresses[2] = token1[i];
+            leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "boringVault");
+        }
+        // Decrease liquidity
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "nestNonFungiblePositionManager"),
+            false,
+            "decreaseLiquidity((uint256,uint128,uint256,uint256,uint256))",
+            new address[](1),
+            "Remove liquidity from Nest position",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+        // Collect
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "nestNonFungiblePositionManager"),
+            false,
+            "collect((uint256,address,uint128,uint128))",
+            new address[](2),
+            "Collect fees from Nest position",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+
+        // Burn
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "nestNonFungiblePositionManager"),
+            false,
+            "burn(uint256)",
+            new address[](0),
+            "Burn Nest position",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        // Claim NEST rewards
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "nestGaugeRewarder"),
+            false,
+            "claim(uint256,uint256,bytes)",
+            new address[](0),
+            "Claim NEST rewards from Nest GaugeRewarder",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+    }
+
     // ========================================= Algebra V4 / Camelot V4 =========================================
     
     function _addAlgebraV4Leafs(ManageLeaf[] memory leafs, address[] memory token0, address[] memory token1, address deployer) internal {
