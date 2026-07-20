@@ -78,12 +78,15 @@ contract CreateSentoraMerkleRootScript is Script, MerkleTreeHelper {
         itbTokensUsed2[1] = getERC20(sourceChain, "PYUSD");
         itbPositionManager = 0x6CAD5fCb29d98c4968A79eA7dB286c5986389009;
         _addLeafsForITBPositionManagerLocal(leafs, itbPositionManager, itbTokensUsed2, "Morpho LBTC (PYUSD) + PYUSD Supervised Loan");
+        itbPositionManager = 0xff9968b429530B59b715fB937801B7949C9F6843; 
+        _addLeafsForITBPositionManagerLocal(leafs, itbPositionManager, itbTokensUsed2, "Morpho LBTC (PRIME) + PYUSD Supervised Loan");
 
         ERC20[] memory itbTokensUsed3 = new ERC20[](2);
         itbTokensUsed3[0] = getERC20(sourceChain, "LBTC");
         itbTokensUsed3[1] = getERC20(sourceChain, "USDT");
         itbPositionManager = 0x8012BA33Edd79a2eEd438C6e61Fe3b95084706C6;
         _addLeafsForITBPositionManagerLocal(leafs, itbPositionManager, itbTokensUsed3, "Sentora Supervised Loan");
+
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
