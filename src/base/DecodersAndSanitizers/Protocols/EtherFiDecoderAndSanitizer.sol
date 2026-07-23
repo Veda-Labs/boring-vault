@@ -73,24 +73,6 @@ contract EtherFiDecoderAndSanitizer {
         addressesFound = abi.encodePacked(_referral);
     }
 
-    function depositStETHForWeETHWithPermit(
-        uint256 /*_amount*/,
-        uint256 /*_minOutAmount*/,
-        address _referral,
-        DecoderCustomTypes.PermitInput calldata /*_permit*/
-    ) external pure virtual returns (bytes memory addressesFound) {
-        addressesFound = abi.encodePacked(_referral);
-    }
-
-    function depositWstETHForWeETHWithPermit(
-        uint256 /*_amount*/,
-        uint256 /*_minOutAmount*/,
-        address _referral,
-        DecoderCustomTypes.PermitInput calldata /*_permit*/
-    ) external pure virtual returns (bytes memory addressesFound) {
-        addressesFound = abi.encodePacked(_referral);
-    }
-
     //====================== Redemption Manager ============================
 
     function redeemEEth(uint256 /*_eEthAmount*/, address _receiver, address _outputToken) external pure virtual returns (bytes memory addressesFound) {

@@ -2757,56 +2757,6 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = address(0);
-        // Deposit stETH
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "STETH"),
-            false,
-            "approve(address,uint256)",
-            new address[](1),
-            "Approve ether.fi Deposit Adapter to spend stETH",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "depositAdapter");
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "depositAdapter"),
-            false,
-            "depositStETHForWeETHWithPermit(uint256,uint256,address,(uint256,uint256,uint8,bytes32,bytes32))",
-            new address[](1),
-            "Deposit stETH for weETH via ether.fi Deposit Adapter",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = address(0);
-        // Deposit wstETH
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "WSTETH"),
-            false,
-            "approve(address,uint256)",
-            new address[](1),
-            "Approve ether.fi Deposit Adapter to spend wstETH",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "depositAdapter");
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "depositAdapter"),
-            false,
-            "depositWstETHForWeETHWithPermit(uint256,uint256,address,(uint256,uint256,uint8,bytes32,bytes32))",
-            new address[](1),
-            "Deposit wstETH for weETH via ether.fi Deposit Adapter",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = address(0);
     }
 
     function _addEtherFiRedemptionManagerLeafs(ManageLeaf[] memory leafs) internal {
