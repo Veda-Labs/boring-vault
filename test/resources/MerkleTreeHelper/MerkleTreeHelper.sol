@@ -11488,6 +11488,109 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
 
     }
 
+    // ========================================= Upshift TokenizedVault =========================================
+
+    /// @notice Adds deposit and withdrawal leaves for an Upshift Fractal-style TokenizedVault
+    ///         (e.g. Sentora USD Earn on ETH mainnet).
+    /// @dev Each deposit token gets its own approval and deposit leaf. Deposits mint the vault's LP
+    ///      token to the BoringVault. Withdrawals return the vault's reference asset and are either
+    ///      instant (fee applies) or lagged via requestRedeem + claim. requestRedeem pulls LP tokens
+    ///      from the caller, hence the LP token approval leaf.
+    function _addUpshiftTokenizedVaultLeafs(
+        ManageLeaf[] memory leafs,
+        address vault,
+        ERC20[] memory depositTokens
+    ) internal {
+        ERC20 referenceAsset = ERC20(UpshiftTokenizedVault(vault).asset());
+        ERC20 lpToken = ERC20(UpshiftTokenizedVault(vault).lpTokenAddress());
+
+        for (uint256 i; i < depositTokens.length; ++i) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                address(depositTokens[i]),
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat(
+                    "Approve Upshift ", lpToken.symbol(), " vault to spend ", depositTokens[i].symbol()
+                ),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = vault;
+        }
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            address(lpToken),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve Upshift ", lpToken.symbol(), " vault to spend ", lpToken.symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = vault;
+
+        for (uint256 i; i < depositTokens.length; ++i) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                vault,
+                false,
+                "deposit(address,uint256,address)",
+                new address[](2),
+                string.concat("Deposit ", depositTokens[i].symbol(), " into Upshift ", lpToken.symbol(), " vault"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(depositTokens[i]);
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+        }
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            vault,
+            false,
+            "requestRedeem(uint256,address)",
+            new address[](1),
+            string.concat("Request redemption of ", lpToken.symbol(), " from Upshift vault"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            vault,
+            false,
+            "claim(uint256,uint256,uint256,address)",
+            new address[](1),
+            string.concat("Claim ", referenceAsset.symbol(), " from Upshift ", lpToken.symbol(), " vault redemption"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            vault,
+            false,
+            "instantRedeem(uint256,address)",
+            new address[](1),
+            string.concat(
+                "Instantly redeem ", lpToken.symbol(), " for ", referenceAsset.symbol(), " from Upshift vault"
+            ),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+    }
 
     function _addRoycoRecipeAPOfferLeafs(
         ManageLeaf[] memory leafs,
@@ -18156,6 +18259,11 @@ interface VelodromV2Gauge {
 
 interface VaultSupervisor {
     function delegationSupervisor() external view returns (address);
+}
+
+interface UpshiftTokenizedVault {
+    function asset() external view returns (address);
+    function lpTokenAddress() external view returns (address);
 }
 
 interface IInfraredVault {

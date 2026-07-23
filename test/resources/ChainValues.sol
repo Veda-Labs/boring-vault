@@ -402,6 +402,8 @@ contract ChainValues {
         values[mainnet]["mUSD"] = 0xacA92E438df0B2401fF60dA7E4337B687a2435DA.toBytes32();
         values[mainnet]["PRIME"] = 0x19ebb35279A16207Ec4ba82799CC64715065F7F6.toBytes32();
         values[mainnet]["wYLDS"] = 0x6aD038cA6C04e885630851278ca0a856Ad9a66Cc.toBytes32();
+        values[mainnet]["upshiftSentUSDVault"] = 0x74aD2F789Ed583DBd141bbdafC673fE1F033718b.toBytes32();
+        values[mainnet]["sentUSD"] = 0xe8aA1A9eC6b9BC455D8f33E4BDC685dedFf82407.toBytes32();
 
         // Infinifi
         values[mainnet]["infinifiGateway"] = 0x3f04b65Ddbd87f9CE0A2e7Eb24d80e7fb87625b5.toBytes32();
