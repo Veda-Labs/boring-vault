@@ -40,7 +40,12 @@ contract EtherFiDecoderAndSanitizer {
     }
 
     function depositWithERC20(address _token, uint256 /*_amount*/, address _referral) external pure virtual returns (bytes memory addressesFound) {
-        addressesFound = abi.encodePacked(_token, _referral); 
+        addressesFound = abi.encodePacked(_token, _referral);
+    }
+
+    // Current Liquifier signature; a _minOutAmount param was added in an upgrade
+    function depositWithERC20(address _token, uint256 /*_amount*/, uint256 /*_minOutAmount*/, address _referral) external pure virtual returns (bytes memory addressesFound) {
+        addressesFound = abi.encodePacked(_token, _referral);
     }
 
     //=================== Priority Withdrawal Queue ========================
