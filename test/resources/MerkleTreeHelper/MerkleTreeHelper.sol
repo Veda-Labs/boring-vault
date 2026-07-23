@@ -2708,38 +2708,6 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex] = ManageLeaf(
             getAddress(sourceChain, "etherFiVampirePool"),
             false,
-            "depositWithERC20(address,uint256,address)",
-            new address[](2),
-            "Deposit ERC20 for eETH",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "STETH");
-        leafs[leafIndex].argumentAddresses[1] = address(0);
-
-    }
-
-    // Liquifier (vampire pool) stETH deposit flow with the current on-chain
-    // depositWithERC20 signature; _addEtherFiLeafs still emits the pre-upgrade
-    // 3-arg leaf, which is kept for roots targeting older deployments.
-    function _addEtherFiLiquifierLeafs(ManageLeaf[] memory leafs) internal {
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "STETH"),
-            false,
-            "approve(address,uint256)",
-            new address[](1),
-            "Approve EtherFi Vampire Pool to spend STETH",
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "etherFiVampirePool");
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "etherFiVampirePool"),
-            false,
             "depositWithERC20(address,uint256,uint256,address)",
             new address[](2),
             "Deposit ERC20 for eETH",
@@ -2747,6 +2715,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "STETH");
         leafs[leafIndex].argumentAddresses[1] = address(0);
+
     }
 
     function _addEtherFiDepositAdapterLeafs(ManageLeaf[] memory leafs) internal {
