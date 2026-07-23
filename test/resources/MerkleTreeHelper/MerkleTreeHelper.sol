@@ -2714,8 +2714,185 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "STETH");
-        leafs[leafIndex].argumentAddresses[1] = address(0); 
+        leafs[leafIndex].argumentAddresses[1] = address(0);
 
+    }
+
+    function _addEtherFiDepositAdapterLeafs(ManageLeaf[] memory leafs) internal {
+        // Deposit ETH
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "depositAdapter"),
+            true,
+            "depositETHForWeETH(address)",
+            new address[](1),
+            "Deposit ETH for weETH via ether.fi Deposit Adapter",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = address(0);
+        // Deposit WETH
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "WETH"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve ether.fi Deposit Adapter to spend WETH",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "depositAdapter");
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "depositAdapter"),
+            false,
+            "depositWETHForWeETH(uint256,address)",
+            new address[](1),
+            "Deposit WETH for weETH via ether.fi Deposit Adapter",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = address(0);
+        // Deposit stETH
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "STETH"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve ether.fi Deposit Adapter to spend stETH",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "depositAdapter");
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "depositAdapter"),
+            false,
+            "depositStETHForWeETHWithPermit(uint256,uint256,address,(uint256,uint256,uint8,bytes32,bytes32))",
+            new address[](1),
+            "Deposit stETH for weETH via ether.fi Deposit Adapter",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = address(0);
+        // Deposit wstETH
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "WSTETH"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve ether.fi Deposit Adapter to spend wstETH",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "depositAdapter");
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "depositAdapter"),
+            false,
+            "depositWstETHForWeETHWithPermit(uint256,uint256,address,(uint256,uint256,uint8,bytes32,bytes32))",
+            new address[](1),
+            "Deposit wstETH for weETH via ether.fi Deposit Adapter",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = address(0);
+    }
+
+    function _addEtherFiRedemptionManagerLeafs(ManageLeaf[] memory leafs) internal {
+        // Approvals
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "EETH"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve ether.fi Redemption Manager to spend eETH",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "etherFiRedemptionManager");
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "WEETH"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve ether.fi Redemption Manager to spend weETH",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "etherFiRedemptionManager");
+
+        // Redeem leafs: one per (function x output token)
+        string[2] memory outputTokenKeys = ["ETH", "STETH"];
+        string[2] memory outputTokenNames = ["ETH", "stETH"];
+        for (uint256 i; i < 2; i++) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "etherFiRedemptionManager"),
+                false,
+                "redeemEEth(uint256,address,address)",
+                new address[](2),
+                string.concat("Redeem eETH for ", outputTokenNames[i], " via ether.fi Redemption Manager"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, outputTokenKeys[i]);
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "etherFiRedemptionManager"),
+                false,
+                "redeemWeEth(uint256,address,address)",
+                new address[](2),
+                string.concat("Redeem weETH for ", outputTokenNames[i], " via ether.fi Redemption Manager"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, outputTokenKeys[i]);
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "etherFiRedemptionManager"),
+                false,
+                "redeemEEthWithPermit(uint256,address,(uint256,uint256,uint8,bytes32,bytes32),address)",
+                new address[](2),
+                string.concat("Redeem eETH with permit for ", outputTokenNames[i], " via ether.fi Redemption Manager"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, outputTokenKeys[i]);
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "etherFiRedemptionManager"),
+                false,
+                "redeemWeEthWithPermit(uint256,address,(uint256,uint256,uint8,bytes32,bytes32),address)",
+                new address[](2),
+                string.concat("Redeem weETH with permit for ", outputTokenNames[i], " via ether.fi Redemption Manager"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, outputTokenKeys[i]);
+        }
     }
 
     function _addEtherFiPriorityWithdrawalLeafs(ManageLeaf[] memory leafs) internal {

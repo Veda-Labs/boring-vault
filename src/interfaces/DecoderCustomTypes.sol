@@ -870,6 +870,14 @@ contract DecoderCustomTypes {
         uint32 creationTime;    // Timestamp when request was created
     }
 
+    struct PermitInput {
+        uint256 value;
+        uint256 deadline;
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
+    }
+
     // ========================================= Wormhole ==================================
 
     struct WormholeExecutorArgs {

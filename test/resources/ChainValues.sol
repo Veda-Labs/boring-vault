@@ -862,6 +862,8 @@ contract ChainValues {
         values[mainnet]["withdrawalRequestNft"] = 0x7d5706f6ef3F89B3951E23e557CDFBC3239D4E2c.toBytes32();
         values[mainnet]["etherFiPriorityWithdrawalQueue"] = 0x35e7D6feF6f72aDd3c3e39dEc6d9CCc29e3345FA.toBytes32();
         values[mainnet]["etherFiVampirePool"] = 0x9FFDF407cDe9a93c47611799DA23924Af3EF764F.toBytes32();
+        values[mainnet]["depositAdapter"] = 0xcfC6d9Bd7411962Bfe7145451A7EF71A24b6A7A2.toBytes32();
+        values[mainnet]["etherFiRedemptionManager"] = 0xDadEf1fFBFeaAB4f68A9fD181395F68b4e4E7Ae0.toBytes32();
 
         // Renzo
         values[mainnet]["restakeManager"] = 0x74a09653A083691711cF8215a6ab074BB4e99ef5.toBytes32();

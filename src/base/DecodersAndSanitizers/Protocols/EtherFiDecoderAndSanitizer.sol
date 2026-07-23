@@ -63,4 +63,60 @@ contract EtherFiDecoderAndSanitizer {
         addressesFound = abi.encodePacked(request.user);
     }
 
+    //======================== Deposit Adapter =============================
+
+    function depositETHForWeETH(address _referral) external pure virtual returns (bytes memory addressesFound) {
+        addressesFound = abi.encodePacked(_referral);
+    }
+
+    function depositWETHForWeETH(uint256 /*_amount*/, address _referral) external pure virtual returns (bytes memory addressesFound) {
+        addressesFound = abi.encodePacked(_referral);
+    }
+
+    function depositStETHForWeETHWithPermit(
+        uint256 /*_amount*/,
+        uint256 /*_minOutAmount*/,
+        address _referral,
+        DecoderCustomTypes.PermitInput calldata /*_permit*/
+    ) external pure virtual returns (bytes memory addressesFound) {
+        addressesFound = abi.encodePacked(_referral);
+    }
+
+    function depositWstETHForWeETHWithPermit(
+        uint256 /*_amount*/,
+        uint256 /*_minOutAmount*/,
+        address _referral,
+        DecoderCustomTypes.PermitInput calldata /*_permit*/
+    ) external pure virtual returns (bytes memory addressesFound) {
+        addressesFound = abi.encodePacked(_referral);
+    }
+
+    //====================== Redemption Manager ============================
+
+    function redeemEEth(uint256 /*_eEthAmount*/, address _receiver, address _outputToken) external pure virtual returns (bytes memory addressesFound) {
+        addressesFound = abi.encodePacked(_receiver, _outputToken);
+    }
+
+    function redeemWeEth(uint256 /*_weEthAmount*/, address _receiver, address _outputToken) external pure virtual returns (bytes memory addressesFound) {
+        addressesFound = abi.encodePacked(_receiver, _outputToken);
+    }
+
+    function redeemEEthWithPermit(
+        uint256 /*_eEthAmount*/,
+        address _receiver,
+        DecoderCustomTypes.PermitInput calldata /*_permit*/,
+        address _outputToken
+    ) external pure virtual returns (bytes memory addressesFound) {
+        addressesFound = abi.encodePacked(_receiver, _outputToken);
+    }
+
+    function redeemWeEthWithPermit(
+        uint256 /*_weEthAmount*/,
+        address _receiver,
+        DecoderCustomTypes.PermitInput calldata /*_permit*/,
+        address _outputToken
+    ) external pure virtual returns (bytes memory addressesFound) {
+        addressesFound = abi.encodePacked(_receiver, _outputToken);
+    }
+
 }
