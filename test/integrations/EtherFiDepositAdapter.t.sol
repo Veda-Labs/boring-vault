@@ -36,8 +36,6 @@ contract EtherFiDepositAdapterIntegration is BaseTestIntegration {
 
         manageTree = _generateMerkleTree(leafs);
 
-        _generateTestLeafs(leafs, manageTree);
-
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
     }
 

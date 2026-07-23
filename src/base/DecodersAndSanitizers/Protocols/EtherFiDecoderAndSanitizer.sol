@@ -101,22 +101,4 @@ contract EtherFiDecoderAndSanitizer {
         addressesFound = abi.encodePacked(_receiver, _outputToken);
     }
 
-    function redeemEEthWithPermit(
-        uint256 /*_eEthAmount*/,
-        address _receiver,
-        DecoderCustomTypes.PermitInput calldata /*_permit*/,
-        address _outputToken
-    ) external pure virtual returns (bytes memory addressesFound) {
-        addressesFound = abi.encodePacked(_receiver, _outputToken);
-    }
-
-    function redeemWeEthWithPermit(
-        uint256 /*_weEthAmount*/,
-        address _receiver,
-        DecoderCustomTypes.PermitInput calldata /*_permit*/,
-        address _outputToken
-    ) external pure virtual returns (bytes memory addressesFound) {
-        addressesFound = abi.encodePacked(_receiver, _outputToken);
-    }
-
 }

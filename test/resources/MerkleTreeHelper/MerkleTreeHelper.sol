@@ -2866,32 +2866,6 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             );
             leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
             leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, outputTokenKeys[i]);
-            unchecked {
-                leafIndex++;
-            }
-            leafs[leafIndex] = ManageLeaf(
-                getAddress(sourceChain, "etherFiRedemptionManager"),
-                false,
-                "redeemEEthWithPermit(uint256,address,(uint256,uint256,uint8,bytes32,bytes32),address)",
-                new address[](2),
-                string.concat("Redeem eETH with permit for ", outputTokenNames[i], " via ether.fi Redemption Manager"),
-                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-            );
-            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
-            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, outputTokenKeys[i]);
-            unchecked {
-                leafIndex++;
-            }
-            leafs[leafIndex] = ManageLeaf(
-                getAddress(sourceChain, "etherFiRedemptionManager"),
-                false,
-                "redeemWeEthWithPermit(uint256,address,(uint256,uint256,uint8,bytes32,bytes32),address)",
-                new address[](2),
-                string.concat("Redeem weETH with permit for ", outputTokenNames[i], " via ether.fi Redemption Manager"),
-                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-            );
-            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
-            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, outputTokenKeys[i]);
         }
     }
 

@@ -8,7 +8,6 @@ import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {EtherFiDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/EtherFiDecoderAndSanitizer.sol";
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
 contract FullEtherFiDecoderAndSanitizer is EtherFiDecoderAndSanitizer, BaseDecoderAndSanitizer {}
@@ -52,16 +51,12 @@ contract EtherFiRedemptionManagerIntegration is BaseTestIntegration {
     function _setupLeafs() internal returns (ManageLeaf[] memory leafs, bytes32[][] memory manageTree) {
         // 0: approve EETH -> etherFiRedemptionManager
         // 1: approve WEETH -> etherFiRedemptionManager
-        // 2: redeemEEth (ETH out)              6: redeemEEth (stETH out)
-        // 3: redeemWeEth (ETH out)             7: redeemWeEth (stETH out)
-        // 4: redeemEEthWithPermit (ETH out)    8: redeemEEthWithPermit (stETH out)
-        // 5: redeemWeEthWithPermit (ETH out)   9: redeemWeEthWithPermit (stETH out)
-        leafs = new ManageLeaf[](16);
+        // 2: redeemEEth (ETH out)    4: redeemEEth (stETH out)
+        // 3: redeemWeEth (ETH out)   5: redeemWeEth (stETH out)
+        leafs = new ManageLeaf[](8);
         _addEtherFiRedemptionManagerLeafs(leafs);
 
         manageTree = _generateMerkleTree(leafs);
-
-        _generateTestLeafs(leafs, manageTree);
 
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
     }
@@ -74,12 +69,6 @@ contract EtherFiRedemptionManagerIntegration is BaseTestIntegration {
         IEtherFiLiquidityPool(getAddress(sourceChain, "EETH_LIQUIDITY_POOL")).deposit{value: amount + 1e18}();
         getERC20(sourceChain, "EETH").transfer(address(boringVault), amount);
         vm.stopPrank();
-    }
-
-    function _dummyPermit() internal view returns (DecoderCustomTypes.PermitInput memory permit) {
-        // A BoringVault cannot ECDSA-sign a permit; the manager swallows the failed
-        // permit and pulls on the standing allowance.
-        permit.deadline = block.timestamp + 1;
     }
 
     function testRedeemEEthForEth() external {
@@ -151,7 +140,7 @@ contract EtherFiRedemptionManagerIntegration is BaseTestIntegration {
         assertGt(address(boringVault).balance, ethBalanceBefore);
     }
 
-    function testRedeemEEthWithPermitForSteth() external {
+    function testRedeemEEthForSteth() external {
         _setUpMainnet();
         _fundVaultWithEEth(10e18);
 
@@ -160,7 +149,7 @@ contract EtherFiRedemptionManagerIntegration is BaseTestIntegration {
         Tx memory tx_ = _getTxArrays(2);
 
         tx_.manageLeafs[0] = leafs[0]; //approve EETH
-        tx_.manageLeafs[1] = leafs[8]; //redeemEEthWithPermit for stETH
+        tx_.manageLeafs[1] = leafs[4]; //redeemEEth for stETH
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
 
@@ -171,11 +160,7 @@ contract EtherFiRedemptionManagerIntegration is BaseTestIntegration {
             "approve(address,uint256)", getAddress(sourceChain, "etherFiRedemptionManager"), type(uint256).max
         );
         tx_.targetData[1] = abi.encodeWithSignature(
-            "redeemEEthWithPermit(uint256,address,(uint256,uint256,uint8,bytes32,bytes32),address)",
-            5e18,
-            address(boringVault),
-            _dummyPermit(),
-            getAddress(sourceChain, "STETH")
+            "redeemEEth(uint256,address,address)", 5e18, address(boringVault), getAddress(sourceChain, "STETH")
         );
 
         tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
@@ -189,7 +174,7 @@ contract EtherFiRedemptionManagerIntegration is BaseTestIntegration {
         assertGt(stethBalanceAfter, stethBalanceBefore);
     }
 
-    function testRedeemWeEthWithPermitForSteth() external {
+    function testRedeemWeEthForSteth() external {
         _setUpMainnet();
         deal(getAddress(sourceChain, "WEETH"), address(boringVault), 10e18);
 
@@ -198,7 +183,7 @@ contract EtherFiRedemptionManagerIntegration is BaseTestIntegration {
         Tx memory tx_ = _getTxArrays(2);
 
         tx_.manageLeafs[0] = leafs[1]; //approve WEETH
-        tx_.manageLeafs[1] = leafs[9]; //redeemWeEthWithPermit for stETH
+        tx_.manageLeafs[1] = leafs[5]; //redeemWeEth for stETH
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
 
@@ -209,11 +194,7 @@ contract EtherFiRedemptionManagerIntegration is BaseTestIntegration {
             "approve(address,uint256)", getAddress(sourceChain, "etherFiRedemptionManager"), type(uint256).max
         );
         tx_.targetData[1] = abi.encodeWithSignature(
-            "redeemWeEthWithPermit(uint256,address,(uint256,uint256,uint8,bytes32,bytes32),address)",
-            5e18,
-            address(boringVault),
-            _dummyPermit(),
-            getAddress(sourceChain, "STETH")
+            "redeemWeEth(uint256,address,address)", 5e18, address(boringVault), getAddress(sourceChain, "STETH")
         );
 
         tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
