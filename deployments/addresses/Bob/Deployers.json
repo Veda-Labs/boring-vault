@@ -1,0 +1,15 @@
+{
+  "Drones": "",
+  "contractAddresses": {
+    "veda-bundle-create3-bob-mainnet": "0xF3d0672a91Fd56C9ef04C79ec67d60c34c6148a0"
+  },
+  "contractMetadata": {
+    "veda-bundle-create3-bob-mainnet": {
+      "auditCommit": "0a7d659064c9070bd369d5c511ba94c6b01bbab2",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-1",
+      "deploymentCommit": "24c42f7ccb42ad535446605808cfd163d2c94ea2",
+      "verificationGap": ["cbor"],
+      "auditGap": ["state", "selectors", "auth", "constructor"]
+    }
+  }
+}

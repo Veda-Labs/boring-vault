@@ -11,5 +11,70 @@
     "RolesAuthority": "0x2B9A752B7407D37A16A089c2A28d39d08EdB108D",
     "TellerWithLayerZero": "0x187c8aA8ec6a57731406824ee247377296Ed362D",
     "Timelock": "0x0000000000000000000000000000000000000000"
+  },
+  "contractMetadata": {
+    "AccountantWithRateProviders": {
+      "auditCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-19",
+      "deploymentCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
+      "verificationGap": ["none"],
+      "auditGap": ["none"]
+    },
+    "BoringOnChainQueue": {
+      "auditCommit": "edfcba3f29f691c638b06d04f60af79503632b58",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-27",
+      "verificationGap": ["cbor"],
+      "deploymentCommit": "15ea1839120d6da3eeb9a0009d45cd0017a9806d",
+      "auditGap": ["state", "selectors", "auth"]
+    },
+    "BoringVault": {
+      "auditCommit": "9c6e1e4458fba53f2ff09efe21195dcf570ffc3e",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-7",
+      "verificationGap": ["cbor"],
+      "deploymentCommit": "15ea1839120d6da3eeb9a0009d45cd0017a9806d",
+      "auditGap": ["state"]
+    },
+    "Lens": {
+      "auditCommit": "939c77e25473dff3ed18fa104f004f7afd13452e",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-4",
+      "verificationGap": ["cbor"],
+      "deploymentCommit": "15ea1839120d6da3eeb9a0009d45cd0017a9806d",
+      "auditGap": ["view", "selectors"]
+    },
+    "ManagerWithMerkleVerification": {
+      "auditCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-19",
+      "verificationGap": ["cbor"],
+      "deploymentCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
+      "auditGap": ["none"]
+    },
+    "Pauser": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "deploymentCommit": "d13c47c3ded2bcfe651471cf3e4b8021bf4b481a",
+      "verificationGap": ["none"],
+      "auditGap": ["unaudited"]
+    },
+    "QueueSolver": {
+      "auditCommit": "2e1aefc93c797f7b9dcf326e4ecafb089f9b3050",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-38",
+      "verificationGap": ["cbor"],
+      "deploymentCommit": "2e1aefc93c797f7b9dcf326e4ecafb089f9b3050",
+      "auditGap": ["none"]
+    },
+    "RolesAuthority": {
+      "auditCommit": null,
+      "auditUrl": null,
+      "verificationGap": ["cbor"],
+      "deploymentCommit": "15ea1839120d6da3eeb9a0009d45cd0017a9806d",
+      "auditGap": ["external"]
+    },
+    "TellerWithLayerZero": {
+      "auditCommit": "b7ad4066a946a5e64285c88617a5de36e5eef436",
+      "auditUrl": "https://macroaudits.com/library/audits/sevenSeas-19",
+      "verificationGap": ["cbor"],
+      "deploymentCommit": "15ea1839120d6da3eeb9a0009d45cd0017a9806d",
+      "auditGap": ["none"]
+    }
   }
 }
