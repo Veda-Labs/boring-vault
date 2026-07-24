@@ -155,6 +155,44 @@ contract DecoderCustomTypes {
         uint256 lltv;
     }
 
+    // ========================================= MORPHO MIDNIGHT =========================================
+
+    struct MidnightCollateralParams {
+        address token;
+        uint256 lltv;
+        uint256 liquidationCursor;
+        address oracle;
+    }
+
+    struct MidnightMarket {
+        uint256 chainId;
+        address midnight;
+        address loanToken;
+        MidnightCollateralParams[] collateralParams;
+        uint256 maturity;
+        uint256 rcfThreshold;
+        address enterGate;
+        address liquidatorGate;
+    }
+
+    struct MidnightOffer {
+        MidnightMarket market;
+        bool buy;
+        address maker;
+        uint256 start;
+        uint256 expiry;
+        uint256 tick;
+        bytes32 group;
+        address callback;
+        bytes callbackData;
+        address receiverIfMakerIsSeller;
+        address ratifier;
+        bool reduceOnly;
+        uint128 maxUnits;
+        uint128 maxAssets;
+        uint256 continuousFeeCap;
+    }
+
     // ========================================= 1INCH =========================================
 
     struct SwapDescription {
