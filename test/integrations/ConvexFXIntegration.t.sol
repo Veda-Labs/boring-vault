@@ -213,6 +213,6 @@ contract ConvexFXIntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullConvexDecoderAndSanitizer is ConvexFXDecoderAndSanitizer {
+contract FullConvexDecoderAndSanitizer is ConvexFXDecoderAndSanitizer, BaseDecoderAndSanitizer {
     constructor(address _poolRegistry) ConvexFXDecoderAndSanitizer(_poolRegistry){}
 }

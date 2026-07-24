@@ -203,4 +203,4 @@ contract SkyMoneyIntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullSkyMoneyDecoderAndSanitizer is SkyMoneyDecoderAndSanitizer {}
+contract FullSkyMoneyDecoderAndSanitizer is SkyMoneyDecoderAndSanitizer, BaseDecoderAndSanitizer {}

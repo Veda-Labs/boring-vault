@@ -389,7 +389,7 @@ contract EtherFiLiquid1MigrationTest is Test, MerkleTreeHelper {
         teller.removeAsset(ERC20(pendleEethYtDecember));
 
         rolesAuthority.setPublicCapability(
-            address(teller), bytes4(keccak256("deposit(address,uint256,uint256,address)")), true
+            address(teller), bytes4(keccak256("deposit(address,uint256,uint256)")), true
         );
         rolesAuthority.setPublicCapability(
             address(teller), TellerWithMultiAssetSupport.depositWithPermit.selector, true

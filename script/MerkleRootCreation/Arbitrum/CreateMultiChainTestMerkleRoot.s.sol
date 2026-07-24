@@ -184,14 +184,10 @@ contract CreateMultiChainTestMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Merkl ==========================
         {
-            ERC20[] memory tokensToClaim = new ERC20[](2);
-            tokensToClaim[0] = getERC20(sourceChain, "UNI");
-            tokensToClaim[1] = getERC20(sourceChain, "ARB");
             _addMerklLeafs(
                 leafs,
                 getAddress(sourceChain, "merklDistributor"),
-                getAddress(sourceChain, "dev1Address"),
-                tokensToClaim
+                getAddress(sourceChain, "dev1Address")
             );
         }
 

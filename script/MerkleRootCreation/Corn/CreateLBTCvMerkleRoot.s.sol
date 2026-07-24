@@ -47,10 +47,10 @@ contract CreateLBTCvMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== LayerZero ==========================
         _addLayerZeroLeafs(
-            leafs, getERC20(sourceChain, "WBTCN"), getAddress(sourceChain, "WBTCN_OFT"), layerZeroMainnetEndpointId
+            leafs, getERC20(sourceChain, "WBTCN"), getAddress(sourceChain, "WBTCN_OFT"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault")
         );
         _addLayerZeroLeafs(
-            leafs, getERC20(sourceChain, "LBTC"), getAddress(sourceChain, "LBTC_OFT"), layerZeroMainnetEndpointId
+            leafs, getERC20(sourceChain, "LBTC"), getAddress(sourceChain, "LBTC_OFT"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault")
         );
 
         // ========================== Native Wrapping ==========================

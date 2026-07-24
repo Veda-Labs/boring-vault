@@ -5,11 +5,12 @@
 pragma solidity 0.8.21;
 
 import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol"; 
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {AgglayerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AgglayerDecoderAndSanitizer.sol"; 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
-contract FullAgglayerDecoderAndSanitizer is AgglayerDecoderAndSanitizer{}
+contract FullAgglayerDecoderAndSanitizer is AgglayerDecoderAndSanitizer, BaseDecoderAndSanitizer{}
 
 
 contract AgglayerIntegrationTest is BaseTestIntegration {

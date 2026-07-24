@@ -5,6 +5,7 @@
 pragma solidity 0.8.21;
 
 import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
 import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
@@ -49,6 +50,11 @@ contract OdosIntegrationTest is Test, MerkleTreeHelper {
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
         rawDataDecoderAndSanitizer = address(new FullOdosDecoderAndSanitizer(getAddress(sourceChain, "odosRouterV2")));
+
+        // The hardcoded swap calldata below was generated against the Odos executor that was live at this
+        // block (0xd768d1...). The registry "odosExecutor" has since been rotated to a newer executor that
+        // has no code at this pinned block, so override it back to the historical one for this fork.
+        setAddress(true, sourceChain, "odosExecutor", 0xd768d1Fe6Ef1449A54F9409400fe9d0E4954ea3F);
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -179,7 +185,9 @@ contract OdosIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("sonicMainnet");
         // Setup forked environment.
         string memory rpcKey = "SONIC_MAINNET_RPC_URL";
-        uint256 blockNumber = 16413113; 
+        // Block must match the block the hardcoded Odos calldata below was generated for; otherwise the
+        // swap routes through stale pool state and reverts (e.g. GYR#357 in a Gyroscope pool).
+        uint256 blockNumber = 11169032;
 
         _startFork(rpcKey, blockNumber);
 
@@ -189,6 +197,10 @@ contract OdosIntegrationTest is Test, MerkleTreeHelper {
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
         rawDataDecoderAndSanitizer = address(new FullOdosDecoderAndSanitizer(getAddress(sourceChain, "odosRouterV2")));
+
+        // Pin "odosExecutor" to the executor that was live at this block (the registry has since rotated it
+        // to a newer executor that has no code here). Matches the executor embedded in the calldata below.
+        setAddress(true, sourceChain, "odosExecutor", 0xB28Ca7e465C452cE4252598e0Bc96Aeba553CF82);
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -249,7 +261,7 @@ contract OdosIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("sonicMainnet");
         // Setup forked environment.
         string memory rpcKey = "SONIC_MAINNET_RPC_URL";
-        uint256 blockNumber = 16175047; 
+        uint256 blockNumber = 16175047;
 
         _startFork(rpcKey, blockNumber);
 
@@ -259,6 +271,10 @@ contract OdosIntegrationTest is Test, MerkleTreeHelper {
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
         rawDataDecoderAndSanitizer = address(new FullOdosDecoderAndSanitizer(getAddress(sourceChain, "odosRouterV2")));
+
+        // Pin "odosExecutor" to the executor that was live at this block (the registry has since rotated it
+        // to a newer executor that has no code here). Matches the executor embedded in the calldata below.
+        setAddress(true, sourceChain, "odosExecutor", 0xECDfcB1dD81d07c3551CbA94023EE443450353E1);
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -319,7 +335,9 @@ contract OdosIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("base");
         // Setup forked environment.
         string memory rpcKey = "BASE_RPC_URL";
-        uint256 blockNumber = 28158816; 
+        // Block must match the block the hardcoded Odos calldata below was generated for; otherwise the
+        // swap routes through stale pool state and reverts (e.g. Uniswap V4 CurrencyNotSettled()).
+        uint256 blockNumber = 27469585;
 
         _startFork(rpcKey, blockNumber);
 
@@ -329,6 +347,10 @@ contract OdosIntegrationTest is Test, MerkleTreeHelper {
             new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
 
         rawDataDecoderAndSanitizer = address(new FullOdosDecoderAndSanitizer(getAddress(sourceChain, "odosRouterV2")));
+
+        // Pin "odosExecutor" to the executor that was live at this block (the registry has since rotated it
+        // to a newer executor that has no code here). Matches the executor embedded in the calldata below.
+        setAddress(true, sourceChain, "odosExecutor", 0x52bB904473E0aDC699c7B103962D35a0F53D9E1e);
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
         setAddress(false, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -843,6 +865,6 @@ contract OdosIntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullOdosDecoderAndSanitizer is OdosDecoderAndSanitizer {
+contract FullOdosDecoderAndSanitizer is OdosDecoderAndSanitizer, BaseDecoderAndSanitizer {
     constructor(address _odosRouter) OdosDecoderAndSanitizer(_odosRouter){}
 }

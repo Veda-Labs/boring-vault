@@ -11,6 +11,7 @@ import {StandardBridgeDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/
 import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
 import {NativeWrapperDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol";
 import {EtherFiDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/EtherFiDecoderAndSanitizer.sol";
+import {EtherFiDebtManagerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/EtherFiDebtManagerDecoderAndSanitizer.sol";
 
 
 contract LiquidETHOptimismDecoderAndSanitizer is 
@@ -20,7 +21,8 @@ contract LiquidETHOptimismDecoderAndSanitizer is
     StandardBridgeDecoderAndSanitizer,
     TellerDecoderAndSanitizer,
     NativeWrapperDecoderAndSanitizer,
-    EtherFiDecoderAndSanitizer
+    EtherFiDecoderAndSanitizer, 
+    EtherFiDebtManagerDecoderAndSanitizer
 {
    function deposit() external pure override (EtherFiDecoderAndSanitizer, NativeWrapperDecoderAndSanitizer) returns (bytes memory addressesFound) {
         return addressesFound;

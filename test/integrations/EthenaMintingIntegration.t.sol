@@ -29,7 +29,7 @@ contract EthenaMintingIntegrationTest is BaseTestIntegration {
         _setUpMainnet(); 
 
         //get env var
-        uint256 privateKey = vm.envUint("PRIVATE_KEY"); 
+        uint256 privateKey = vm.envOr("PRIVATE_KEY", uint256(0xA11CE)); 
         address signer = vm.addr(privateKey); 
 
         vm.startPrank(0x3B0AAf6e6fCd4a7cEEf8c92C32DFeA9E64dC1862); 
@@ -136,7 +136,7 @@ contract EthenaMintingIntegrationTest is BaseTestIntegration {
         _setUpMainnet(); 
 
         //get env var
-        uint256 privateKey = vm.envUint("PRIVATE_KEY"); 
+        uint256 privateKey = vm.envOr("PRIVATE_KEY", uint256(0xA11CE)); 
         address signer = vm.addr(privateKey); 
 
         vm.startPrank(0x3B0AAf6e6fCd4a7cEEf8c92C32DFeA9E64dC1862); 
@@ -232,7 +232,7 @@ contract EthenaMintingIntegrationTest is BaseTestIntegration {
         _setUpMainnet(); 
 
         //get env var
-        uint256 privateKey = vm.envUint("PRIVATE_KEY"); 
+        uint256 privateKey = vm.envOr("PRIVATE_KEY", uint256(0xA11CE)); 
         address signer = vm.addr(privateKey); 
 
         vm.startPrank(0x3B0AAf6e6fCd4a7cEEf8c92C32DFeA9E64dC1862); 

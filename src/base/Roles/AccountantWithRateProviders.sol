@@ -2,6 +2,7 @@
 // Copyright © 2025 Veda Tech Labs
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0
+// Last audited: boring-vault@ee1bbf1b4e1a223d9d624dc8eb709d3b421a2ecf — file:audit/0xmacro-veda-92.pdf
 pragma solidity 0.8.21;
 
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
@@ -96,6 +97,38 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
     event FeesClaimed(address indexed feeAsset, uint256 amount);
     event HighwaterMarkReset();
 
+    //=============================== CONSTANTS ===============================
+
+    /**
+     * @notice Floor for `allowedExchangeRateChangeUpper` (bps; 1e4 = 100%, i.e. no upward change).
+     * @dev Enforced by the constructor and `updateUpper`.
+     */
+    uint16 public constant MIN_ALLOWED_EXCHANGE_RATE_UPPER = 1e4;
+
+    /**
+     * @notice Ceiling for `allowedExchangeRateChangeLower` (bps; 1e4 = 100%, i.e. no downward change).
+     * @dev Enforced by the constructor and `updateLower`.
+     */
+    uint16 public constant MAX_ALLOWED_EXCHANGE_RATE_LOWER = 1e4;
+
+    /**
+     * @notice Ceiling for `minimumUpdateDelayInSeconds`.
+     * @dev Enforced by the constructor and `updateDelay`.
+     */
+    uint24 public constant MAX_MINIMUM_UPDATE_DELAY_IN_SECONDS = 14 days;
+
+    /**
+     * @notice Ceiling for `platformFee` (bps; 0.2e4 = 20%).
+     * @dev Enforced by the constructor and `updatePlatformFee`.
+     */
+    uint16 public constant MAX_PLATFORM_FEE = 0.2e4;
+
+    /**
+     * @notice Ceiling for `performanceFee` (bps; 0.5e4 = 50%).
+     * @dev Enforced by the constructor and `updatePerformanceFee`.
+     */
+    uint16 public constant MAX_PERFORMANCE_FEE = 0.5e4;
+
     //============================== IMMUTABLES ===============================
 
     /**
@@ -131,6 +164,13 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
         uint16 platformFee,
         uint16 performanceFee
     ) Auth(_owner, Authority(address(0))) {
+        // Enforce the same bounds the updateUpper/updateLower/updateDelay/updatePlatformFee/
+        // updatePerformanceFee setters enforce, so the accountant cannot be deployed outside them.
+        if (allowedExchangeRateChangeUpper < MIN_ALLOWED_EXCHANGE_RATE_UPPER) revert AccountantWithRateProviders__UpperBoundTooSmall();
+        if (allowedExchangeRateChangeLower > MAX_ALLOWED_EXCHANGE_RATE_LOWER) revert AccountantWithRateProviders__LowerBoundTooLarge();
+        if (minimumUpdateDelayInSeconds > MAX_MINIMUM_UPDATE_DELAY_IN_SECONDS) revert AccountantWithRateProviders__UpdateDelayTooLarge();
+        if (platformFee > MAX_PLATFORM_FEE) revert AccountantWithRateProviders__PlatformFeeTooLarge();
+        if (performanceFee > MAX_PERFORMANCE_FEE) revert AccountantWithRateProviders__PerformanceFeeTooLarge();
         base = ERC20(_base);
         decimals = ERC20(_base).decimals();
         vault = BoringVault(payable(_vault));
@@ -179,7 +219,7 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
      * @dev Callable by OWNER_ROLE.
      */
     function updateDelay(uint24 minimumUpdateDelayInSeconds) external requiresAuth {
-        if (minimumUpdateDelayInSeconds > 14 days) revert AccountantWithRateProviders__UpdateDelayTooLarge();
+        if (minimumUpdateDelayInSeconds > MAX_MINIMUM_UPDATE_DELAY_IN_SECONDS) revert AccountantWithRateProviders__UpdateDelayTooLarge();
         uint24 oldDelay = accountantState.minimumUpdateDelayInSeconds;
         accountantState.minimumUpdateDelayInSeconds = minimumUpdateDelayInSeconds;
         emit DelayInSecondsUpdated(oldDelay, minimumUpdateDelayInSeconds);
@@ -190,7 +230,7 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
      * @dev Callable by OWNER_ROLE.
      */
     function updateUpper(uint16 allowedExchangeRateChangeUpper) external requiresAuth {
-        if (allowedExchangeRateChangeUpper < 1e4) revert AccountantWithRateProviders__UpperBoundTooSmall();
+        if (allowedExchangeRateChangeUpper < MIN_ALLOWED_EXCHANGE_RATE_UPPER) revert AccountantWithRateProviders__UpperBoundTooSmall();
         uint16 oldBound = accountantState.allowedExchangeRateChangeUpper;
         accountantState.allowedExchangeRateChangeUpper = allowedExchangeRateChangeUpper;
         emit UpperBoundUpdated(oldBound, allowedExchangeRateChangeUpper);
@@ -201,7 +241,7 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
      * @dev Callable by OWNER_ROLE.
      */
     function updateLower(uint16 allowedExchangeRateChangeLower) external requiresAuth {
-        if (allowedExchangeRateChangeLower > 1e4) revert AccountantWithRateProviders__LowerBoundTooLarge();
+        if (allowedExchangeRateChangeLower > MAX_ALLOWED_EXCHANGE_RATE_LOWER) revert AccountantWithRateProviders__LowerBoundTooLarge();
         uint16 oldBound = accountantState.allowedExchangeRateChangeLower;
         accountantState.allowedExchangeRateChangeLower = allowedExchangeRateChangeLower;
         emit LowerBoundUpdated(oldBound, allowedExchangeRateChangeLower);
@@ -212,7 +252,7 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
      * @dev Callable by OWNER_ROLE.
      */
     function updatePlatformFee(uint16 platformFee) external requiresAuth {
-        if (platformFee > 0.2e4) revert AccountantWithRateProviders__PlatformFeeTooLarge();
+        if (platformFee > MAX_PLATFORM_FEE) revert AccountantWithRateProviders__PlatformFeeTooLarge();
         uint16 oldFee = accountantState.platformFee;
         accountantState.platformFee = platformFee;
         emit PlatformFeeUpdated(oldFee, platformFee);
@@ -223,7 +263,7 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
      * @dev Callable by OWNER_ROLE.
      */
     function updatePerformanceFee(uint16 performanceFee) external requiresAuth {
-        if (performanceFee > 0.5e4) revert AccountantWithRateProviders__PerformanceFeeTooLarge();
+        if (performanceFee > MAX_PERFORMANCE_FEE) revert AccountantWithRateProviders__PerformanceFeeTooLarge();
         uint16 oldFee = accountantState.performanceFee;
         accountantState.performanceFee = performanceFee;
         emit PerformanceFeeUpdated(oldFee, performanceFee);
@@ -244,6 +284,16 @@ contract AccountantWithRateProviders is Auth, IRateProvider, IPausable {
      * @dev Rate providers must return rates in terms of `base` or
      * an asset pegged to base and they must use the same decimals
      * as `asset`.
+     * @dev If `asset` has fewer decimals than `base`, the conversion
+     * math in `claimFees`, `claimYield`, `getRateInQuote`, and
+     * `AccountantWithYieldStreaming.getRateInQuote` truncates the
+     * base-denominated amount by
+     * `10**(base.decimals - asset.decimals)` before applying the rate.
+     * For an 18-decimal `base` paired with a 6-decimal `asset`, base
+     * amounts smaller than `1e12` round to zero in the conversion and
+     * produce zero output. Realistic fee or yield accruals sit well
+     * above this floor; very small amounts or extremely frequent
+     * claims may not.
      * @dev Callable by OWNER_ROLE.
      */
     function setRateProviderData(ERC20 asset, bool isPeggedToBase, address rateProvider) external requiresAuth {

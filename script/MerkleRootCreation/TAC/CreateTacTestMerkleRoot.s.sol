@@ -43,11 +43,11 @@ contract CreateTacTestMerkleRoot is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](64);
 
         // ========================== LayerZero ==========================
-        _addLayerZeroBridgeLeafs(leafs, getERC20(sourceChain, "LBTC"), getAddress(sourceChain, ""), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault")); 
-        _addLayerZeroBridgeLeafs(leafs, getERC20(sourceChain, "cbBTC"), getAddress(sourceChain, ""), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault")); 
-        _addLayerZeroBridgeLeafs(leafs, getERC20(sourceChain, "WETH"), getAddress(sourceChain, ""), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
-        _addLayerZeroBridgeLeafs(leafs, getERC20(sourceChain, "WSTETH"), getAddress(sourceChain, ""), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
-        _addLayerZeroBridgeLeafs(leafs, getERC20(sourceChain, "USDT"), getAddress(sourceChain, ""), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
+        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "LBTC"), getAddress(sourceChain, ""), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault")); 
+        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "cbBTC"), getAddress(sourceChain, ""), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault")); 
+        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WETH"), getAddress(sourceChain, ""), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
+        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WSTETH"), getAddress(sourceChain, ""), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
+        _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDT"), getAddress(sourceChain, ""), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
 
         // ========================== Curve ==========================
         _addCurveLeafs(leafs, getAddress(sourceChain, "cbBTC_LBTC_Curve_Pool"), 2, getAddress(sourceChain, "cbBTC_LBTC_Curve_Gauge")); 

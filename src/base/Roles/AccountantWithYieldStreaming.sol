@@ -2,6 +2,7 @@
 // Copyright © 2025 Veda Tech Labs
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0
+// Last audited: boring-vault@568d9467202a7f6e478cb8967fcee3c2afb38730 — file:audit/certora-boring-vault-1.pdf
 pragma solidity 0.8.21;
 
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
@@ -161,6 +162,16 @@ contract AccountantWithYieldStreaming is AccountantWithRateProviders {
      * @param duration The period over which to vest this yield
      * @notice callable by the STRATEGIST role
      * @dev `yieldAmount` should be denominated in the BASE ASSET
+     * @dev Yield vests linearly over `duration`; each subsequent
+     *      _updateExchangeRate call moves newly-vested gains into the share
+     *      price against vault.totalSupply() at that moment. Deposits during
+     *      vesting share in remaining gains; withdrawals capture only
+     *      vested-so-far. maxDeviationYield caps the per-day rate, not the
+     *      per-event total. Strategists are expected to pair yield
+     *      realization with vestYield.
+     * @dev vestYield overwrites any active vest; strategists must include any
+     *      unvested remainder in yieldAmount. The `=` semantic (vs `+=`) is
+     *      deliberate, to allow mid-stream adjustments after PnL events.
      */
     function vestYield(uint256 yieldAmount, uint256 duration) external requiresAuth {
         if (accountantState.isPaused) revert AccountantWithRateProviders__Paused();
