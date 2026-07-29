@@ -1,0 +1,14 @@
+# CODEOWNERS for Veda-Labs/boring-vault
+#
+# Owners listed here are automatically requested for review when a PR touches a
+# matching path. The LAST matching pattern wins.
+#
+# IMPORTANT — for these to be *required* (not just auto-requested):
+#   1. Branch protection on `main` must enable "Require review from Code Owners"
+#      (currently require_code_owner_reviews = false).
+#   2. A listed team/user must have write access to this repo, otherwise GitHub
+#      silently ignores it. @Veda-Labs/smart-contracts has write access today.
+#      @Veda-Labs/security-sensitive does NOT yet — see the commented block below.
+
+# Default owner for everything in the repo.
+*                                   @Veda-Labs/smart-contracts

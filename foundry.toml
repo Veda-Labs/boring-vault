@@ -24,6 +24,28 @@ remappings = [
 runs = 8000
 seed = "0x0000000000000000000000000000000000000000000000000000000000000002"
 
+# CI profile: caps fuzz/invariant so the test job finishes fast (test.yml sets
+# FOUNDRY_PROFILE=ci). Without this, `--profile ci` is a no-op and fuzz runs 8000.
+[profile.ci.fuzz]
+runs = 256
+seed = "0x0000000000000000000000000000000000000000000000000000000000000002"
+
+[profile.ci.invariant]
+runs = 32
+depth = 100
+fail_on_revert = false
+
+# Nightly profile: deep fuzz/invariant run for the scheduled nightly-fuzz.yml
+# (FOUNDRY_PROFILE=nightly). Higher intensity than CI.
+[profile.nightly.fuzz]
+runs = 16000
+# No fixed seed: explore fresh fuzz inputs each night (CI keeps its seed pinned).
+
+[profile.nightly.invariant]
+runs = 256
+depth = 500
+fail_on_revert = false
+
 [rpc_endpoints]
 mainnet = "${MAINNET_RPC_URL}"
 polygon = "${MATIC_RPC_URL}"

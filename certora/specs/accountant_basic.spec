@@ -67,6 +67,18 @@ invariant allowedExchangeRateChangeLower_bound()
     accountant_contract.accountantState.allowedExchangeRateChangeLower <= 10^4
     filtered { f -> !ignoredMethod(f) }
 
+invariant minimumUpdateDelay_bound()
+    accountant_contract.accountantState.minimumUpdateDelayInSeconds <= 14 * 24 * 60 * 60 // 14 days
+    filtered { f -> !ignoredMethod(f) }
+
+invariant platformFee_bound()
+    accountant_contract.accountantState.platformFee <= 2 * 10^3 // 0.2e4
+    filtered { f -> !ignoredMethod(f) }
+
+invariant performanceFee_bound()
+    accountant_contract.accountantState.performanceFee <= 5 * 10^3 // 0.5e4
+    filtered { f -> !ignoredMethod(f) }
+
 rule feesCanOnlyDecreaseViaClaimFees(env e, method f)
     filtered { f -> !ignoredMethod(f) }
 {

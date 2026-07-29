@@ -1,0 +1,140 @@
+name: nightly-certora
+
+on:
+  schedule:
+    # 23:00 UTC daily — staggered an hour after nightly-fuzz (22:00).
+    - cron: "0 23 * * *"
+  workflow_dispatch:
+
+env:
+  FOUNDRY_PROFILE: ci
+
+# We invoke certoraRun directly (not the certora-run-action) so the job's
+# exit status reflects the actual verification verdict: the action submits with
+# `--wait_for_results none` (async) and always exits 0 on successful submission,
+# so a violated rule left the job green. `--wait_for_results all` blocks and
+# returns non-zero on a real property violation, which fails the job and fires
+# the Slack alert below. Only needs CERTORAKEY (no GitHub App / PR scopes).
+jobs:
+  fv:
+    name: Verified Rules (${{ matrix.branch }} / ${{ matrix.scenario }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      # Scheduled runs only fire from the default branch, so cover both main and dev
+      # from this one workflow via a branch axis crossed with the scenario axis
+      # (branch × scenario = 10 jobs). fail-fast off so one failure doesn't cancel the rest.
+      fail-fast: false
+      matrix:
+        branch: [main, dev]
+        scenario: [A, B, C, D, E]
+        # configs attach per-scenario (each include entry extends both branch combos).
+        include:
+          - scenario: A
+            configs: |
+              certora/confs/scenarioA.conf --verify "TellerWithMultiAssetSupport:certora/specs/rentrancy_view.spec" --prover_args "-enableStorageSplitting false"
+              certora/confs/scenarioA.conf --verify "TellerWithMultiAssetSupport:certora/specs/teller_basic.spec"
+              certora/confs/scenarioA.conf --verify "TellerWithMultiAssetSupport:certora/specs/teller_accounting_easyRules.spec"
+              certora/confs/accountantWithRateProviders.conf
+              certora/confs/scenarioA.conf --verify "TellerWithMultiAssetSupport:certora/specs/teller_integrity.spec"
+          - scenario: B
+            configs: |
+              certora/confs/scenarioB.conf --verify "TellerWithBuffer:certora/specs/rentrancy_view.spec" --prover_args "-enableStorageSplitting false"
+              certora/confs/scenarioB.conf --verify "TellerWithBuffer:certora/specs/teller_basic.spec"
+              certora/confs/scenarioB.conf --verify "TellerWithBuffer:certora/specs/teller_accounting_easyRules.spec"
+              certora/confs/scenarioB.conf --verify "TellerWithBuffer:certora/specs/teller_integrity.spec"
+          - scenario: C
+            configs: |
+              certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/rentrancy_view.spec" --prover_args "-enableStorageSplitting false" --rule_sanity none
+              certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/teller_basic.spec" --exclude_rule dustFavorsTheHouse
+              certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/teller_accounting_easyRules.spec" --exclude_rule conversionWeakIntegrity_assets --exclude_rule conversionWeakIntegrity_shares --exclude_rule conversionWeakMonotonicity_assets --exclude_rule conversionWeakMonotonicity_shares
+              certora/confs/accountantWithYieldStreaming.conf
+              certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --rule assetsMoreThanShares
+              certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --rule sharePriceMoreThanOneAsset
+              certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --rule sharePriceBoundedUpper
+              certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --rule sharePriceBoundedLower
+              certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --rule totalAssetsCovered
+              certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --rule vaultSolvency_1Asset
+              certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --rule rateInQuoteSafeBoundedByAssets
+              certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --rule virtualPriceIsCorrect
+              certora/confs/accountantWithYieldStreaming.conf --verify AccountantWithYieldStreaming:certora/specs/accountantWithYieldStreaming.spec --rule accountantDecimalsCorrect --rule cumulativeSupplyBounded --rule exchangeRateLEqlastSharePrice --rule exchangeRateLEhighwaterMark_unlessPaused --rule exchangeRateEqlastSharePrice --rule integrityOfVestYield --rule lastVestingUpdateNeverDecreases
+              certora/confs/scenarioC.conf --verify "TellerWithYieldStreaming:certora/specs/teller_integrity.spec"
+          - scenario: D
+            configs: |
+              certora/confs/scenarioD.conf --verify "LayerZeroTeller:certora/specs/rentrancy_view.spec" --prover_args "-enableStorageSplitting false"
+              certora/confs/scenarioD.conf --verify "LayerZeroTeller:certora/specs/teller_basic.spec"
+              certora/confs/scenarioD.conf --verify "LayerZeroTeller:certora/specs/teller_accounting_easyRules.spec"
+              certora/confs/scenarioD.conf --verify "LayerZeroTeller:certora/specs/teller_integrity.spec"
+          - scenario: E
+            configs: |
+              certora/confs/scenarioE.conf --verify "LayerZeroTellerWithRateLimiting:certora/specs/rentrancy_view.spec" --prover_args "-enableStorageSplitting false"
+              certora/confs/scenarioE.conf --verify "LayerZeroTellerWithRateLimiting:certora/specs/teller_basic.spec"
+              certora/confs/scenarioE.conf --verify "LayerZeroTellerWithRateLimiting:certora/specs/teller_accounting_easyRules.spec"
+              certora/confs/scenarioE.conf --verify "LayerZeroTellerWithRateLimiting:certora/specs/teller_integrity.spec"
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.branch }}
+          submodules: recursive
+
+      - name: yarn install
+        run: |
+          corepack enable
+          yarn install
+
+      - name: Setup Java
+        uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+
+      - name: Install Certora CLI + solc 0.8.21
+        run: |
+          uv tool install --python 3.12 "certora-cli==8.16.1"
+          uv tool install solc-select
+          solc-select install 0.8.21
+          # The confs pin `solc8.21`; expose the 0.8.21 binary under that name.
+          ln -sf "$(find "$HOME/.solc-select/artifacts" -name 'solc-0.8.21' -type f | head -1)" "$HOME/.local/bin/solc8.21"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Certora munge
+        run: certora/scripts/setup.sh ${{ matrix.scenario }}
+
+      - name: Run Certora verification
+        env:
+          CERTORAKEY: ${{ secrets.CERTORAKEY }}
+          # Pass the config block through the environment (not inline ${{ }}
+          # interpolation) so config contents can't break shell quoting or inject.
+          CONFIGS: ${{ matrix.configs }}
+        run: |
+          set -uo pipefail
+          fail=0
+          while IFS= read -r line; do
+            # skip blank lines
+            [ -z "${line//[[:space:]]/}" ] && continue
+            # Parse the config line into args honoring quotes (no eval).
+            mapfile -t -d '' parts < <(printf '%s' "$line" | xargs printf '%s\0')
+            echo "::group::certoraRun ${parts[*]}"
+            if ! certoraRun "${parts[@]}" --wait_for_results all; then
+              echo "::error::Certora verification failed for: $line"
+              fail=1
+            fi
+            echo "::endgroup::"
+          done <<< "$CONFIGS"
+          exit "$fail"
+
+      # Scheduled runs notify no one by default, so ping Slack on failure.
+      # Requires the SLACK_WEBHOOK_URL repo secret (a Slack incoming webhook).
+      - name: Alert Slack on failure
+        if: failure()
+        uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {"text": "🌙❌ *nightly-certora* [${{ matrix.branch }}] scenario ${{ matrix.scenario }} failed — ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}

@@ -129,7 +129,8 @@ rule onlyContributionMethodsReduceAssets(env e, method f)
     uint256 userAssetsAfter = userAssets(e, asset, user);
 
     assert userAssetsBefore > userAssetsAfter =>
-        (f.selector == sig:deposit(address, uint256, uint256,address).selector 
+        (f.selector == sig:deposit(address, uint256, uint256,address).selector
+        || f.selector == sig:deposit(address,uint256,uint256,address,address).selector
         || f.selector == sig:depositWithPermit(address,uint256,uint256,uint256,uint8,bytes32,bytes32,address).selector
         || f.selector == sig:bulkDeposit(address,uint256,uint256,address).selector
         || f.selector == 4172789357 // sig:depositAndBridge(..).selector

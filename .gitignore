@@ -36,3 +36,4 @@ test/limitOrders/*
 .properties-*/
 emv-*-certora-*/
 
+test/fixtures/
