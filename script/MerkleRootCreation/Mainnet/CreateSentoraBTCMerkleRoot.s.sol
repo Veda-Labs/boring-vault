@@ -19,7 +19,7 @@ contract CreateSentoraBTCMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x7Dee0120739b7ec048B469939EFB178ADbbB19B2;
-    address public rawDataDecoderAndSanitizer = 0x327E88d3fc8091D3bD92Cc455a52B4Ca145A5350;
+    address public rawDataDecoderAndSanitizer = 0xCDbAa23Ef3fCC51DA661c735c8534E3cC92bdDd3;
     address public itbDecoderAndSanitizer = 0x2D7085602a85aFb417AE1dFcEc09C301FeC8Df36;
     address public managerAddress = 0x29AB989D159C44dCE28A722d36aE7E35b7dB9CFE;
     address public accountantAddress = 0x4Bb6C416a00561ad6657110b76552c42d55Ff1d6;
@@ -133,10 +133,30 @@ contract CreateSentoraBTCMerkleRoot is Script, MerkleTreeHelper {
             _addLeafsForITBPositionManagerLocal(leafs, rlusdPrimeSupervisedLoanPositionManager, rlusdPrimeSupervisedLoanTokensUsed, "Sentora RLUSD main V2 KBTC PRIME Supervised Loan ITB Position Manager");
         }
 
+        // Supplies WBTC on Aave, borrows USDT, swaps USDT for PYUSD, deposits PYUSD on Morpho PYUSD PRIME
+        {
+            address usdtWbtcPrimeSupervisedLoanPositionManager = 0xF57eA5dd148cf907721C7fF9fa77BD9b7c7EEC94;
+            ERC20[] memory usdtWbtcPrimeSupervisedLoanTokensUsed = new ERC20[](4);
+            usdtWbtcPrimeSupervisedLoanTokensUsed[0] = getERC20(sourceChain, "WBTC");
+            usdtWbtcPrimeSupervisedLoanTokensUsed[1] = getERC20(sourceChain, "aV3WBTC");
+            usdtWbtcPrimeSupervisedLoanTokensUsed[2] = getERC20(sourceChain, "USDT");
+            usdtWbtcPrimeSupervisedLoanTokensUsed[3] = getERC20(sourceChain, "PYUSD");
+            _addLeafsForITBPositionManagerLocal(leafs, usdtWbtcPrimeSupervisedLoanPositionManager, usdtWbtcPrimeSupervisedLoanTokensUsed, "Sentora USDT main V2 PYUSD PRIME Supervised Loan ITB Position Manager");
+        }
+
+        // WBTC-kBTC Uniswap V3 position manager
+        {
+            address wbtcKbtcUniV3PositionManager = 0xb23530A576C2a0ddE526DF2Be56F2EF81228cC4b;
+            ERC20[] memory wbtcKbtcUniV3TokensUsed = new ERC20[](2);
+            wbtcKbtcUniV3TokensUsed[0] = getERC20(sourceChain, "WBTC");
+            wbtcKbtcUniV3TokensUsed[1] = getERC20(sourceChain, "KBTC");
+            _addLeafsForITBPositionManagerLocal(leafs, wbtcKbtcUniV3PositionManager, wbtcKbtcUniV3TokensUsed, "Sentora Uniswap V3 WBTC-kBTC ITB Position Manager");
+        }
+
         // ========================== 1inch ==========================
         {
-            address[] memory assets = new address[](6);
-            SwapKind[] memory kind = new SwapKind[](6);
+            address[] memory assets = new address[](7);
+            SwapKind[] memory kind = new SwapKind[](7);
             assets[0] = getAddress(sourceChain, "KBTC");
             kind[0] = SwapKind.BuyAndSell;
             assets[1] = getAddress(sourceChain, "WBTC");
@@ -149,6 +169,8 @@ contract CreateSentoraBTCMerkleRoot is Script, MerkleTreeHelper {
             kind[4] = SwapKind.BuyAndSell;
             assets[5] = getAddress(sourceChain, "MORPHO");
             kind[5] = SwapKind.Sell;
+            assets[6] = getAddress(sourceChain, "USDT");
+            kind[6] = SwapKind.BuyAndSell;
 
             setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
             _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
@@ -165,7 +187,10 @@ contract CreateSentoraBTCMerkleRoot is Script, MerkleTreeHelper {
             address[] memory token1 = new address[](1);
             token1[0] = getAddress(sourceChain, "KBTC");
 
-            _addUniswapV3Leafs(leafs, token0, token1, true); // swap only
+            uint256[] memory fees = new uint256[](1);
+            fees[0] = 100;
+
+            _addUniswapV3Leafs(leafs, token0, token1, fees, true); // swap only
         }
         
         // ========================== Verify ==========================

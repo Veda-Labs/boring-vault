@@ -869,4 +869,34 @@ contract DecoderCustomTypes {
         uint32 creationTime;    // Timestamp when request was created
     }
 
+    // ========================================= Wormhole ==================================
+
+    struct WormholeExecutorArgs {
+            uint256 value;
+            address refundAddress;
+            bytes signedQuote;
+            bytes instructions;
+    }
+    struct WormholeFeeArgs {
+        uint16 dbps;
+        address payee;
+    }
+
+    // SignedQuote layout (Wormhole executor TS SDK, prefix "EQ01"):
+    //   [0..4)   bytes4  prefix
+    //   [4..24)  bytes20 quoter  (EVM-style, signs the quote)
+    //   [24..56) bytes32 payee   (UniversalAddress on the source chain, receives the executor payment)
+    //   [56..)   srcChain | dstChain | expiry | fees | prices | 65-byte signature  (no addresses)
+    struct WormholeSignedQuote {
+        bytes4 prefix;
+        address quoter;
+        bytes32 payee;
+    }
+
+    // RelayInstruction type 2 (GasDropOffInstruction): uint128 dropOff | bytes32 recipient
+    struct WormholeGasDropOffInstruction {
+        uint128 dropOff;
+        bytes32 recipient;
+    }
+
 }

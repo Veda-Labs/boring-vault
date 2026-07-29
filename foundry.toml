@@ -89,6 +89,7 @@ ink = { key = "${INKSCAN_KEY}", chain = 57073, url = "https://explorer.inkonchai
 #linea = { key = "${LINEASCAN_KEY}", chain = 59144, url = "https://api.etherscan.io/v2/api?chainid=59144" }
 plasma = { key = "${ETHERSCAN_KEY}", chain = 9745, url = "https://api.etherscan.io/v2/api?chainid=9745" }
 # tempo = { key = "${TENDERLY_ACCESS_KEY}", chain = 4217, url = "https://api.tenderly.co/api/v1/account/<ACCT>/project/<PROJ>/etherscan/verify/<NETWORK>" } # Tempo — Tenderly verification; fill in account/project/network when verifying
+monad = { key = "${ETHERSCAN_KEY}", chain = 143, url = "https://api.etherscan.io/v2/api?chainid=143" }
 
 [fmt]
 line_length = 160
