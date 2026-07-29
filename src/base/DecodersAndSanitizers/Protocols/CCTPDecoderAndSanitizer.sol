@@ -2,7 +2,7 @@
 // Copyright © 2025 Veda Tech Labs
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0
-// Last audited: boring-vault@c54949f556cbc9a5e752ef1d6e8c09d64f4975b7 — https://macroaudits.com/library/audits/sevenSeas-47
+// Last audited: boring-vault-fixes@75bedc585da451b4ec4690ee8d3e378c6447dfe9 — file:audit/0xmacro-veda-90.pdf
 pragma solidity 0.8.21;
 
 import {BaseDecoderAndSanitizer, DecoderCustomTypes} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
