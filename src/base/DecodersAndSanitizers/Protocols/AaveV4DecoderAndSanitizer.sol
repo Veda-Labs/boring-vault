@@ -2,6 +2,7 @@
 // Copyright © 2025 Veda Tech Labs
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0
+// Last audited: boring-vault-fixes@6ef21c4c54140a9ea00f3ffbcb9850d28db19854 — file:audit/0xmacro-veda-95.pdf
 pragma solidity 0.8.21;
 
 contract AaveV4DecoderAndSanitizer {
