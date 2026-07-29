@@ -2,6 +2,7 @@
 // Copyright © 2025 Veda Tech Labs
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0
+// Last audited: boring-vault-fixes@22d91abfd82a6a093bd576ef810e943594bb929b — https://0xmacro.com/library/audits/veda-93
 pragma solidity 0.8.21;
 
 uint64 constant BACKED_CCIP_SOLANA_CHAIN_SELECTOR = 124615329519749607;
