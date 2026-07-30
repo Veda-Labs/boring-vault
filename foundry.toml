@@ -36,6 +36,28 @@ skip = ["script/**"] # script/ has pre-existing compile errors unrelated to Temp
 runs = 8000
 seed = "0x0000000000000000000000000000000000000000000000000000000000000002"
 
+# CI skip set: single source of truth for what CI compiles — test.yml passes no
+# --skip flags, so `forge build` and `forge test` always agree. script/ is not
+# needed by CI (deploy/merkle scripts, nothing in test/ imports it); the suites
+# are the deprecated Berachain/Scroll vaults (ETHFI-35) plus CreateTimelockTx.
+[profile.ci]
+skip = [
+    "script/**",
+    "test/CreateTimelockTx*",
+    "test/integrations/SymbioticVaultIntegration*",
+    "test/integrations/GoldiVaultIntegration*",
+    "test/integrations/BGTRewardVaultIntegration*",
+    "test/integrations/KodiakIslandIntegration*",
+    "test/integrations/KodiakSwappingIntegration*",
+    "test/integrations/InfraredIntegration*",
+    "test/integrations/HoneyIntegration*",
+    "test/integrations/DolomiteFinanceIntegration*",
+    "test/integrations/BerachainPOLIntegration*",
+    "test/integrations/BeraborrowIntegration*",
+    "test/integrations/BeraETHIntegration*",
+    "test/integrations/ScrollBridgeIntegration*",
+]
+
 # CI profile: caps fuzz/invariant so the test job finishes fast (test.yml sets
 # FOUNDRY_PROFILE=ci). Without this, `--profile ci` is a no-op and fuzz runs 8000.
 [profile.ci.fuzz]
@@ -46,6 +68,26 @@ seed = "0x0000000000000000000000000000000000000000000000000000000000000002"
 runs = 32
 depth = 100
 fail_on_revert = false
+
+# Same skip set as [profile.ci] — keep the two lists in sync (nightly-fuzz.yml
+# also passes no --skip flags).
+[profile.nightly]
+skip = [
+    "script/**",
+    "test/CreateTimelockTx*",
+    "test/integrations/SymbioticVaultIntegration*",
+    "test/integrations/GoldiVaultIntegration*",
+    "test/integrations/BGTRewardVaultIntegration*",
+    "test/integrations/KodiakIslandIntegration*",
+    "test/integrations/KodiakSwappingIntegration*",
+    "test/integrations/InfraredIntegration*",
+    "test/integrations/HoneyIntegration*",
+    "test/integrations/DolomiteFinanceIntegration*",
+    "test/integrations/BerachainPOLIntegration*",
+    "test/integrations/BeraborrowIntegration*",
+    "test/integrations/BeraETHIntegration*",
+    "test/integrations/ScrollBridgeIntegration*",
+]
 
 # Nightly profile: deep fuzz/invariant run for the scheduled nightly-fuzz.yml
 # (FOUNDRY_PROFILE=nightly). Higher intensity than CI.

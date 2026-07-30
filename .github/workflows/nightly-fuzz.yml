@@ -53,24 +53,27 @@ jobs:
         with:
           version: stable
 
+      # This job always builds cold (no compile cache), and full compiles peak
+      # >11 GB in a single solc pipeline — swap keeps the 16 GB runner alive.
+      - name: Add swap for solc memory peak
+        run: |
+          sudo fallocate -l 16G /mnt/swapfile2
+          sudo chmod 600 /mnt/swapfile2
+          sudo mkswap /mnt/swapfile2
+          sudo swapon /mnt/swapfile2
+
       - name: Run Forge build
         run: |
           forge --version
-          forge build --skip script
+          forge build
         id: build
 
       - name: Run Forge tests
-        # Berachain, Corn and Scroll vaults are being deprecated (ETHFI-35),
-        # so their integration suites are skipped in CI.
+        # script/ and the deprecated Berachain/Scroll suites (ETHFI-35) are
+        # excluded via `skip` in [profile.nightly] (foundry.toml), so the build
+        # and test steps compile the exact same source set — no --skip flags.
         run: |
-          forge test -vv \
-            --skip SymbioticVaultIntegration --skip CreateTimelockTx \
-            --skip GoldiVaultIntegration --skip BGTRewardVaultIntegration \
-            --skip KodiakIslandIntegration --skip KodiakSwappingIntegration \
-            --skip InfraredIntegration --skip HoneyIntegration \
-            --skip DolomiteFinanceIntegration --skip BerachainPOLIntegration \
-            --skip BeraborrowIntegration --skip BeraETHIntegration \
-            --skip ScrollBridgeIntegration
+          forge test -vv
         id: test
 
       # Scheduled runs notify no one by default, so ping Slack on failure.

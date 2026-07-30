@@ -16,6 +16,10 @@ jobs:
 
     name: Foundry project
     runs-on: ubuntu-latest
+    # Explicit ceiling (the default is 6h). Note: the historical ~30-min deaths
+    # were the runner OOMing during compilation (VM killed with "runner received
+    # a shutdown signal"), not a timeout — see the swap step below.
+    timeout-minutes: 90
     env:
       MAINNET_RPC_URL: https://eth-mainnet.g.alchemy.com/v2/${{ secrets.ALCHEMY_API_KEY }}
       ARBITRUM_RPC_URL: https://arb-mainnet.g.alchemy.com/v2/${{ secrets.ALCHEMY_API_KEY }}
@@ -50,6 +54,17 @@ jobs:
         with:
           version: stable
 
+      # Full recompiles (any PR touching MerkleTreeHelper/ChainValues dirties
+      # ~all test compilation units) peak >11 GB in a single solc pipeline; the
+      # 16 GB runner OOMs and the VM is killed mid-build. Swap on /mnt (~60 GB
+      # free) absorbs the peak so the build completes instead of dying.
+      - name: Add swap for solc memory peak
+        run: |
+          sudo fallocate -l 16G /mnt/swapfile2
+          sudo chmod 600 /mnt/swapfile2
+          sudo mkswap /mnt/swapfile2
+          sudo swapon /mnt/swapfile2
+
       # Cache forge's compilation output so same-branch pushes only recompile
       # changed files. Restore + save are split (not the combined actions/cache)
       # because the combined action only saves on job success, and this job
@@ -72,7 +87,7 @@ jobs:
       - name: Run Forge build
         run: |
           forge --version
-          forge build --skip script
+          forge build
         id: build
 
       # Persist the compiled artifacts even though the test step below fails on
@@ -87,17 +102,11 @@ jobs:
           key: ${{ steps.forge-cache.outputs.cache-primary-key }}
 
       - name: Run Forge tests
-        # Berachain, Corn and Scroll vaults are being deprecated (ETHFI-35),
-        # so their integration suites are skipped in CI.
+        # script/ and the deprecated Berachain/Scroll suites (ETHFI-35) are
+        # excluded via `skip` in [profile.ci] (foundry.toml), so the build and
+        # test steps compile the exact same source set — no --skip flags here.
         run: |
-          forge test -vv \
-            --skip SymbioticVaultIntegration --skip CreateTimelockTx \
-            --skip GoldiVaultIntegration --skip BGTRewardVaultIntegration \
-            --skip KodiakIslandIntegration --skip KodiakSwappingIntegration \
-            --skip InfraredIntegration --skip HoneyIntegration \
-            --skip DolomiteFinanceIntegration --skip BerachainPOLIntegration \
-            --skip BeraborrowIntegration --skip BeraETHIntegration \
-            --skip ScrollBridgeIntegration
+          forge test -vv
         id: test
 
       # Use nightly Foundry for Tempo tests because stable heavily lags network upgrades
