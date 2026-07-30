@@ -54,6 +54,14 @@ jobs:
         with:
           version: stable
 
+      # [profile.ci] and [profile.nightly] in foundry.toml must skip the same
+      # sources so PR CI and nightly-fuzz test the same code — fail fast if the
+      # two lists drift apart.
+      - name: Check ci/nightly skip lists are in sync
+        run: |
+          diff <(forge config --json | jq '(.skip // []) | sort') \
+               <(FOUNDRY_PROFILE=nightly forge config --json | jq '(.skip // []) | sort')
+
       # Full recompiles (any PR touching MerkleTreeHelper/ChainValues dirties
       # ~all test compilation units) peak >11 GB in a single solc pipeline; the
       # 16 GB runner OOMs and the VM is killed mid-build. Swap on /mnt (~60 GB
