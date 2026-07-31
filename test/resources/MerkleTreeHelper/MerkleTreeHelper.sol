@@ -3370,49 +3370,49 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     function _addAaveV3Leafs(ManageLeaf[] memory leafs, ERC20[] memory supplyAssets, ERC20[] memory borrowAssets)
         internal
     {
-        _addAaveV3ForkLeafs("Aave V3", getAddress(sourceChain, "v3Pool"), leafs, supplyAssets, borrowAssets);
+        _addAaveV3ForkLeafs("Aave V3", getAddress(sourceChain, "v3Pool"), getAddress(sourceChain, "v3RewardsController"), leafs, supplyAssets, borrowAssets);
     }
 
     function _addAaveV3PrimeLeafs(ManageLeaf[] memory leafs, ERC20[] memory supplyAssets, ERC20[] memory borrowAssets)
         internal
     {
-        _addAaveV3ForkLeafs("Aave V3 Prime", getAddress(sourceChain, "v3PrimePool"), leafs, supplyAssets, borrowAssets);
+        _addAaveV3ForkLeafs("Aave V3 Prime", getAddress(sourceChain, "v3PrimePool"), getAddress(sourceChain, "v3RewardsController"), leafs, supplyAssets, borrowAssets);
     }
 
     function _addAaveV3LidoLeafs(ManageLeaf[] memory leafs, ERC20[] memory supplyAssets, ERC20[] memory borrowAssets)
         internal
     {
-        _addAaveV3ForkLeafs("Aave V3 Lido", getAddress(sourceChain, "v3LidoPool"), leafs, supplyAssets, borrowAssets);
+        _addAaveV3ForkLeafs("Aave V3 Lido", getAddress(sourceChain, "v3LidoPool"), getAddress(sourceChain, "v3RewardsController"), leafs, supplyAssets, borrowAssets);
     }
 
     function _addAaveV3HorizonLeafs(ManageLeaf[] memory leafs, ERC20[] memory supplyAssets, ERC20[] memory borrowAssets)
         internal
     {
-        _addAaveV3ForkLeafs("Aave V3 Horizon", getAddress(sourceChain, "v3HorizonPool"), leafs, supplyAssets, borrowAssets);
+        _addAaveV3ForkLeafs("Aave V3 Horizon", getAddress(sourceChain, "v3HorizonPool"), getAddress(sourceChain, "v3RewardsController"), leafs, supplyAssets, borrowAssets);
     }
 
     function _addSparkLendLeafs(ManageLeaf[] memory leafs, ERC20[] memory supplyAssets, ERC20[] memory borrowAssets)
         internal
     {
-        _addAaveV3ForkLeafs("SparkLend", getAddress(sourceChain, "sparkLendPool"), leafs, supplyAssets, borrowAssets);
+        _addAaveV3ForkLeafs("SparkLend", getAddress(sourceChain, "sparkLendPool"), getAddress(sourceChain, "v3RewardsController"), leafs, supplyAssets, borrowAssets);
     }
 
     function _addZerolendLeafs(ManageLeaf[] memory leafs, ERC20[] memory supplyAssets, ERC20[] memory borrowAssets)
         internal
     {
-        _addAaveV3ForkLeafs("Zerolend", getAddress(sourceChain, "zeroLendPool"), leafs, supplyAssets, borrowAssets);
+        _addAaveV3ForkLeafs("Zerolend", getAddress(sourceChain, "zeroLendPool"), getAddress(sourceChain, "v3RewardsController"), leafs, supplyAssets, borrowAssets);
     }
 
     function _addHypurrFiLeafs(ManageLeaf[] memory leafs, ERC20[] memory supplyAssets, ERC20[] memory borrowAssets)
         internal
     {
-        _addAaveV3ForkLeafs("HypurrFi", getAddress(sourceChain, "hypurrFiLendPool"), leafs, supplyAssets, borrowAssets);
+        _addAaveV3ForkLeafs("HypurrFi", getAddress(sourceChain, "hypurrFiLendPool"), getAddress(sourceChain, "v3RewardsController"), leafs, supplyAssets, borrowAssets);
     }
 
     function _addHyperLendLeafs(ManageLeaf[] memory leafs, ERC20[] memory supplyAssets, ERC20[] memory borrowAssets)
         internal
     {
-        _addAaveV3ForkLeafs("HyperLend", getAddress(sourceChain, "hyperLendPool"), leafs, supplyAssets, borrowAssets);
+        _addAaveV3ForkLeafs("HyperLend", getAddress(sourceChain, "hyperLendPool"), getAddress(sourceChain, "v3RewardsController"), leafs, supplyAssets, borrowAssets);
         unchecked {
             leafIndex++;
         }
@@ -3447,6 +3447,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     function _addAaveV3ForkLeafs(
         string memory protocolName,
         address protocolAddress,
+        address rewardsController,
         ManageLeaf[] memory leafs,
         ERC20[] memory supplyAssets,
         ERC20[] memory borrowAssets
@@ -3558,44 +3559,48 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
         }
         // Misc
-        for (uint256 i; i < supplyAssets.length; ++i) {
+        if (borrowAssets.length != 0) {
+            for (uint256 i; i < supplyAssets.length; ++i) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    protocolAddress,
+                    false,
+                    "setUserUseReserveAsCollateral(address,bool)",
+                    new address[](1),
+                    string.concat("Toggle ", supplyAssets[i].symbol(), " as collateral in ", protocolName),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = address(supplyAssets[i]);
+            }
             unchecked {
                 leafIndex++;
             }
             leafs[leafIndex] = ManageLeaf(
                 protocolAddress,
                 false,
-                "setUserUseReserveAsCollateral(address,bool)",
-                new address[](1),
-                string.concat("Toggle ", supplyAssets[i].symbol(), " as collateral in ", protocolName),
+                "setUserEMode(uint8)",
+                new address[](0),
+                string.concat("Set user e-mode in ", protocolName),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
-            leafs[leafIndex].argumentAddresses[0] = address(supplyAssets[i]);
         }
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            protocolAddress,
-            false,
-            "setUserEMode(uint8)",
-            new address[](0),
-            string.concat("Set user e-mode in ", protocolName),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
 
-        unchecked {
-            leafIndex++;
+        if (rewardsController != address(0)) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                rewardsController,
+                false,
+                "claimRewards(address[],uint256,address,address)",
+                new address[](1),
+                string.concat("Claim rewards"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
         }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "v3RewardsController"),
-            false,
-            "claimRewards(address[],uint256,address,address)",
-            new address[](1),
-            string.concat("Claim rewards"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
     }
 
     // only functions that can't hurt LTV of the position
