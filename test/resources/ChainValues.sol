@@ -1169,6 +1169,11 @@ contract ChainValues {
         values[mainnet]["v3Pool"] = 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2.toBytes32();
         values[mainnet]["v3RewardsController"] = 0x8164Cc65827dcFe994AB23944CBC90e0aa80bFcb.toBytes32();
 
+        // Aave V4
+        values[mainnet]["aaveV4CoreHub"] = 0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9.toBytes32();
+        values[mainnet]["aaveV4MainSpoke"] = 0x94e7A5dCbE816e498b89aB752661904E2F56c485.toBytes32();
+        values[mainnet]["aaveV4LidoSpoke"] = 0xe1900480ac69f0B296841Cd01cC37546d92F35Cd.toBytes32();
+
         //Aave v3 Prime
         values[mainnet]["v3PrimePool"] = 0x4e033931ad43597d96D6bcc25c280717730B58B1.toBytes32();
 
