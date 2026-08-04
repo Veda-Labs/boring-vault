@@ -11,8 +11,9 @@ contract M0SolverRegistry is Auth {
 
     // ========================================= ERRORS =========================================
         
-    error SolverAlreadySetForRoute();
-    error SolverDoesNotMatch();
+    error M0SolverRegistry__SolverAlreadySetForRoute();
+    error M0SolverResgistry__SolverDoesNotMatch();
+    error M0SolverResgistry__SolverZeroAddress();
 
     // ========================================= EVENTS =========================================
     
@@ -30,21 +31,23 @@ contract M0SolverRegistry is Auth {
 
     function setSolver(ERC20 tokenIn, ERC20 tokenOut, address solver) external requiresAuth {
         bytes32 routeId = getRouteId(tokenIn, tokenOut);
-        if (solvers[routeId] != address(0)) revert SolverAlreadySetForRoute();
+        if (solvers[routeId] != address(0)) revert M0SolverRegistry__SolverAlreadySetForRoute();
+        if (solver == address(0)) revert M0SolverResgistry__SolverZeroAddress();
         solvers[routeId] = solver;
         emit SolverSet(tokenIn, tokenOut, solver);
     }
 
     function removeSolver(ERC20 tokenIn, ERC20 tokenOut, address solver) external requiresAuth {
         bytes32 routeId = getRouteId(tokenIn, tokenOut);
-        if (solvers[routeId] != solver) revert SolverDoesNotMatch();
+        if (solvers[routeId] != solver) revert M0SolverResgistry__SolverDoesNotMatch();
         delete solvers[routeId]; 
         emit SolverRemoved(tokenIn, tokenOut, solver);
     }
 
     function overwriteSolver(ERC20 tokenIn, ERC20 tokenOut, address oldSolver, address newSolver) external requiresAuth {
         bytes32 routeId = getRouteId(tokenIn, tokenOut);
-        if (solvers[routeId] != oldSolver) revert SolverDoesNotMatch();
+        if (solvers[routeId] != oldSolver) revert M0SolverResgistry__SolverDoesNotMatch();
+        if (newSolver == address(0)) revert M0SolverResgistry__SolverZeroAddress();
         solvers[routeId] = newSolver;
         emit SolverOverwrite(tokenIn, tokenOut, newSolver);
     }

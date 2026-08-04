@@ -86,16 +86,22 @@ contract SolverRegistryTest is Test {
         vm.prank(vedaAdmin);
         registry.setSolver(tokenIn, tokenOut, solver);
 
-        vm.expectRevert(M0SolverRegistry.SolverAlreadySetForRoute.selector);
+        vm.expectRevert(M0SolverRegistry.M0SolverRegistry__SolverAlreadySetForRoute.selector);
         vm.prank(vedaAdmin);
         registry.setSolver(tokenIn, tokenOut, newSolver);
+    }
+
+    function testSetSolverRevertsWhenZeroAddress() public {
+        vm.expectRevert(M0SolverRegistry.M0SolverResgistry__SolverZeroAddress.selector);
+        vm.prank(vedaAdmin);
+        registry.setSolver(tokenIn, tokenOut, address(0));
     }
 
     function testRemoveSolverRevertsWhenSolverMismatch() public {
         vm.prank(vedaAdmin);
         registry.setSolver(tokenIn, tokenOut, solver);
 
-        vm.expectRevert(M0SolverRegistry.SolverDoesNotMatch.selector);
+        vm.expectRevert(M0SolverRegistry.M0SolverResgistry__SolverDoesNotMatch.selector);
         vm.prank(vedaAdmin);
         registry.removeSolver(tokenIn, tokenOut, newSolver);
     }
@@ -104,7 +110,7 @@ contract SolverRegistryTest is Test {
         vm.prank(vedaAdmin);
         registry.setSolver(tokenIn, tokenOut, solver);
 
-        vm.expectRevert(M0SolverRegistry.SolverDoesNotMatch.selector);
+        vm.expectRevert(M0SolverRegistry.M0SolverResgistry__SolverDoesNotMatch.selector);
         vm.prank(vedaAdmin);
         registry.overwriteSolver(tokenIn, tokenOut, newSolver, newSolver);
     }
