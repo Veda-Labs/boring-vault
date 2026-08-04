@@ -145,7 +145,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
     mapping(uint256 orderId => OrderRecord) public orderRecords;
 
     /// @notice tracks order hashes approved via submitOrder — only these can be filled
-    mapping(bytes32 orderHash => bool approved) public approvedHashes;
+    mapping(bytes32 orderHash => bool approved) public override approvedHashes;
 
     /// @notice tracks the relationship between the approved hash and the order number
     mapping(bytes32 orderHash => uint256 orderId) public hashToOrder;
@@ -296,7 +296,7 @@ contract BoringSwapper is Auth, ReentrancyGuard, ISwapper, IPausable {
             limit.remaining = restored > limit.capacity ? limit.capacity : restored;
         }
         
-        //for partials, it does not matter how much was fulled for this, we no longer need to bookkeep any amount as pending. 
+        //for partials, it does not matter how much was filled for this, we no longer need to bookkeep any amount as pending.
         //whether it was filled off-chain or cancelled, pending is the same
         pendingOrderPrincipal[record.tokenIn] -= record.inputAmount;
         record.tokenIn.safeTransfer(address(record.receiver), refund);

@@ -217,6 +217,88 @@ contract M0AdapterTest is BaseTestIntegration {
         assertEq(m0OrderId, predicted);
     }
 
+    function testM0OrderBook__CancelAfterSolverOverwrite() external {
+        address oldSolver = address(0x69);
+        address newSolver = address(0x70);
+        ERC20 tokenIn = getERC20(sourceChain, "WETH");
+        ERC20 tokenOut = getERC20(sourceChain, "USDC");
+        solverRegistry.setSolver(tokenIn, tokenOut, oldSolver);
+
+        ISwapperTypes.SwapConfig memory config = ISwapperTypes.SwapConfig({
+            tokenRoute: ISwapperTypes.TokenRoute(tokenIn, tokenOut),
+            adapter: m0Adapter,
+            quoteAsset: getAddress(sourceChain, "USDC"),
+            swapData: _encodeOrderWithSalt(
+                DecoderCustomTypes.OrderParams({
+                    destChainId: uint32(block.chainid),
+                    fillDeadline: uint32(block.timestamp + 3600),
+                    tokenIn: address(tokenIn),
+                    tokenOut: address(tokenOut).toBytes32(),
+                    amountIn: 1000000000000000,
+                    amountOut: 2200000,
+                    recipient: address(boringVault).toBytes32(),
+                    solver: oldSolver.toBytes32(),
+                    sender: address(swapper)
+                })
+            ),
+            slippageBps: 250,
+            receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
+        });
+
+        (bytes32[][] memory manageTree, Tx memory tx_, ) = _setupLeavesAndState(config);
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+        _submitManagerCall(manageProofs, tx_);
+
+        BoringSwapper.OrderRecord memory record = swapper.getOrderRecord(1);
+        bytes32 m0OrderId = abi.decode(record.context, (bytes32));
+        DecoderCustomTypes.OrderData memory orderData =
+            IM0OrderBook(getAddress(sourceChain, "m0OrderBook")).getOrderData(m0OrderId);
+        bytes memory cancelFunctionAndArgs = abi.encodeWithSignature(
+            "cancelOrder(bytes32,(uint16,bytes32,uint64,uint32,uint32,uint64,uint64,bytes32,bytes32,uint128,uint128,bytes32,bytes32))",
+            m0OrderId,
+            orderData
+        );
+
+        solverRegistry.overwriteSolver(tokenIn, tokenOut, oldSolver, newSolver);
+        swapper.cancelOrder(1, config, cancelFunctionAndArgs);
+
+        IM0OrderBook.Order memory order = IM0OrderBook(getAddress(sourceChain, "m0OrderBook")).getOrder(m0OrderId);
+        assertEq(uint8(order.status), uint8(IM0OrderBook.OrderStatus.Cancelled));
+    }
+
+    function testM0OrderBook__NewOrderWithPreviousSolverAfterOverwriteReverts() external {
+        address oldSolver = address(0x69);
+        address newSolver = address(0x70);
+        ERC20 tokenIn = getERC20(sourceChain, "WETH");
+        ERC20 tokenOut = getERC20(sourceChain, "USDC");
+        solverRegistry.setSolver(tokenIn, tokenOut, oldSolver);
+        solverRegistry.overwriteSolver(tokenIn, tokenOut, oldSolver, newSolver);
+
+        ISwapperTypes.SwapConfig memory config = ISwapperTypes.SwapConfig({
+            tokenRoute: ISwapperTypes.TokenRoute(tokenIn, tokenOut),
+            adapter: m0Adapter,
+            quoteAsset: getAddress(sourceChain, "USDC"),
+            swapData: _encodeOrderWithSalt(
+                DecoderCustomTypes.OrderParams({
+                    destChainId: uint32(block.chainid),
+                    fillDeadline: uint32(block.timestamp + 3600),
+                    tokenIn: address(tokenIn),
+                    tokenOut: address(tokenOut).toBytes32(),
+                    amountIn: 1000000000000000,
+                    amountOut: 2200000,
+                    recipient: address(boringVault).toBytes32(),
+                    solver: oldSolver.toBytes32(),
+                    sender: address(swapper)
+                })
+            ),
+            slippageBps: 250,
+            receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
+        });
+
+        vm.expectRevert(M0Adapter.M0Adapter__IncorrectSolverForRoute.selector);
+        M0Adapter(m0Adapter).verifyLimitOrder(config, address(swapper));
+    }
+
     function testM0OrderBook__ZeroSaltReverts() external {
         ISwapperTypes.TokenRoute memory tokenRoute = ISwapperTypes.TokenRoute(
             getERC20(sourceChain, "WETH"),

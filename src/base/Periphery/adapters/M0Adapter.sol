@@ -7,6 +7,7 @@ pragma solidity 0.8.21;
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {ISwapperTypes} from "src/interfaces/ISwapperTypes.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
+import {ISwapper} from "src/interfaces/ISwapper.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {AddressToBytes32Lib} from "src/helper/AddressToBytes32Lib.sol";
 import {IM0OrderBook} from "src/interfaces/IM0OrderBook.sol";
@@ -51,6 +52,8 @@ contract M0Adapter is IAdapter {
 
         if (salt == bytes32(0)) revert M0Adapter__ZeroSalt();
 
+        bytes32 protocolHash = keccak256(swapConfig.swapData);
+
         if (uint256(order.tokenOut) >> 160 != 0) revert M0Adapter__InvalidAddress();
         if (uint256(order.recipient) >> 160 != 0) revert M0Adapter__InvalidAddress();
 
@@ -59,10 +62,16 @@ contract M0Adapter is IAdapter {
         if (order.recipient.toAddress() != address(swapConfig.receiver)) revert Adapter__ReceiverMismatch();
         if (order.destChainId != block.chainid) revert M0Adapter__CrossChainNotAllowed();
         if (order.sender != swapper) revert M0Adapter__SenderMismatch();
-        
-        //evm only, so no need to keep any bits past 24
+
+        // EVM-only solver addresses must not contain dirty upper bits.
         if (uint256(order.solver) >> 160 != 0) revert M0Adapter__InvalidAddress();
-        if (order.solver.toAddress() != solverRegistry.getSolver(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut)) revert M0Adapter__IncorrectSolverForRoute();
+        // Registry updates govern new orders. Preserve validation for an exact order hash that the
+        // swapper already approved so the order can still be filled or cancelled after rotation.
+        if (
+            order.solver.toAddress()
+                != solverRegistry.getSolver(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut)
+                && !ISwapper(swapper).approvedHashes(protocolHash)
+        ) revert M0Adapter__IncorrectSolverForRoute();
 
         bytes32 m0OrderId = IM0OrderBook(orderBook).getOrderId(
             DecoderCustomTypes.OrderData({
@@ -89,7 +98,7 @@ contract M0Adapter is IAdapter {
             outputToken: order.tokenOut.toAddress(),
             inputAmount: order.amountIn,
             outputAmount: order.amountOut,
-            protocolHash: keccak256(swapConfig.swapData), //hash the swapData since m0 doesn't use a domain separator pattern
+            protocolHash: protocolHash, //hash the swapData since m0 doesn't use a domain separator pattern
             hook: orderBook,
             hookData: abi.encodeWithSignature("openOrder((uint32,uint32,address,bytes32,uint128,uint128,bytes32,bytes32,address))", order),
             context: abi.encode(m0OrderId)
