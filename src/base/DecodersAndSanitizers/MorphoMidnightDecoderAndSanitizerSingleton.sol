@@ -5,7 +5,6 @@
 pragma solidity 0.8.21;
 
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
-import {MorphoMidnightDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/MorphoMidnightDecoderAndSanitizer.sol";
+import {MorphoMidnightDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MorphoMidnightDecoderAndSanitizer.sol";
 
 contract MorphoMidnightDecoderAndSanitizerSingleton is BaseDecoderAndSanitizer, MorphoMidnightDecoderAndSanitizer {}

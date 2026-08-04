@@ -8,8 +8,7 @@ import {BoringVault} from "src/base/BoringVault.sol";
 import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
-import {MorphoMidnightDecoderAndSanitizerSingleton} from
-    "src/base/DecodersAndSanitizers/MorphoMidnightDecoderAndSanitizerSingleton.sol";
+import {MorphoMidnightDecoderAndSanitizerSingleton} from "src/base/DecodersAndSanitizers/MorphoMidnightDecoderAndSanitizerSingleton.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
@@ -59,8 +58,7 @@ contract MorphoMidnightIntegrationTest is Test, MerkleTreeHelper {
         _startFork("BASE_RPC_URL", 48995000);
 
         boringVault = new BoringVault(address(this), "Boring Vault", "BV", 18);
-        manager =
-            new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
+        manager = new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
         rawDataDecoderAndSanitizer = address(new MorphoMidnightDecoderAndSanitizerSingleton());
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
@@ -73,27 +71,11 @@ contract MorphoMidnightIntegrationTest is Test, MerkleTreeHelper {
         boringVault.setAuthority(rolesAuthority);
         manager.setAuthority(rolesAuthority);
 
-        rolesAuthority.setRoleCapability(
-            MANAGER_ROLE, address(boringVault), bytes4(keccak256(abi.encodePacked("manage(address,bytes,uint256)"))), true
-        );
-        rolesAuthority.setRoleCapability(
-            MANAGER_ROLE,
-            address(boringVault),
-            bytes4(keccak256(abi.encodePacked("manage(address[],bytes[],uint256[])"))),
-            true
-        );
-        rolesAuthority.setRoleCapability(
-            STRATEGIST_ROLE, address(manager), ManagerWithMerkleVerification.manageVaultWithMerkleVerification.selector, true
-        );
-        rolesAuthority.setRoleCapability(
-            MANGER_INTERNAL_ROLE,
-            address(manager),
-            ManagerWithMerkleVerification.manageVaultWithMerkleVerification.selector,
-            true
-        );
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(manager), ManagerWithMerkleVerification.setManageRoot.selector, true
-        );
+        rolesAuthority.setRoleCapability(MANAGER_ROLE, address(boringVault), bytes4(keccak256(abi.encodePacked("manage(address,bytes,uint256)"))), true);
+        rolesAuthority.setRoleCapability(MANAGER_ROLE, address(boringVault), bytes4(keccak256(abi.encodePacked("manage(address[],bytes[],uint256[])"))), true);
+        rolesAuthority.setRoleCapability(STRATEGIST_ROLE, address(manager), ManagerWithMerkleVerification.manageVaultWithMerkleVerification.selector, true);
+        rolesAuthority.setRoleCapability(MANGER_INTERNAL_ROLE, address(manager), ManagerWithMerkleVerification.manageVaultWithMerkleVerification.selector, true);
+        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(manager), ManagerWithMerkleVerification.setManageRoot.selector, true);
 
         rolesAuthority.setUserRole(address(this), STRATEGIST_ROLE, true);
         rolesAuthority.setUserRole(address(manager), MANGER_INTERNAL_ROLE, true);
@@ -111,14 +93,9 @@ contract MorphoMidnightIntegrationTest is Test, MerkleTreeHelper {
     }
 
     function _fixtureMarket() internal pure returns (DecoderCustomTypes.MidnightMarket memory market) {
-        DecoderCustomTypes.MidnightCollateralParams[] memory collateralParams =
-            new DecoderCustomTypes.MidnightCollateralParams[](1);
-        collateralParams[0] = DecoderCustomTypes.MidnightCollateralParams({
-            token: address(cbBTC),
-            lltv: 0.98e18,
-            liquidationCursor: 0.3e18,
-            oracle: CBBTC_USDC_ORACLE
-        });
+        DecoderCustomTypes.MidnightCollateralParams[] memory collateralParams = new DecoderCustomTypes.MidnightCollateralParams[](1);
+        collateralParams[0] =
+            DecoderCustomTypes.MidnightCollateralParams({token: address(cbBTC), lltv: 0.98e18, liquidationCursor: 0.3e18, oracle: CBBTC_USDC_ORACLE});
         market = DecoderCustomTypes.MidnightMarket({
             chainId: 8453,
             midnight: MIDNIGHT,
@@ -159,8 +136,7 @@ contract MorphoMidnightIntegrationTest is Test, MerkleTreeHelper {
         bytes32[][] memory proofs = _getProofsUsingTree(leafs, manageTree);
 
         string memory supplySig = string.concat("supplyCollateral(", MIDNIGHT_MARKET_TUPLE, ",uint256,uint256,address)");
-        string memory withdrawSig =
-            string.concat("withdrawCollateral(", MIDNIGHT_MARKET_TUPLE, ",uint256,uint256,address,address)");
+        string memory withdrawSig = string.concat("withdrawCollateral(", MIDNIGHT_MARKET_TUPLE, ",uint256,uint256,address,address)");
 
         uint256 vaultBefore = cbBTC.balanceOf(address(boringVault));
         uint256 singletonBefore = cbBTC.balanceOf(MIDNIGHT);
@@ -193,9 +169,7 @@ contract MorphoMidnightIntegrationTest is Test, MerkleTreeHelper {
             address[] memory targets = new address[](1);
             targets[0] = MIDNIGHT;
             bytes[] memory data = new bytes[](1);
-            data[0] = abi.encodeWithSignature(
-                withdrawSig, market, uint256(0), SUPPLY_AMOUNT, address(boringVault), address(boringVault)
-            );
+            data[0] = abi.encodeWithSignature(withdrawSig, market, uint256(0), SUPPLY_AMOUNT, address(boringVault), address(boringVault));
             address[] memory dec = new address[](1);
             dec[0] = rawDataDecoderAndSanitizer;
             uint256[] memory values = new uint256[](1);
@@ -254,8 +228,7 @@ contract MorphoMidnightTakeForkTest is Test, MerkleTreeHelper {
         _startFork("BASE_RPC_URL", 48420788);
 
         boringVault = new BoringVault(address(this), "Boring Vault", "BV", 18);
-        manager =
-            new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
+        manager = new ManagerWithMerkleVerification(address(this), address(boringVault), getAddress(sourceChain, "vault"));
         rawDataDecoderAndSanitizer = address(new MorphoMidnightDecoderAndSanitizerSingleton());
 
         setAddress(false, sourceChain, "boringVault", address(boringVault));
@@ -268,27 +241,11 @@ contract MorphoMidnightTakeForkTest is Test, MerkleTreeHelper {
         boringVault.setAuthority(rolesAuthority);
         manager.setAuthority(rolesAuthority);
 
-        rolesAuthority.setRoleCapability(
-            MANAGER_ROLE, address(boringVault), bytes4(keccak256(abi.encodePacked("manage(address,bytes,uint256)"))), true
-        );
-        rolesAuthority.setRoleCapability(
-            MANAGER_ROLE,
-            address(boringVault),
-            bytes4(keccak256(abi.encodePacked("manage(address[],bytes[],uint256[])"))),
-            true
-        );
-        rolesAuthority.setRoleCapability(
-            STRATEGIST_ROLE, address(manager), ManagerWithMerkleVerification.manageVaultWithMerkleVerification.selector, true
-        );
-        rolesAuthority.setRoleCapability(
-            MANGER_INTERNAL_ROLE,
-            address(manager),
-            ManagerWithMerkleVerification.manageVaultWithMerkleVerification.selector,
-            true
-        );
-        rolesAuthority.setRoleCapability(
-            ADMIN_ROLE, address(manager), ManagerWithMerkleVerification.setManageRoot.selector, true
-        );
+        rolesAuthority.setRoleCapability(MANAGER_ROLE, address(boringVault), bytes4(keccak256(abi.encodePacked("manage(address,bytes,uint256)"))), true);
+        rolesAuthority.setRoleCapability(MANAGER_ROLE, address(boringVault), bytes4(keccak256(abi.encodePacked("manage(address[],bytes[],uint256[])"))), true);
+        rolesAuthority.setRoleCapability(STRATEGIST_ROLE, address(manager), ManagerWithMerkleVerification.manageVaultWithMerkleVerification.selector, true);
+        rolesAuthority.setRoleCapability(MANGER_INTERNAL_ROLE, address(manager), ManagerWithMerkleVerification.manageVaultWithMerkleVerification.selector, true);
+        rolesAuthority.setRoleCapability(ADMIN_ROLE, address(manager), ManagerWithMerkleVerification.setManageRoot.selector, true);
 
         rolesAuthority.setUserRole(address(this), STRATEGIST_ROLE, true);
         rolesAuthority.setUserRole(address(manager), MANGER_INTERNAL_ROLE, true);
@@ -301,14 +258,8 @@ contract MorphoMidnightTakeForkTest is Test, MerkleTreeHelper {
     }
 
     function _offer() internal pure returns (DecoderCustomTypes.MidnightOffer memory offer) {
-        DecoderCustomTypes.MidnightCollateralParams[] memory cp =
-            new DecoderCustomTypes.MidnightCollateralParams[](1);
-        cp[0] = DecoderCustomTypes.MidnightCollateralParams({
-            token: WETH,
-            lltv: 0.86e18,
-            liquidationCursor: 0.3e18,
-            oracle: WETH_USDC_ORACLE
-        });
+        DecoderCustomTypes.MidnightCollateralParams[] memory cp = new DecoderCustomTypes.MidnightCollateralParams[](1);
+        cp[0] = DecoderCustomTypes.MidnightCollateralParams({token: WETH, lltv: 0.86e18, liquidationCursor: 0.3e18, oracle: WETH_USDC_ORACLE});
         offer = DecoderCustomTypes.MidnightOffer({
             market: DecoderCustomTypes.MidnightMarket({
                 chainId: 8453,
@@ -341,8 +292,7 @@ contract MorphoMidnightTakeForkTest is Test, MerkleTreeHelper {
     // the historical take calldata. Taker-agnostic: the signed digest commits to (offer-tree root, chainid,
     // ratifier), so the vault can reuse it.
     function _ratifierData() internal pure returns (bytes memory) {
-        return
-            hex"000000000000000000000000000000000000000000000000000000000000001c20bce965fcdedc509a1cb3d8f3ad7e24774b4692410fdf30fb31662a4584a9df7778d521691fcc778e70d606934ef67d2b63059d24c51bafb155d82824e29367bf491e843850cfe7587c551ba2e86ea50b1e51c1d1b11c532f4dfd4366a736d6000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000c0000000000000000000000000000000000000000000000000000000000000000259931827d7e4bea2472434c9cefa6baeb450425181a8e4bc73ebe59f9bcf248e129777181b8d14e184bc1aa1600c773efe598335755b63c7e666fb86fc83845f";
+        return hex"000000000000000000000000000000000000000000000000000000000000001c20bce965fcdedc509a1cb3d8f3ad7e24774b4692410fdf30fb31662a4584a9df7778d521691fcc778e70d606934ef67d2b63059d24c51bafb155d82824e29367bf491e843850cfe7587c551ba2e86ea50b1e51c1d1b11c532f4dfd4366a736d6000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000c0000000000000000000000000000000000000000000000000000000000000000259931827d7e4bea2472434c9cefa6baeb450425181a8e4bc73ebe59f9bcf248e129777181b8d14e184bc1aa1600c773efe598335755b63c7e666fb86fc83845f";
     }
 
     /// @dev Midnight's take() price/tick math uses the Osaka CLZ opcode (Midnight.sol NatSpec), which revm
@@ -370,9 +320,7 @@ contract MorphoMidnightTakeForkTest is Test, MerkleTreeHelper {
 
         // Lend-side leaves: approve(USDC)=0, take (buy=false)=1, withdraw=2, updatePosition=3 (even, no pad).
         ManageLeaf[] memory leafs = new ManageLeaf[](4);
-        _addMorphoMidnightSupplyLeafs(
-            leafs, offer.market, offer.maker, offer.callback, offer.receiverIfMakerIsSeller, offer.ratifier
-        );
+        _addMorphoMidnightSupplyLeafs(leafs, offer.market, offer.maker, offer.callback, offer.receiverIfMakerIsSeller, offer.ratifier);
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
@@ -413,16 +361,8 @@ contract MorphoMidnightTakeForkTest is Test, MerkleTreeHelper {
         manager.manageVaultWithMerkleVerification(p, dec, targets, data, values);
 
         // The vault paid USDC for the credit; the maker (offer.receiverIfMakerIsSeller) received it; no fee.
-        assertEq(
-            vaultUsdcBefore - ERC20(USDC).balanceOf(address(boringVault)),
-            EXPECTED_USDC_PAID,
-            "vault should have paid 100000 USDC"
-        );
-        assertEq(
-            ERC20(USDC).balanceOf(MAKER) - makerUsdcBefore, EXPECTED_USDC_PAID, "maker should have received the USDC"
-        );
-        assertEq(
-            ERC20(USDC).balanceOf(MIDNIGHT), singletonUsdcBefore, "singleton should keep no settlement fee"
-        );
+        assertEq(vaultUsdcBefore - ERC20(USDC).balanceOf(address(boringVault)), EXPECTED_USDC_PAID, "vault should have paid 100000 USDC");
+        assertEq(ERC20(USDC).balanceOf(MAKER) - makerUsdcBefore, EXPECTED_USDC_PAID, "maker should have received the USDC");
+        assertEq(ERC20(USDC).balanceOf(MIDNIGHT), singletonUsdcBefore, "singleton should keep no settlement fee");
     }
 }

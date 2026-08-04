@@ -4,10 +4,8 @@
 // Licensed under Software Evaluation License, Version 1.0
 pragma solidity 0.8.21;
 
-import {MorphoMidnightDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/MorphoMidnightDecoderAndSanitizer.sol";
-import {MorphoMidnightDecoderAndSanitizerSingleton} from
-    "src/base/DecodersAndSanitizers/MorphoMidnightDecoderAndSanitizerSingleton.sol";
+import {MorphoMidnightDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MorphoMidnightDecoderAndSanitizer.sol";
+import {MorphoMidnightDecoderAndSanitizerSingleton} from "src/base/DecodersAndSanitizers/MorphoMidnightDecoderAndSanitizerSingleton.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
 import {Test} from "@forge-std/Test.sol";
@@ -81,22 +79,14 @@ contract MorphoMidnightDecoderAndSanitizerTest is Test, MerkleTreeHelper {
         takeSignature = _midnightTakeSignature();
         withdrawSignature = string.concat("withdraw(", MIDNIGHT_MARKET_TUPLE, ",uint256,address,address)");
         repaySignature = string.concat("repay(", MIDNIGHT_MARKET_TUPLE, ",uint256,address,address,bytes)");
-        supplyCollateralSignature =
-            string.concat("supplyCollateral(", MIDNIGHT_MARKET_TUPLE, ",uint256,uint256,address)");
-        withdrawCollateralSignature =
-            string.concat("withdrawCollateral(", MIDNIGHT_MARKET_TUPLE, ",uint256,uint256,address,address)");
+        supplyCollateralSignature = string.concat("supplyCollateral(", MIDNIGHT_MARKET_TUPLE, ",uint256,uint256,address)");
+        withdrawCollateralSignature = string.concat("withdrawCollateral(", MIDNIGHT_MARKET_TUPLE, ",uint256,uint256,address,address)");
         updatePositionSignature = string.concat("updatePosition(", MIDNIGHT_MARKET_TUPLE, ",address)");
     }
 
     function _fixtureMarket() internal pure returns (DecoderCustomTypes.MidnightMarket memory market) {
-        DecoderCustomTypes.MidnightCollateralParams[] memory collateralParams =
-            new DecoderCustomTypes.MidnightCollateralParams[](1);
-        collateralParams[0] = DecoderCustomTypes.MidnightCollateralParams({
-            token: COLLATERAL_TOKEN,
-            lltv: 0.86e18,
-            liquidationCursor: 0.3e18,
-            oracle: ORACLE
-        });
+        DecoderCustomTypes.MidnightCollateralParams[] memory collateralParams = new DecoderCustomTypes.MidnightCollateralParams[](1);
+        collateralParams[0] = DecoderCustomTypes.MidnightCollateralParams({token: COLLATERAL_TOKEN, lltv: 0.86e18, liquidationCursor: 0.3e18, oracle: ORACLE});
         market = DecoderCustomTypes.MidnightMarket({
             chainId: 1,
             midnight: MIDNIGHT,
@@ -110,20 +100,9 @@ contract MorphoMidnightDecoderAndSanitizerTest is Test, MerkleTreeHelper {
     }
 
     function _fixtureMarketTwoCollateral() internal pure returns (DecoderCustomTypes.MidnightMarket memory market) {
-        DecoderCustomTypes.MidnightCollateralParams[] memory collateralParams =
-            new DecoderCustomTypes.MidnightCollateralParams[](2);
-        collateralParams[0] = DecoderCustomTypes.MidnightCollateralParams({
-            token: COLLATERAL_TOKEN,
-            lltv: 0.86e18,
-            liquidationCursor: 0.3e18,
-            oracle: ORACLE
-        });
-        collateralParams[1] = DecoderCustomTypes.MidnightCollateralParams({
-            token: LOAN_TOKEN,
-            lltv: 0.5e18,
-            liquidationCursor: 0.2e18,
-            oracle: ORACLE
-        });
+        DecoderCustomTypes.MidnightCollateralParams[] memory collateralParams = new DecoderCustomTypes.MidnightCollateralParams[](2);
+        collateralParams[0] = DecoderCustomTypes.MidnightCollateralParams({token: COLLATERAL_TOKEN, lltv: 0.86e18, liquidationCursor: 0.3e18, oracle: ORACLE});
+        collateralParams[1] = DecoderCustomTypes.MidnightCollateralParams({token: LOAN_TOKEN, lltv: 0.5e18, liquidationCursor: 0.2e18, oracle: ORACLE});
         market = DecoderCustomTypes.MidnightMarket({
             chainId: 1,
             midnight: MIDNIGHT,
@@ -136,11 +115,7 @@ contract MorphoMidnightDecoderAndSanitizerTest is Test, MerkleTreeHelper {
         });
     }
 
-    function _fixtureOffer(bool buy, address receiverIfMakerIsSeller)
-        internal
-        view
-        returns (DecoderCustomTypes.MidnightOffer memory offer)
-    {
+    function _fixtureOffer(bool buy, address receiverIfMakerIsSeller) internal view returns (DecoderCustomTypes.MidnightOffer memory offer) {
         offer = DecoderCustomTypes.MidnightOffer({
             market: _fixtureMarket(),
             buy: buy,
@@ -195,8 +170,7 @@ contract MorphoMidnightDecoderAndSanitizerTest is Test, MerkleTreeHelper {
         address liquidatorGate
     ) external view {
         uint256 count = bound(collateralCount, 1, 16);
-        DecoderCustomTypes.MidnightCollateralParams[] memory collateralParams =
-            new DecoderCustomTypes.MidnightCollateralParams[](count);
+        DecoderCustomTypes.MidnightCollateralParams[] memory collateralParams = new DecoderCustomTypes.MidnightCollateralParams[](count);
         for (uint256 i; i < count; ++i) {
             collateralParams[i] = DecoderCustomTypes.MidnightCollateralParams({
                 token: address(uint160(uint256(keccak256(abi.encode(fieldSeed, i, "token"))))),
@@ -227,9 +201,7 @@ contract MorphoMidnightDecoderAndSanitizerTest is Test, MerkleTreeHelper {
         assertEq(bytes4(keccak256(bytes(withdrawSignature))), WITHDRAW_SELECTOR, "withdraw");
         assertEq(bytes4(keccak256(bytes(repaySignature))), REPAY_SELECTOR, "repay");
         assertEq(bytes4(keccak256(bytes(supplyCollateralSignature))), SUPPLY_COLLATERAL_SELECTOR, "supplyCollateral");
-        assertEq(
-            bytes4(keccak256(bytes(withdrawCollateralSignature))), WITHDRAW_COLLATERAL_SELECTOR, "withdrawCollateral"
-        );
+        assertEq(bytes4(keccak256(bytes(withdrawCollateralSignature))), WITHDRAW_COLLATERAL_SELECTOR, "withdrawCollateral");
         assertEq(bytes4(keccak256(bytes(updatePositionSignature))), UPDATE_POSITION_SELECTOR, "updatePosition");
     }
 
@@ -241,11 +213,8 @@ contract MorphoMidnightDecoderAndSanitizerTest is Test, MerkleTreeHelper {
         offer.callback = makerCallback;
         offer.ratifier = ratifier;
 
-        (bool success, bytes memory result) = _decode(
-            abi.encodeWithSignature(
-                takeSignature, offer, hex"", 1e18, boringVaultAddress, address(0), address(0), hex""
-            )
-        );
+        (bool success, bytes memory result) =
+            _decode(abi.encodeWithSignature(takeSignature, offer, hex"", 1e18, boringVaultAddress, address(0), address(0), hex""));
         assertTrue(success, "take decode failed");
         assertEq(
             result,
@@ -266,118 +235,64 @@ contract MorphoMidnightDecoderAndSanitizerTest is Test, MerkleTreeHelper {
     function testTakeRevertsOnTakerCallback() external view {
         DecoderCustomTypes.MidnightOffer memory offer = _fixtureOffer(true, address(0));
 
-        (bool success, bytes memory result) = address(decoder).staticcall(
-            abi.encodeWithSignature(
-                takeSignature, offer, hex"", 1e18, boringVaultAddress, boringVaultAddress, vm.addr(0xEEEE), hex""
-            )
-        );
+        (bool success, bytes memory result) = address(decoder)
+            .staticcall(abi.encodeWithSignature(takeSignature, offer, hex"", 1e18, boringVaultAddress, boringVaultAddress, vm.addr(0xEEEE), hex""));
         assertFalse(success, "should revert on taker callback");
-        assertEq(
-            result,
-            abi.encodePacked(
-                MorphoMidnightDecoderAndSanitizer.MorphoMidnightDecoderAndSanitizer__CallbackNotSupported.selector
-            )
-        );
+        assertEq(result, abi.encodePacked(MorphoMidnightDecoderAndSanitizer.MorphoMidnightDecoderAndSanitizer__CallbackNotSupported.selector));
     }
 
     function testTakeRevertsOnTakerCallbackData() external view {
         DecoderCustomTypes.MidnightOffer memory offer = _fixtureOffer(true, address(0));
 
-        (bool success, bytes memory result) = address(decoder).staticcall(
-            abi.encodeWithSignature(
-                takeSignature, offer, hex"", 1e18, boringVaultAddress, boringVaultAddress, address(0), hex"dead"
-            )
-        );
+        (bool success, bytes memory result) = address(decoder)
+            .staticcall(abi.encodeWithSignature(takeSignature, offer, hex"", 1e18, boringVaultAddress, boringVaultAddress, address(0), hex"dead"));
         assertFalse(success, "should revert on taker callback data");
-        assertEq(
-            result,
-            abi.encodePacked(
-                MorphoMidnightDecoderAndSanitizer.MorphoMidnightDecoderAndSanitizer__CallbackNotSupported.selector
-            )
-        );
+        assertEq(result, abi.encodePacked(MorphoMidnightDecoderAndSanitizer.MorphoMidnightDecoderAndSanitizer__CallbackNotSupported.selector));
     }
 
     function testWithdrawDecoding() external view {
-        (bool success, bytes memory result) = _decode(
-            abi.encodeWithSignature(
-                withdrawSignature, _fixtureMarket(), 1e18, boringVaultAddress, boringVaultAddress
-            )
-        );
+        (bool success, bytes memory result) =
+            _decode(abi.encodeWithSignature(withdrawSignature, _fixtureMarket(), 1e18, boringVaultAddress, boringVaultAddress));
         assertTrue(success, "withdraw decode failed");
         assertEq(result, abi.encodePacked(MARKET_ID_ADDRESS, boringVaultAddress, boringVaultAddress));
     }
 
     function testRepayDecodingAndCallbackRejection() external view {
-        (bool success, bytes memory result) = _decode(
-            abi.encodeWithSignature(repaySignature, _fixtureMarket(), 1e18, boringVaultAddress, address(0), hex"")
-        );
+        (bool success, bytes memory result) = _decode(abi.encodeWithSignature(repaySignature, _fixtureMarket(), 1e18, boringVaultAddress, address(0), hex""));
         assertTrue(success, "repay decode failed");
         assertEq(result, abi.encodePacked(MARKET_ID_ADDRESS, boringVaultAddress));
 
-        (success, result) = address(decoder).staticcall(
-            abi.encodeWithSignature(
-                repaySignature, _fixtureMarket(), 1e18, boringVaultAddress, vm.addr(0xEEEE), hex""
-            )
-        );
+        (success, result) =
+            address(decoder).staticcall(abi.encodeWithSignature(repaySignature, _fixtureMarket(), 1e18, boringVaultAddress, vm.addr(0xEEEE), hex""));
         assertFalse(success, "should revert on repay callback");
 
-        (success, result) = address(decoder).staticcall(
-            abi.encodeWithSignature(repaySignature, _fixtureMarket(), 1e18, boringVaultAddress, address(0), hex"dead")
-        );
+        (success, result) =
+            address(decoder).staticcall(abi.encodeWithSignature(repaySignature, _fixtureMarket(), 1e18, boringVaultAddress, address(0), hex"dead"));
         assertFalse(success, "should revert on repay callback data");
     }
 
     function testCollateralDecodingAndOvercastGuard() external view {
-        (bool success, bytes memory result) = _decode(
-            abi.encodeWithSignature(
-                supplyCollateralSignature, _fixtureMarket(), 0, 100e18, boringVaultAddress
-            )
-        );
+        (bool success, bytes memory result) = _decode(abi.encodeWithSignature(supplyCollateralSignature, _fixtureMarket(), 0, 100e18, boringVaultAddress));
         assertTrue(success, "supplyCollateral decode failed");
         assertEq(result, abi.encodePacked(MARKET_ID_ADDRESS, address(0), boringVaultAddress));
 
-        (success, result) = _decode(
-            abi.encodeWithSignature(
-                withdrawCollateralSignature, _fixtureMarket(), 0, 100e18, boringVaultAddress, boringVaultAddress
-            )
-        );
+        (success, result) = _decode(abi.encodeWithSignature(withdrawCollateralSignature, _fixtureMarket(), 0, 100e18, boringVaultAddress, boringVaultAddress));
         assertTrue(success, "withdrawCollateral decode failed");
         assertEq(result, abi.encodePacked(MARKET_ID_ADDRESS, address(0), boringVaultAddress, boringVaultAddress));
 
-        (success, result) = address(decoder).staticcall(
-            abi.encodeWithSignature(
-                supplyCollateralSignature,
-                _fixtureMarket(),
-                uint256(type(uint160).max) + 1,
-                100e18,
-                boringVaultAddress
-            )
-        );
+        (success, result) = address(decoder)
+            .staticcall(abi.encodeWithSignature(supplyCollateralSignature, _fixtureMarket(), uint256(type(uint160).max) + 1, 100e18, boringVaultAddress));
         assertFalse(success, "should revert on overcast collateral index");
-        assertEq(
-            result,
-            abi.encodePacked(
-                MorphoMidnightDecoderAndSanitizer.MorphoMidnightDecoderAndSanitizer__OvercastUint160.selector
-            )
-        );
+        assertEq(result, abi.encodePacked(MorphoMidnightDecoderAndSanitizer.MorphoMidnightDecoderAndSanitizer__OvercastUint160.selector));
 
-        (success, result) = address(decoder).staticcall(
-            abi.encodeWithSignature(
-                withdrawCollateralSignature,
-                _fixtureMarket(),
-                uint256(type(uint160).max) + 1,
-                100e18,
-                boringVaultAddress,
-                boringVaultAddress
-            )
-        );
+        (success, result) = address(decoder)
+            .staticcall(
+                abi.encodeWithSignature(
+                    withdrawCollateralSignature, _fixtureMarket(), uint256(type(uint160).max) + 1, 100e18, boringVaultAddress, boringVaultAddress
+                )
+            );
         assertFalse(success, "should revert on overcast collateral index (withdraw)");
-        assertEq(
-            result,
-            abi.encodePacked(
-                MorphoMidnightDecoderAndSanitizer.MorphoMidnightDecoderAndSanitizer__OvercastUint160.selector
-            )
-        );
+        assertEq(result, abi.encodePacked(MorphoMidnightDecoderAndSanitizer.MorphoMidnightDecoderAndSanitizer__OvercastUint160.selector));
     }
 
     function testCollateralIndexIsActuallyPinned() external view {
@@ -386,31 +301,19 @@ contract MorphoMidnightDecoderAndSanitizerTest is Test, MerkleTreeHelper {
         DecoderCustomTypes.MidnightMarket memory market = _fixtureMarketTwoCollateral();
         (, address idAddr) = _getMidnightMarketId(market);
 
-        (bool success, bytes memory result) =
-            _decode(abi.encodeWithSignature(supplyCollateralSignature, market, uint256(1), 100e18, boringVaultAddress));
+        (bool success, bytes memory result) = _decode(abi.encodeWithSignature(supplyCollateralSignature, market, uint256(1), 100e18, boringVaultAddress));
         assertTrue(success, "supplyCollateral index 1 decode failed");
-        assertEq(
-            result,
-            abi.encodePacked(idAddr, address(uint160(1)), boringVaultAddress),
-            "supplyCollateral did not pin collateralIndex 1"
-        );
+        assertEq(result, abi.encodePacked(idAddr, address(uint160(1)), boringVaultAddress), "supplyCollateral did not pin collateralIndex 1");
 
-        (success, result) = _decode(
-            abi.encodeWithSignature(
-                withdrawCollateralSignature, market, uint256(1), 100e18, boringVaultAddress, boringVaultAddress
-            )
-        );
+        (success, result) = _decode(abi.encodeWithSignature(withdrawCollateralSignature, market, uint256(1), 100e18, boringVaultAddress, boringVaultAddress));
         assertTrue(success, "withdrawCollateral index 1 decode failed");
         assertEq(
-            result,
-            abi.encodePacked(idAddr, address(uint160(1)), boringVaultAddress, boringVaultAddress),
-            "withdrawCollateral did not pin collateralIndex 1"
+            result, abi.encodePacked(idAddr, address(uint160(1)), boringVaultAddress, boringVaultAddress), "withdrawCollateral did not pin collateralIndex 1"
         );
     }
 
     function testUpdatePositionDecoding() external view {
-        (bool success, bytes memory result) =
-            _decode(abi.encodeWithSignature(updatePositionSignature, _fixtureMarket(), boringVaultAddress));
+        (bool success, bytes memory result) = _decode(abi.encodeWithSignature(updatePositionSignature, _fixtureMarket(), boringVaultAddress));
         assertTrue(success, "updatePosition decode failed");
         assertEq(result, abi.encodePacked(MARKET_ID_ADDRESS, boringVaultAddress));
     }
@@ -438,18 +341,13 @@ contract MorphoMidnightDecoderAndSanitizerTest is Test, MerkleTreeHelper {
         lendOffer.maker = maker;
         lendOffer.callback = makerCallback;
         lendOffer.ratifier = ratifier;
-        (bool success, bytes memory result) = _decode(
-            abi.encodeWithSignature(
-                takeSignature, lendOffer, hex"", 1e18, boringVaultAddress, address(0), address(0), hex""
-            )
-        );
+        (bool success, bytes memory result) =
+            _decode(abi.encodeWithSignature(takeSignature, lendOffer, hex"", 1e18, boringVaultAddress, address(0), address(0), hex""));
         assertTrue(success);
         assertEq(result, _packLeafArguments(leafs[1]), "take lend leaf mismatch");
 
         // Leaf 2: withdraw.
-        (success, result) = _decode(
-            abi.encodeWithSignature(withdrawSignature, market, 1e18, boringVaultAddress, boringVaultAddress)
-        );
+        (success, result) = _decode(abi.encodeWithSignature(withdrawSignature, market, 1e18, boringVaultAddress, boringVaultAddress));
         assertTrue(success);
         assertEq(result, _packLeafArguments(leafs[2]), "withdraw leaf mismatch");
 
@@ -463,34 +361,22 @@ contract MorphoMidnightDecoderAndSanitizerTest is Test, MerkleTreeHelper {
         sellOffer.maker = maker;
         sellOffer.callback = makerCallback;
         sellOffer.ratifier = ratifier;
-        (success, result) = _decode(
-            abi.encodeWithSignature(
-                takeSignature, sellOffer, hex"", 1e18, boringVaultAddress, boringVaultAddress, address(0), hex""
-            )
-        );
+        (success, result) = _decode(abi.encodeWithSignature(takeSignature, sellOffer, hex"", 1e18, boringVaultAddress, boringVaultAddress, address(0), hex""));
         assertTrue(success);
         assertEq(result, _packLeafArguments(leafs[4]), "take sell leaf mismatch");
 
         // Leaf 6: supplyCollateral.
-        (success, result) = _decode(
-            abi.encodeWithSignature(supplyCollateralSignature, market, 0, 100e18, boringVaultAddress)
-        );
+        (success, result) = _decode(abi.encodeWithSignature(supplyCollateralSignature, market, 0, 100e18, boringVaultAddress));
         assertTrue(success);
         assertEq(result, _packLeafArguments(leafs[6]), "supplyCollateral leaf mismatch");
 
         // Leaf 7: withdrawCollateral.
-        (success, result) = _decode(
-            abi.encodeWithSignature(
-                withdrawCollateralSignature, market, 0, 100e18, boringVaultAddress, boringVaultAddress
-            )
-        );
+        (success, result) = _decode(abi.encodeWithSignature(withdrawCollateralSignature, market, 0, 100e18, boringVaultAddress, boringVaultAddress));
         assertTrue(success);
         assertEq(result, _packLeafArguments(leafs[7]), "withdrawCollateral leaf mismatch");
 
         // Leaf 8: repay.
-        (success, result) = _decode(
-            abi.encodeWithSignature(repaySignature, market, 1e18, boringVaultAddress, address(0), hex"")
-        );
+        (success, result) = _decode(abi.encodeWithSignature(repaySignature, market, 1e18, boringVaultAddress, address(0), hex""));
         assertTrue(success);
         assertEq(result, _packLeafArguments(leafs[8]), "repay leaf mismatch");
 
@@ -521,14 +407,8 @@ contract MorphoMidnightDecoderAndSanitizerTest is Test, MerkleTreeHelper {
 
     function testLoanEqualsCollateralApprovalDedup() external {
         // A market whose collateral token IS its loan token must not emit two separate approvals.
-        DecoderCustomTypes.MidnightCollateralParams[] memory collateralParams =
-            new DecoderCustomTypes.MidnightCollateralParams[](1);
-        collateralParams[0] = DecoderCustomTypes.MidnightCollateralParams({
-            token: LOAN_TOKEN,
-            lltv: 0.86e18,
-            liquidationCursor: 0.3e18,
-            oracle: ORACLE
-        });
+        DecoderCustomTypes.MidnightCollateralParams[] memory collateralParams = new DecoderCustomTypes.MidnightCollateralParams[](1);
+        collateralParams[0] = DecoderCustomTypes.MidnightCollateralParams({token: LOAN_TOKEN, lltv: 0.86e18, liquidationCursor: 0.3e18, oracle: ORACLE});
         DecoderCustomTypes.MidnightMarket memory market = DecoderCustomTypes.MidnightMarket({
             chainId: 1,
             midnight: MIDNIGHT,

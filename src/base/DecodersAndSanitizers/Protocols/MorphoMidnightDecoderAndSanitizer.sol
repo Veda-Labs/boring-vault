@@ -81,7 +81,12 @@ contract MorphoMidnightDecoderAndSanitizer {
         address onBehalf,
         address callback,
         bytes calldata data
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         // Sanitize raw data
         if (callback != address(0) || data.length > 0) {
             revert MorphoMidnightDecoderAndSanitizer__CallbackNotSupported();
@@ -96,11 +101,15 @@ contract MorphoMidnightDecoderAndSanitizer {
         uint256 collateralIndex,
         uint256, /*assets*/
         address onBehalf
-    ) external pure virtual returns (bytes memory addressesFound) {
+    )
+        external
+        pure
+        virtual
+        returns (bytes memory addressesFound)
+    {
         if (collateralIndex > type(uint160).max) revert MorphoMidnightDecoderAndSanitizer__OvercastUint160();
 
-        addressesFound =
-            abi.encodePacked(_getMidnightMarketId(market), address(uint160(collateralIndex)), onBehalf);
+        addressesFound = abi.encodePacked(_getMidnightMarketId(market), address(uint160(collateralIndex)), onBehalf);
     }
 
     /// @notice Withdraw collateral to receiver (health-checked on-chain if debt remains).
@@ -110,21 +119,19 @@ contract MorphoMidnightDecoderAndSanitizer {
         uint256, /*assets*/
         address onBehalf,
         address receiver
-    ) external pure virtual returns (bytes memory addressesFound) {
-        if (collateralIndex > type(uint160).max) revert MorphoMidnightDecoderAndSanitizer__OvercastUint160();
-
-        addressesFound = abi.encodePacked(
-            _getMidnightMarketId(market), address(uint160(collateralIndex)), onBehalf, receiver
-        );
-    }
-
-    /// @notice Permissionless bookkeeping: applies pending bad-debt slashing and fee accrual to a position.
-    function updatePosition(DecoderCustomTypes.MidnightMarket calldata market, address user)
+    )
         external
         pure
         virtual
         returns (bytes memory addressesFound)
     {
+        if (collateralIndex > type(uint160).max) revert MorphoMidnightDecoderAndSanitizer__OvercastUint160();
+
+        addressesFound = abi.encodePacked(_getMidnightMarketId(market), address(uint160(collateralIndex)), onBehalf, receiver);
+    }
+
+    /// @notice Permissionless bookkeeping: applies pending bad-debt slashing and fee accrual to a position.
+    function updatePosition(DecoderCustomTypes.MidnightMarket calldata market, address user) external pure virtual returns (bytes memory addressesFound) {
         addressesFound = abi.encodePacked(_getMidnightMarketId(market), user);
     }
 
@@ -133,19 +140,9 @@ contract MorphoMidnightDecoderAndSanitizer {
     /// @dev Mirrors Midnight's IdLib.toId: keccak256(0xff ++ market.midnight ++ uint256(0) ++
     ///      keccak256(SSTORE2_PREFIX ++ abi.encode(market))). Midnight stores the market data at
     ///      the address given by the last 20 bytes of the id, which is exactly what we pin.
-    function _getMidnightMarketId(DecoderCustomTypes.MidnightMarket calldata market)
-        internal
-        pure
-        returns (address)
-    {
-        bytes32 id = keccak256(
-            abi.encodePacked(
-                uint8(0xff),
-                market.midnight,
-                uint256(0),
-                keccak256(abi.encodePacked(hex"600b380380600b5f395ff3", abi.encode(market)))
-            )
-        );
+    function _getMidnightMarketId(DecoderCustomTypes.MidnightMarket calldata market) internal pure returns (address) {
+        bytes32 id =
+            keccak256(abi.encodePacked(uint8(0xff), market.midnight, uint256(0), keccak256(abi.encodePacked(hex"600b380380600b5f395ff3", abi.encode(market)))));
         return address(uint160(uint256(id)));
     }
 }
