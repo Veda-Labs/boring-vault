@@ -10,6 +10,7 @@ import {IAdapter} from "src/interfaces/IAdapter.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {AddressToBytes32Lib} from "src/helper/AddressToBytes32Lib.sol";
 import {IM0OrderBook} from "src/interfaces/IM0OrderBook.sol";
+import {M0SolverRegistry} from "src/base/Periphery/SolverRegistry.sol";
 
 contract M0Adapter is IAdapter {
     using AddressToBytes32Lib for bytes32;
@@ -18,20 +19,23 @@ contract M0Adapter is IAdapter {
     //============================== Errors ===============================
     
     error M0Adapter__CrossChainNotAllowed();
-    error M0Adapter__PrivateOrdersNotAllowed();
+    error M0Adapter__IncorrectSolverForRoute();
     error M0Adapter__NotCancelFunction();
     error M0Adapter__OrderIdMismatch();
     error M0Adapter__InvalidAddress();
     error M0Adapter__SenderMismatch();
+    error M0Adapter__ZeroSalt();
         
     //============================== Immutables ===============================
     
     address immutable orderBook;
+    M0SolverRegistry solverRegistry;
 
     //============================== Constructor ===============================
     
-    constructor(address _orderBook) {
+    constructor(address _orderBook, M0SolverRegistry _solverRegistry) {
         orderBook = _orderBook;
+        solverRegistry = _solverRegistry;
     }
 
     //============================== Limit Orders ===============================
@@ -42,9 +46,11 @@ contract M0Adapter is IAdapter {
         returns (OrderInfo memory)
     {
 
-        DecoderCustomTypes.OrderParams memory order =
-             abi.decode(swapConfig.swapData, (DecoderCustomTypes.OrderParams));
-        
+        (DecoderCustomTypes.OrderParams memory order, bytes32 salt) =
+             abi.decode(swapConfig.swapData, (DecoderCustomTypes.OrderParams, bytes32));
+
+        if (salt == bytes32(0)) revert M0Adapter__ZeroSalt();
+
         if (uint256(order.tokenOut) >> 160 != 0) revert M0Adapter__InvalidAddress();
         if (uint256(order.recipient) >> 160 != 0) revert M0Adapter__InvalidAddress();
 
@@ -52,8 +58,11 @@ contract M0Adapter is IAdapter {
         if (ERC20(order.tokenOut.toAddress()) != swapConfig.tokenRoute.tokenOut) revert Adapter__TokenOutMismatch();
         if (order.recipient.toAddress() != address(swapConfig.receiver)) revert Adapter__ReceiverMismatch();
         if (order.destChainId != block.chainid) revert M0Adapter__CrossChainNotAllowed();
-        if (order.solver != bytes32(0)) revert M0Adapter__PrivateOrdersNotAllowed();
         if (order.sender != swapper) revert M0Adapter__SenderMismatch();
+        
+        //evm only, so no need to keep any bits past 24
+        if (uint256(order.solver) >> 160 != 0) revert M0Adapter__InvalidAddress();
+        if (order.solver.toAddress() != solverRegistry.getSolver(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut)) revert M0Adapter__IncorrectSolverForRoute();
 
         bytes32 m0OrderId = IM0OrderBook(orderBook).getOrderId(
             DecoderCustomTypes.OrderData({

@@ -49,6 +49,11 @@ contract M0SolverRegistry is Auth {
         emit SolverOverwrite(tokenIn, tokenOut, newSolver);
     }
 
+    function getSolver(ERC20 tokenIn, ERC20 tokenOut) external view returns (address) {
+        bytes32 routeId = getRouteId(tokenIn, tokenOut);
+        return solvers[routeId];
+    }
+
     /// @notice Computes the deterministic route identifier for a directional token pair.
     function getRouteId(ERC20 tokenIn, ERC20 tokenOut) public pure returns (bytes32 routeId) {
         assembly {
