@@ -28,8 +28,8 @@ contract M0Adapter is IAdapter {
         
     //============================== Immutables ===============================
     
-    address immutable orderBook;
-    M0SolverRegistry solverRegistry;
+    address public immutable orderBook;
+    M0SolverRegistry public immutable solverRegistry;
 
     //============================== Constructor ===============================
     
