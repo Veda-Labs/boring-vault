@@ -39,13 +39,15 @@ contract M0SolverRegistry is Auth {
 
     function removeSolver(ERC20 tokenIn, ERC20 tokenOut, address solver) external requiresAuth {
         bytes32 routeId = getRouteId(tokenIn, tokenOut);
+        if (solvers[routeId] == address(0)) revert M0SolverResgistry__SolverZeroAddress();
         if (solvers[routeId] != solver) revert M0SolverResgistry__SolverDoesNotMatch();
-        delete solvers[routeId]; 
+        delete solvers[routeId];
         emit SolverRemoved(tokenIn, tokenOut, solver);
     }
 
     function overwriteSolver(ERC20 tokenIn, ERC20 tokenOut, address oldSolver, address newSolver) external requiresAuth {
         bytes32 routeId = getRouteId(tokenIn, tokenOut);
+        if (solvers[routeId] == address(0)) revert M0SolverResgistry__SolverZeroAddress();
         if (solvers[routeId] != oldSolver) revert M0SolverResgistry__SolverDoesNotMatch();
         if (newSolver == address(0)) revert M0SolverResgistry__SolverZeroAddress();
         solvers[routeId] = newSolver;
