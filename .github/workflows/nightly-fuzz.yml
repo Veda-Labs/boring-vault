@@ -53,6 +53,15 @@ jobs:
         with:
           version: stable
 
+      # This job always builds cold (no compile cache), and full compiles peak
+      # >11 GB in a single solc pipeline — swap keeps the 16 GB runner alive.
+      - name: Add swap for solc memory peak
+        run: |
+          sudo fallocate -l 16G /mnt/swapfile2
+          sudo chmod 600 /mnt/swapfile2
+          sudo mkswap /mnt/swapfile2
+          sudo swapon /mnt/swapfile2
+
       - name: Run Forge build
         run: |
           forge --version
