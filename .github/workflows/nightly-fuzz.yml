@@ -55,12 +55,22 @@ jobs:
 
       # This job always builds cold (no compile cache), and full compiles peak
       # >11 GB in a single solc pipeline — swap keeps the 16 GB runner alive.
-      - name: Add swap for solc memory peak
+      - name: Free disk and add swap for solc memory peak
         run: |
-          sudo fallocate -l 16G /mnt/swapfile2
-          sudo chmod 600 /mnt/swapfile2
-          sudo mkswap /mnt/swapfile2
-          sudo swapon /mnt/swapfile2
+          # This repo + its nested submodules leave little runner-disk headroom,
+          # so a 16G swapfile on /mnt overflowed the disk ("No space left on
+          # device") and crashed the runner agent before the build. Reclaim the
+          # preinstalled toolchains we don't use, then put a right-sized swapfile
+          # on the freed root disk to absorb the >11 GB solc compile peak.
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc \
+            /opt/hostedtoolcache/CodeQL /usr/local/graalvm /usr/local/share/powershell \
+            /usr/local/share/chromium /usr/local/lib/node_modules /usr/share/swift 2>/dev/null || true
+          df -h /
+          sudo fallocate -l 12G /swapfile2
+          sudo chmod 600 /swapfile2
+          sudo mkswap /swapfile2
+          sudo swapon /swapfile2
+          free -h
 
       - name: Run Forge build
         run: |
