@@ -5,11 +5,12 @@
 pragma solidity 0.8.21;
 
 import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol"; 
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {AgglayerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AgglayerDecoderAndSanitizer.sol"; 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
-contract FullAgglayerDecoderAndSanitizer is AgglayerDecoderAndSanitizer{}
+contract FullAgglayerDecoderAndSanitizer is AgglayerDecoderAndSanitizer, BaseDecoderAndSanitizer{}
 
 
 contract AgglayerIntegrationTest is BaseTestIntegration {
@@ -44,6 +45,8 @@ contract AgglayerIntegrationTest is BaseTestIntegration {
             toChain 
         );    
 
+        _addAgglayerTokenLeafs(leafs, zkEVMBridge, getAddress(sourceChain, "ETH"), fromChain, toChain);
+
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
         _generateTestLeafs(leafs, manageTree);
@@ -51,15 +54,17 @@ contract AgglayerIntegrationTest is BaseTestIntegration {
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
         
-        Tx memory tx_ = _getTxArrays(2); 
+        Tx memory tx_ = _getTxArrays(3);
 
         tx_.manageLeafs[0] = leafs[0]; //approve USDC
         tx_.manageLeafs[1] = leafs[1]; //bridgeAsset (USDC)
+        tx_.manageLeafs[2] = leafs[3]; //bridgeAsset (ETH)
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
         
         tx_.targets[0] = getAddress(sourceChain, "USDC"); //approve 
-        tx_.targets[1] = zkEVMBridge;  
+        tx_.targets[1] = zkEVMBridge;
+        tx_.targets[2] = zkEVMBridge;
 
         tx_.targetData[0] = abi.encodeWithSignature(
             "approve(address,uint256)", zkEVMBridge, type(uint256).max
@@ -73,10 +78,21 @@ contract AgglayerIntegrationTest is BaseTestIntegration {
             true,
             ""
         ); 
+        tx_.targetData[2] = abi.encodeWithSignature(
+            "bridgeAsset(uint32,address,uint256,address,bool,bytes)",
+            toChain,
+            address(boringVault),
+            1e18,
+            address(0),
+            true,
+            ""
+        );
+        tx_.values[2] = 1e18;
 
 
         tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer; 
         tx_.decodersAndSanitizers[1] = rawDataDecoderAndSanitizer; 
+        tx_.decodersAndSanitizers[2] = rawDataDecoderAndSanitizer;
 
         _submitManagerCall(manageProofs, tx_); 
     }

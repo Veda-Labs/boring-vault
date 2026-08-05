@@ -17416,33 +17416,12 @@ function _addTellerLeafsWithReferral(
         uint32 fromChain,
         uint32 toChain
     ) internal {
-        unchecked {
-            leafIndex++;
+        string memory tokenSymbol;
+        if (token == getAddress(sourceChain, "ETH")) {
+            tokenSymbol = "native ETH";
+        } else {
+            tokenSymbol = ERC20(token).symbol();
         }
-        leafs[leafIndex] = ManageLeaf(
-            token,
-            false,
-            "approve(address,uint256)",
-            new address[](1),
-            string.concat("Approve zkEVM Compatible Bridge to spend", ERC20(token).symbol()),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = bridge;
-
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            bridge,
-            false,
-            "bridgeAsset(uint32,address,uint256,address,bool,bytes)",
-            new address[](3),
-            string.concat("Bridge ", ERC20(token).symbol(), " using zkEVM Compatible Bridge"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = address(uint160(toChain));
-        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
-        leafs[leafIndex].argumentAddresses[2] = token;
 
         if (token == getAddress(sourceChain, "ETH")) {
             unchecked {
@@ -17458,7 +17437,35 @@ function _addTellerLeafsWithReferral(
             );
             leafs[leafIndex].argumentAddresses[0] = address(uint160(toChain)); 
             leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault"); 
-            leafs[leafIndex].argumentAddresses[2] = address(uint160(fromChain)); //zkEVM bridge expects native eth to be address(0)
+            leafs[leafIndex].argumentAddresses[2] = address(0); //zkEVM bridge expects native eth to be address(0)
+        } else {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                token,
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve zkEVM Compatible Bridge to spend", tokenSymbol),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = bridge;
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                bridge,
+                false,
+                "bridgeAsset(uint32,address,uint256,address,bool,bytes)",
+                new address[](3),
+                string.concat("Bridge ", tokenSymbol, " using zkEVM Compatible Bridge"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(uint160(toChain));
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[2] = token;
         }
 
         unchecked {
@@ -17469,7 +17476,7 @@ function _addTellerLeafsWithReferral(
             false,
             "claimAsset(bytes32[32],bytes32[32],uint256,bytes32,bytes32,uint32,address,uint32,address,uint256,bytes)",
             new address[](4),
-            string.concat("Claim  ", ERC20(token).symbol(), " from zkEVM Compatible Bridge"),
+            string.concat("Claim  ", tokenSymbol, " from zkEVM Compatible Bridge"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
 
