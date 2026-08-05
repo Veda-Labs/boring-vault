@@ -17417,8 +17417,10 @@ function _addTellerLeafsWithReferral(
         uint32 toChain
     ) internal {
         string memory tokenSymbol;
+        address claimOriginTokenAddress = token;
         if (token == getAddress(sourceChain, "ETH")) {
             tokenSymbol = "native ETH";
+            claimOriginTokenAddress = address(0);
         } else {
             tokenSymbol = ERC20(token).symbol();
         }
@@ -17435,7 +17437,7 @@ function _addTellerLeafsWithReferral(
                 string.concat("Bridge ETH using zkEVM Compatible Bridge"),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
-            leafs[leafIndex].argumentAddresses[0] = address(uint160(toChain)); 
+            leafs[leafIndex].argumentAddresses[0] = address(uint160(toChain));
             leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault"); 
             leafs[leafIndex].argumentAddresses[2] = address(0); //zkEVM bridge expects native eth to be address(0)
         } else {
@@ -17480,9 +17482,9 @@ function _addTellerLeafsWithReferral(
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
 
-        leafs[leafIndex].argumentAddresses[0] = address(uint160(fromChain)); 
-        leafs[leafIndex].argumentAddresses[1] = token; 
-        leafs[leafIndex].argumentAddresses[2] = address(uint160(fromChain)); 
+        leafs[leafIndex].argumentAddresses[0] = address(uint160(fromChain));
+        leafs[leafIndex].argumentAddresses[1] = claimOriginTokenAddress;
+        leafs[leafIndex].argumentAddresses[2] = address(uint160(toChain));
         leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain,  "boringVault"); 
     
         ////bridge message

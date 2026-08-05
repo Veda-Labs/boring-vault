@@ -25,6 +25,15 @@ contract AgglayerIntegrationTest is BaseTestIntegration {
         _overrideDecoder(agglayerDecoder); 
     }
 
+    function _setUpKatana() internal {
+        super.setUp();
+        _setupChain("katana", 7426189);
+
+        address agglayerDecoder = address(new FullAgglayerDecoderAndSanitizer());
+
+        _overrideDecoder(agglayerDecoder);
+    }
+
     function testAgglayerBridgeAsset() external {
         _setUpMainnet(); 
 
@@ -95,6 +104,122 @@ contract AgglayerIntegrationTest is BaseTestIntegration {
         tx_.decodersAndSanitizers[2] = rawDataDecoderAndSanitizer;
 
         _submitManagerCall(manageProofs, tx_); 
+    }
+
+    function testAgglayerBridgeNativeFromKatana() external {
+        _setUpKatana();
+
+        deal(address(boringVault), 1e18);
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](4);
+        uint32 fromChain = 20;
+        uint32 toChain = 0;
+        address zkEVMBridge = getAddress(sourceChain, "agglayerBridgeKatana");
+        _addAgglayerTokenLeafs(leafs, zkEVMBridge, getAddress(sourceChain, "ETH"), fromChain, toChain);
+
+        assertEq(leafs[0].argumentAddresses[2], address(0));
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        Tx memory tx_ = _getTxArrays(1);
+        tx_.manageLeafs[0] = leafs[0];
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+
+        tx_.targets[0] = zkEVMBridge;
+        tx_.targetData[0] = abi.encodeWithSignature(
+            "bridgeAsset(uint32,address,uint256,address,bool,bytes)",
+            toChain,
+            address(boringVault),
+            1e18,
+            address(0),
+            true,
+            ""
+        );
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+        tx_.values[0] = 1e18;
+
+        _submitManagerCall(manageProofs, tx_);
+    }
+
+    function testAgglayerClaimNativeEthereum() external {
+        _setUpMainnet();
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](4);
+        address zkEVMBridge = getAddress(sourceChain, "agglayerBridgeKatana");
+        _addAgglayerTokenLeafs(leafs, zkEVMBridge, getAddress(sourceChain, "ETH"), 0, 0);
+
+        assertEq(leafs[1].argumentAddresses[0], address(0));
+        assertEq(leafs[1].argumentAddresses[1], address(0));
+        assertEq(leafs[1].argumentAddresses[2], address(0));
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        Tx memory tx_ = _getTxArrays(1);
+        tx_.manageLeafs[0] = leafs[1];
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+
+        bytes32[32] memory emptyProof;
+        tx_.targets[0] = zkEVMBridge;
+        tx_.targetData[0] = abi.encodeWithSignature(
+            "claimAsset(bytes32[32],bytes32[32],uint256,bytes32,bytes32,uint32,address,uint32,address,uint256,bytes)",
+            emptyProof,
+            emptyProof,
+            uint256(0),
+            bytes32(0),
+            bytes32(0),
+            uint32(0),
+            address(0),
+            uint32(0),
+            address(boringVault),
+            uint256(1),
+            ""
+        );
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+
+        vm.expectRevert(bytes4(0x002f6fad)); // GlobalExitRootInvalid()
+        _submitManagerCall(manageProofs, tx_);
+    }
+
+    function testAgglayerClaimNativeKatana() external {
+        _setUpKatana();
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](4);
+        address zkEVMBridge = getAddress(sourceChain, "agglayerBridgeKatana");
+        _addAgglayerTokenLeafs(leafs, zkEVMBridge, getAddress(sourceChain, "ETH"), 0, 20);
+
+        assertEq(leafs[1].argumentAddresses[0], address(0));
+        assertEq(leafs[1].argumentAddresses[1], address(0));
+        assertEq(leafs[1].argumentAddresses[2], address(uint160(20)));
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+        manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
+
+        Tx memory tx_ = _getTxArrays(1);
+        tx_.manageLeafs[0] = leafs[1];
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+
+        bytes32[32] memory emptyProof;
+        tx_.targets[0] = zkEVMBridge;
+        tx_.targetData[0] = abi.encodeWithSignature(
+            "claimAsset(bytes32[32],bytes32[32],uint256,bytes32,bytes32,uint32,address,uint32,address,uint256,bytes)",
+            emptyProof,
+            emptyProof,
+            uint256(0),
+            bytes32(0),
+            bytes32(0),
+            uint32(0),
+            address(0),
+            uint32(20),
+            address(boringVault),
+            uint256(1),
+            ""
+        );
+        tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer;
+
+        vm.expectRevert(bytes4(0x002f6fad)); // GlobalExitRootInvalid()
+        _submitManagerCall(manageProofs, tx_);
     }
 
     //function testAgglayerBridgeMessage() external {
