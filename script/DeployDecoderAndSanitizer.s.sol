@@ -140,6 +140,8 @@ import {LiquidETHOptimismDecoderAndSanitizer} from "src/base/DecodersAndSanitize
 import {EtherFiDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EtherFiDecoderAndSanitizer.sol";
 import {LiquidUSDSeiDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidUSDSeiDecoderAndSanitizer.sol";
 import {SentoraBTCMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentoraBTCMainnetDecoderAndSanitizer.sol";
+import {AaveV4FullDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/AaveV4FullDecoderAndSanitizer.sol";
+import {OneInchOwnedDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OneInchOwnedDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -167,8 +169,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         //uint256 privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("swell");
-        setSourceChainName("swell");
+        vm.createSelectFork("optimism");
+        setSourceChainName("optimism");
     }
 
     function run() external {
@@ -176,12 +178,16 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast();
 
-        creationCode = type(EtherFiDecoderAndSanitizer).creationCode;
+        creationCode = type(AaveV4FullDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode();
+        deployer.deployContract("AaveV4 Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        creationCode = type(OneInchOwnedDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(
-            address(1),
-            address(1)
+            0xD6E47E0F34ECc031E676254fd8b0E61b656a15a5,
+            getAddress(sourceChain, "oneInchExecutor")
         );
-        deployer.deployContract("EtherFi Decoder and Sanitizer V0.67", creationCode, constructorArgs, 0);
+        deployer.deployContract("One Inch Owned Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
         
         vm.stopBroadcast();
     }

@@ -9,6 +9,7 @@ import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthorit
 import {ContractNames} from "resources/ContractNames.sol";
 import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
 import {BoringOnChainQueue} from "src/base/Roles/BoringQueue/BoringOnChainQueue.sol";
+import {BoringSolver} from "src/base/Roles/BoringQueue/BoringSolver.sol";
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 import "forge-std/Test.sol";
@@ -22,26 +23,33 @@ contract DeployQueueOnly is Script, ContractNames, Test {
     uint256 public privateKey;
     
     Deployer deployer = Deployer(0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d);
+    address txBundler = 0x633ccAFEF3F42F87a457c44ffF826a5b6fc99706; //base txBundler
 
-    address owner = 0x1cdF47387358A1733968df92f7cC14546D9E1047;
-    address auth = 0xecE2222D3ac4b21316b6E5F4208A452BB96A8Cb4;
-    address payable boringVault = payable(0xA802bccD14F7e78e48FfE0C9cF9AD0273C77D4b0);
-    address accountant = 0x0EA727A89faD61F73423f7E7D0EE37F8A7295B74;
+    address owner = txBundler;
+    address auth = 0xF3E03eF7df97511a52f31ea7a22329619db2bdF4;
+    address payable boringVault = payable(0x5401b8620E5FB570064CA9114fd1e135fd77D57c);
+    address accountant = 0x28634D0c5edC67CF2450E74deA49B90a4FF93dCE;
 
     function setUp() external {
-        privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("sepolia");
+        //privateKey = vm.envUint();
+        vm.createSelectFork("base");
     }
 
 
     function run() external {
         bytes memory constructorArgs;
         bytes memory creationCode;
-        vm.startBroadcast(privateKey);
+        vm.startBroadcast();
 
         creationCode = type(BoringOnChainQueue).creationCode;
 
         constructorArgs = abi.encode(owner, auth, boringVault, accountant);
-        deployer.deployContract("Ink Sepolia Boring Queue 0.1", creationCode, constructorArgs, 0);
+        address queue = deployer.deployContract("LBTCv Boring Queue 0.1", creationCode, constructorArgs, 0);
+
+        creationCode = type(BoringSolver).creationCode;
+        constructorArgs = abi.encode(owner, auth, queue, true);
+        
+        address solver = deployer.deployContract("LBTCv Boring Solver V0.1", creationCode, constructorArgs, 0);
+            
     }
 }
