@@ -7742,7 +7742,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         }
         // Approve morpho blue to spend loan token.
         if (
-            !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][marketParams.collateralToken][getAddress(
+            !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][marketParams.loanToken][getAddress(
                 sourceChain, "morphoBlue"
             )]
         ) {
@@ -7866,7 +7866,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
 
         // Approve morpho blue to spend loan token.
-        if (!ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][marketParams.collateralToken][getAddress(sourceChain, "morphoBlue")]) {
+        if (!ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][marketParams.loanToken][getAddress(sourceChain, "morphoBlue")]) {
             leafIndex++;
             leafs[leafIndex] = ManageLeaf(
                 marketParams.loanToken,
