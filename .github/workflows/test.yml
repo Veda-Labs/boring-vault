@@ -57,17 +57,12 @@ jobs:
       # OOMs and the VM is killed mid-build ("runner received a shutdown
       # signal"). Swap on /mnt (~60 GB free) absorbs the peak so the build
       # completes instead of dying.
-      - name: Add swap for solc memory peak (diagnostic, non-fatal)
+      - name: Add swap for solc memory peak
         run: |
-          set +e
-          echo "=== pre: disk/mem/swap ==="
-          df -h /mnt; free -h; swapon --show; nproc
-          sudo fallocate -l 16G /mnt/swapfile2; echo "fallocate rc=$?"
-          sudo chmod 600 /mnt/swapfile2;        echo "chmod rc=$?"
-          sudo mkswap /mnt/swapfile2;           echo "mkswap rc=$?"
-          sudo swapon /mnt/swapfile2;           echo "swapon rc=$?"
-          echo "=== post ==="; free -h; swapon --show
-          exit 0
+          sudo fallocate -l 16G /mnt/swapfile2
+          sudo chmod 600 /mnt/swapfile2
+          sudo mkswap /mnt/swapfile2
+          sudo swapon /mnt/swapfile2
 
       # Cache forge's compilation output so same-branch pushes only recompile
       # changed files. Restore + save are split (not the combined actions/cache)
