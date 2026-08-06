@@ -23,7 +23,7 @@ contract DeployQueueOnly is Script, ContractNames, Test {
     uint256 public privateKey;
     
     Deployer deployer = Deployer(0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d);
-    address txBundler = 0x633ccAFEF3F42F87a457c44ffF826a5b6fc99706; //base txBundler
+    address txBundler = 0x633ccAFEF3F42F87a457c44ffF826a5b6fc99706; //bnb txBundler
 
     address owner = txBundler;
     address auth = 0xF3E03eF7df97511a52f31ea7a22329619db2bdF4;
@@ -32,7 +32,7 @@ contract DeployQueueOnly is Script, ContractNames, Test {
 
     function setUp() external {
         //privateKey = vm.envUint();
-        vm.createSelectFork("base");
+        vm.createSelectFork("bsc");
     }
 
 

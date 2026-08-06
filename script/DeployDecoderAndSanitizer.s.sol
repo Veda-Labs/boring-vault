@@ -169,8 +169,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         //uint256 privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("optimism");
-        setSourceChainName("optimism");
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet");
     }
 
     function run() external {
@@ -182,12 +182,12 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         constructorArgs = abi.encode();
         deployer.deployContract("AaveV4 Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        creationCode = type(OneInchOwnedDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(
-            0xD6E47E0F34ECc031E676254fd8b0E61b656a15a5,
-            getAddress(sourceChain, "oneInchExecutor")
-        );
-        deployer.deployContract("One Inch Owned Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
+        //creationCode = type(OneInchOwnedDecoderAndSanitizer).creationCode;
+        //constructorArgs = abi.encode(
+        //    0xD6E47E0F34ECc031E676254fd8b0E61b656a15a5,
+        //    getAddress(sourceChain, "oneInchExecutor")
+        //);
+        //deployer.deployContract("One Inch Owned Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
         
         vm.stopBroadcast();
     }
