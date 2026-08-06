@@ -2212,7 +2212,22 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     function _addPancakeSwapV3Leafs(ManageLeaf[] memory leafs, address[] memory token0, address[] memory token1)
         internal
     {
+        // Empty fees => legacy leaf format (no fee-tier binding), preserved byte-for-byte for existing callers
+        // (e.g. the production MerkleRootCreation scripts). Pass fees to bind the pool fee tier, matching the
+        // veda-90 decoder tightening (exactInput/mint now emit the fee tier between token hops).
+        uint24[] memory noFees;
+        _addPancakeSwapV3Leafs(leafs, token0, token1, noFees);
+    }
+
+    function _addPancakeSwapV3Leafs(
+        ManageLeaf[] memory leafs,
+        address[] memory token0,
+        address[] memory token1,
+        uint24[] memory fees
+    ) internal {
         require(token0.length == token1.length, "Token arrays must be of equal length");
+        bool bindFee = fees.length > 0;
+        require(!bindFee || fees.length == token0.length, "Fees array must match token arrays when provided");
         for (uint256 i; i < token0.length; ++i) {
             (token0[i], token1[i]) = token0[i] < token1[i] ? (token0[i], token1[i]) : (token1[i], token0[i]);
             // Approvals
@@ -2358,15 +2373,19 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 getAddress(sourceChain, "pancakeSwapV3NonFungiblePositionManager"),
                 false,
                 "mint((address,address,uint24,int24,int24,uint256,uint256,uint256,uint256,address,uint256))",
-                new address[](3),
+                new address[](bindFee ? 4 : 3),
                 string.concat(
                     "Mint PancakeSwapV3 ", ERC20(token0[i]).symbol(), " ", ERC20(token1[i]).symbol(), " position"
                 ),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
-            leafs[leafIndex].argumentAddresses[0] = token0[i];
-            leafs[leafIndex].argumentAddresses[1] = token1[i];
-            leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+            {
+                uint256 argIndex;
+                leafs[leafIndex].argumentAddresses[argIndex++] = token0[i];
+                if (bindFee) leafs[leafIndex].argumentAddresses[argIndex++] = address(uint160(fees[i]));
+                leafs[leafIndex].argumentAddresses[argIndex++] = token1[i];
+                leafs[leafIndex].argumentAddresses[argIndex++] = getAddress(sourceChain, "boringVault");
+            }
             // Increase liquidity
             unchecked {
                 leafIndex++;
@@ -2432,6 +2451,8 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 ),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
+            // PancakeSwapV3's exactInput sanitizer emits only path tokens + recipient (no fee tier),
+            // unlike UniswapV3's veda-90 change, so this leaf stays 3 addresses regardless of fee binding.
             leafs[leafIndex].argumentAddresses[0] = token0[i];
             leafs[leafIndex].argumentAddresses[1] = token1[i];
             leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");

@@ -21,6 +21,8 @@ import {GearboxDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protoco
 import {PendleRouterDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/PendleRouterDecoderAndSanitizer.sol";
 import {AaveV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AaveV3DecoderAndSanitizer.sol";
+import {EigenLayerLSTStakingDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/EigenLayerLSTStakingDecoderAndSanitizer.sol";
 import {SwellSimpleStakingDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/SwellSimpleStakingDecoderAndSanitizer.sol";
 import {ZircuitSimpleStakingDecoderAndSanitizer} from
@@ -33,6 +35,7 @@ import {ArbitrumNativeBridgeDecoderAndSanitizer} from
 import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol";
 import {StandardBridgeDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/StandardBridgeDecoderAndSanitizer.sol";
+import {CompoundV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CompoundV3DecoderAndSanitizer.sol";
 import {MerklDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MerklDecoderAndSanitizer.sol";
 import {LidoDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LidoDecoderAndSanitizer.sol";
 import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
@@ -64,6 +67,7 @@ contract EtherFiLiquidEthDecoderAndSanitizer is
     GearboxDecoderAndSanitizer,
     PendleRouterDecoderAndSanitizer,
     AaveV3DecoderAndSanitizer,
+    EigenLayerLSTStakingDecoderAndSanitizer,
     SwellSimpleStakingDecoderAndSanitizer,
     ZircuitSimpleStakingDecoderAndSanitizer,
     FluidFTokenDecoderAndSanitizer,
@@ -71,6 +75,7 @@ contract EtherFiLiquidEthDecoderAndSanitizer is
     ArbitrumNativeBridgeDecoderAndSanitizer,
     OFTDecoderAndSanitizer,
     StandardBridgeDecoderAndSanitizer,
+    CompoundV3DecoderAndSanitizer,
     MerklDecoderAndSanitizer,
     LidoDecoderAndSanitizer,
     TellerDecoderAndSanitizer,
@@ -158,7 +163,7 @@ contract EtherFiLiquidEthDecoderAndSanitizer is
     function withdraw(address a, uint256)
         external
         pure
-        override(ZircuitSimpleStakingDecoderAndSanitizer)
+        override(ZircuitSimpleStakingDecoderAndSanitizer, CompoundV3DecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
         addressesFound = abi.encodePacked(a);
