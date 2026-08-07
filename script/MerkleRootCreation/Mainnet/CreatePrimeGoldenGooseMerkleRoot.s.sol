@@ -51,11 +51,8 @@ contract CreatePrimeGoldenGooseMerkleRoot is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](256);
 
         // ========================== Rewards ==========================
-        ERC20[] memory tokensToClaim = new ERC20[](2);
-        tokensToClaim[0] = getERC20(sourceChain, "rEUL");
-        tokensToClaim[1] = getERC20(sourceChain, "UNI");
         _addMerklLeafs(
-            leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address"), tokensToClaim
+            leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "dev1Address")
         );
         _addrEULWrappingLeafs(leafs);
 

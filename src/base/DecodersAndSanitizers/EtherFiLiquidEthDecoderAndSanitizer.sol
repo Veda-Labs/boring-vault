@@ -2,6 +2,7 @@
 // Copyright © 2025 Veda Tech Labs
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0
+// Last audited: boring-vault@4c9c671bb965899728167102a0e3ac22f4aabf7a — https://macroaudits.com/library/audits/sevenSeas-39
 pragma solidity 0.8.21;
 
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
@@ -20,6 +21,8 @@ import {GearboxDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protoco
 import {PendleRouterDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/PendleRouterDecoderAndSanitizer.sol";
 import {AaveV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/AaveV3DecoderAndSanitizer.sol";
+import {EigenLayerLSTStakingDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/EigenLayerLSTStakingDecoderAndSanitizer.sol";
 import {SwellSimpleStakingDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/SwellSimpleStakingDecoderAndSanitizer.sol";
 import {ZircuitSimpleStakingDecoderAndSanitizer} from
@@ -32,6 +35,7 @@ import {ArbitrumNativeBridgeDecoderAndSanitizer} from
 import {OFTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/OFTDecoderAndSanitizer.sol";
 import {StandardBridgeDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/StandardBridgeDecoderAndSanitizer.sol";
+import {CompoundV3DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CompoundV3DecoderAndSanitizer.sol";
 import {MerklDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MerklDecoderAndSanitizer.sol";
 import {LidoDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/LidoDecoderAndSanitizer.sol";
 import {TellerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/TellerDecoderAndSanitizer.sol";
@@ -63,6 +67,7 @@ contract EtherFiLiquidEthDecoderAndSanitizer is
     GearboxDecoderAndSanitizer,
     PendleRouterDecoderAndSanitizer,
     AaveV3DecoderAndSanitizer,
+    EigenLayerLSTStakingDecoderAndSanitizer,
     SwellSimpleStakingDecoderAndSanitizer,
     ZircuitSimpleStakingDecoderAndSanitizer,
     FluidFTokenDecoderAndSanitizer,
@@ -70,6 +75,7 @@ contract EtherFiLiquidEthDecoderAndSanitizer is
     ArbitrumNativeBridgeDecoderAndSanitizer,
     OFTDecoderAndSanitizer,
     StandardBridgeDecoderAndSanitizer,
+    CompoundV3DecoderAndSanitizer,
     MerklDecoderAndSanitizer,
     LidoDecoderAndSanitizer,
     TellerDecoderAndSanitizer,
@@ -157,7 +163,7 @@ contract EtherFiLiquidEthDecoderAndSanitizer is
     function withdraw(address a, uint256)
         external
         pure
-        override(ZircuitSimpleStakingDecoderAndSanitizer)
+        override(ZircuitSimpleStakingDecoderAndSanitizer, CompoundV3DecoderAndSanitizer)
         returns (bytes memory addressesFound)
     {
         addressesFound = abi.encodePacked(a);

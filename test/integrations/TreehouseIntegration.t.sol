@@ -43,7 +43,9 @@ contract SwellSimpleStakingIntegrationTest is Test, MerkleTreeHelper {
         setSourceChainName("mainnet");
         // Setup forked environment.
         string memory rpcKey = "MAINNET_RPC_URL";
-        uint256 blockNumber = 20825215;
+        // TreehouseRedemption was not yet deployed at the original block (20825215),
+        // which caused AddressEmptyCode on the redeem leg.
+        uint256 blockNumber = 21665883;
 
         _startFork(rpcKey, blockNumber);
 
@@ -158,7 +160,7 @@ contract SwellSimpleStakingIntegrationTest is Test, MerkleTreeHelper {
         targetData[2] = abi.encodeWithSignature(
             "approve(address,uint256)", getAddress(sourceChain, "TreehouseRedemption"), type(uint256).max
         );
-        uint96 expectedShareBalance = 999994557806148621988;
+        uint96 expectedShareBalance = 999345523658314748338;
         targetData[3] = abi.encodeWithSignature("redeem(uint96)", expectedShareBalance);
 
         address[] memory decodersAndSanitizers = new address[](4);

@@ -2,6 +2,7 @@
 // Copyright © 2025 Veda Tech Labs
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0
+// Last audited: boring-vault@3c768bd068af856b5de3def86b1940676847eb9d — file:audit/sigma-prime-boring-vault-0.pdf
 pragma solidity 0.8.21;
 
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";

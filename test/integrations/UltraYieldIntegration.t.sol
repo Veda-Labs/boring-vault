@@ -222,4 +222,4 @@ interface IUltraYield {
     function fulfillRedeem(uint256 shares, address controller) external;
 }
 
-contract FullUltraYieldDecoderAndSanitizer is UltraYieldDecoderAndSanitizer {}
+contract FullUltraYieldDecoderAndSanitizer is UltraYieldDecoderAndSanitizer, BaseDecoderAndSanitizer {}
