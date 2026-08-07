@@ -147,11 +147,12 @@ contract AgglayerIntegrationTest is BaseTestIntegration {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](4);
         address zkEVMBridge = getAddress(sourceChain, "agglayerBridgeKatana");
-        _addAgglayerTokenLeafs(leafs, zkEVMBridge, getAddress(sourceChain, "ETH"), 0, 0);
+        _addAgglayerTokenLeafs(leafs, zkEVMBridge, getAddress(sourceChain, "ETH"), 0, 20);
 
         assertEq(leafs[1].argumentAddresses[0], address(0));
         assertEq(leafs[1].argumentAddresses[1], address(0));
         assertEq(leafs[1].argumentAddresses[2], address(0));
+        assertEq(leafs[1].argumentAddresses[3], getAddress(sourceChain, "boringVault"));
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
@@ -187,11 +188,12 @@ contract AgglayerIntegrationTest is BaseTestIntegration {
 
         ManageLeaf[] memory leafs = new ManageLeaf[](4);
         address zkEVMBridge = getAddress(sourceChain, "agglayerBridgeKatana");
-        _addAgglayerTokenLeafs(leafs, zkEVMBridge, getAddress(sourceChain, "ETH"), 0, 20);
+        _addAgglayerTokenLeafs(leafs, zkEVMBridge, getAddress(sourceChain, "ETH"), 20, 0);
 
-        assertEq(leafs[1].argumentAddresses[0], address(0));
+        assertEq(leafs[1].argumentAddresses[0], address(uint160(20)));
         assertEq(leafs[1].argumentAddresses[1], address(0));
         assertEq(leafs[1].argumentAddresses[2], address(uint160(20)));
+        assertEq(leafs[1].argumentAddresses[3], getAddress(sourceChain, "boringVault"));
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
@@ -209,7 +211,7 @@ contract AgglayerIntegrationTest is BaseTestIntegration {
             uint256(0),
             bytes32(0),
             bytes32(0),
-            uint32(0),
+            uint32(20),
             address(0),
             uint32(20),
             address(boringVault),
@@ -398,7 +400,7 @@ contract AgglayerIntegrationTest is BaseTestIntegration {
 
         tx_.decodersAndSanitizers[0] = rawDataDecoderAndSanitizer; 
         
-        vm.expectRevert(); //custom error: 0xe0417cec (InvalidSmtProof) expected as we are checking the leafs here with data taken from this tx: https://etherscan.io/tx/0x65912ac7d83068b2a2a48e95d0d3ae3f96634128647235ed6d849a628f959040
+        vm.expectRevert(0xe0417cec); //custom error: 0xe0417cec (InvalidSmtProof) expected as we are checking the leafs here with data taken from this tx: https://etherscan.io/tx/0x65912ac7d83068b2a2a48e95d0d3ae3f96634128647235ed6d849a628f959040
         //This test verifies that the boring vault can call this function as expected
         _submitManagerCall(manageProofs, tx_); 
     }

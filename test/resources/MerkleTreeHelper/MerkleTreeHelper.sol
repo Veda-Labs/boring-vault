@@ -17505,7 +17505,7 @@ function _addTellerLeafsWithReferral(
 
         leafs[leafIndex].argumentAddresses[0] = address(uint160(fromChain));
         leafs[leafIndex].argumentAddresses[1] = claimOriginTokenAddress;
-        leafs[leafIndex].argumentAddresses[2] = address(uint160(toChain));
+        leafs[leafIndex].argumentAddresses[2] = address(uint160(fromChain));
         leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain,  "boringVault"); 
     
         ////bridge message
