@@ -13,6 +13,7 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {IComet} from "src/interfaces/IComet.sol";
 import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {
     BackedCCIPDecoderAndSanitizer,
     BACKED_CCIP_DRONE_TARGET_FLAG,
@@ -7922,6 +7923,285 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[3] = marketParams.irm;
         leafs[leafIndex].argumentAddresses[4] = address(uint160(marketParams.lltv));
         leafs[leafIndex].argumentAddresses[5] = getAddress(sourceChain, "boringVault");
+    }
+
+    // ========================================= Morpho Midnight =========================================
+
+    string internal constant MIDNIGHT_MARKET_TUPLE =
+        "(uint256,address,address,(address,uint256,uint256,address)[],uint256,uint256,address,address)";
+
+    function _midnightTakeSignature() internal pure returns (string memory) {
+        return string.concat(
+            "take((",
+            MIDNIGHT_MARKET_TUPLE,
+            ",bool,address,uint256,uint256,uint256,bytes32,address,bytes,address,address,bool,uint128,uint128,uint256),bytes,uint256,address,address,address,bytes)"
+        );
+    }
+
+    /// @dev Mirrors Midnight's IdLib.toId. The full bytes32 id is keccak256(0xff ++ market.midnight ++
+    /// uint256(0) ++ keccak256(SSTORE2_PREFIX ++ abi.encode(market))); Midnight stores the market data at
+    /// the address given by the last 20 bytes of the id, which is what decoder leaves pin.
+    function _getMidnightMarketId(DecoderCustomTypes.MidnightMarket memory market)
+        internal
+        pure
+        returns (bytes32 fullId, address idAddress)
+    {
+        fullId = keccak256(
+            abi.encodePacked(
+                uint8(0xff),
+                market.midnight,
+                uint256(0),
+                keccak256(abi.encodePacked(hex"600b380380600b5f395ff3", abi.encode(market)))
+            )
+        );
+        idAddress = address(uint160(uint256(fullId)));
+    }
+
+    function _midnightMarketName(DecoderCustomTypes.MidnightMarket memory market)
+        internal
+        view
+        returns (string memory)
+    {
+        (bytes32 fullId,) = _getMidnightMarketId(market);
+        return string.concat(
+            "Morpho Midnight ",
+            ERC20(market.loanToken).symbol(),
+            " market ",
+            vm.toString(fullId),
+            " maturity ",
+            vm.toString(market.maturity)
+        );
+    }
+
+    function _addMidnightLoanTokenApprovalLeaf(ManageLeaf[] memory leafs, address loanToken) private {
+        if (
+            !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][loanToken][getAddress(
+                sourceChain, "morphoMidnight"
+            )]
+        ) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                loanToken,
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve Morpho Midnight to spend ", ERC20(loanToken).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "morphoMidnight");
+            ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][loanToken][getAddress(
+                sourceChain, "morphoMidnight"
+            )] = true;
+        }
+    }
+
+    /// @dev Lend into a Midnight market as taker-buyer: approve the loan token, take() sell offers
+    /// published by `maker` (validated by `ratifier`), withdraw() redeemed credit, and updatePosition().
+    /// `makerCallback` and `makerReceiver` must match the maker's published offers exactly (they are part
+    /// of the ratified offer hash AND pinned in the leaf); pass makerCallback = address(0) to restrict the
+    /// vault to callback-less offers. The leaf pins offer.buy = false (address(0) in slot 1), so this leaf
+    /// can only ever buy credit units, never sell/borrow. Leaves pin WHO the counterparty is (maker,
+    /// ratifier, makerCallback, makerReceiver); they do not bound offer.tick (the price).
+    function _addMorphoMidnightSupplyLeafs(
+        ManageLeaf[] memory leafs,
+        DecoderCustomTypes.MidnightMarket memory market,
+        address maker,
+        address makerCallback,
+        address makerReceiver,
+        address ratifier
+    ) internal {
+        // A zero makerReceiver can never match a real sell offer (the maker's proceeds would go to
+        // address(0)), so a leaf built with it is dead weight — fail loudly at build time.
+        require(makerReceiver != address(0), "Midnight lend leaf: makerReceiver == address(0)");
+
+        (, address idAddress) = _getMidnightMarketId(market);
+        string memory marketName = _midnightMarketName(market);
+
+        _addMidnightLoanTokenApprovalLeaf(leafs, market.loanToken);
+
+        // Take sell offers (vault is buyer / lender). Midnight requires receiverIfTakerIsSeller == 0 here.
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "morphoMidnight"),
+            false,
+            _midnightTakeSignature(),
+            new address[](8),
+            string.concat("Take (lend) offers from maker ", vm.toString(maker), " in ", marketName),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = idAddress;
+        leafs[leafIndex].argumentAddresses[1] = address(0); // offer.buy = false
+        leafs[leafIndex].argumentAddresses[2] = maker;
+        leafs[leafIndex].argumentAddresses[3] = makerCallback;
+        leafs[leafIndex].argumentAddresses[4] = makerReceiver;
+        leafs[leafIndex].argumentAddresses[5] = ratifier;
+        leafs[leafIndex].argumentAddresses[6] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[7] = address(0);
+
+        // Withdraw redeemed credit units.
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "morphoMidnight"),
+            false,
+            string.concat("withdraw(", MIDNIGHT_MARKET_TUPLE, ",uint256,address,address)"),
+            new address[](3),
+            string.concat("Withdraw ", ERC20(market.loanToken).symbol(), " from ", marketName),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = idAddress;
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+
+        // Permissionless bookkeeping (bad-debt slashing + fee accrual) on the vault position.
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "morphoMidnight"),
+            false,
+            string.concat("updatePosition(", MIDNIGHT_MARKET_TUPLE, ",address)"),
+            new address[](2),
+            string.concat("Update vault position in ", marketName),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = idAddress;
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+    }
+
+    /// @dev Sell credit units (exit before maturity) into buy offers published by `maker` — the vault is
+    /// taker-seller and proceeds go to the vault (pinned). The leaf pins offer.buy = true (address(1) in
+    /// slot 1). The seller side of take() is also the borrow entry point: combined with
+    /// _addMorphoMidnightCollateralLeafs it can open net debt against posted collateral; without
+    /// collateral leaves it can only reduce existing credit. Midnight requires
+    /// offer.receiverIfMakerIsSeller == 0 for buy offers.
+    function _addMorphoMidnightSellCreditLeafs(
+        ManageLeaf[] memory leafs,
+        DecoderCustomTypes.MidnightMarket memory market,
+        address maker,
+        address makerCallback,
+        address ratifier
+    ) internal {
+        (, address idAddress) = _getMidnightMarketId(market);
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "morphoMidnight"),
+            false,
+            _midnightTakeSignature(),
+            new address[](8),
+            string.concat(
+                "Take (sell credit / borrow) buy offers from maker ",
+                vm.toString(maker),
+                " in ",
+                _midnightMarketName(market)
+            ),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = idAddress;
+        leafs[leafIndex].argumentAddresses[1] = address(1); // offer.buy = true
+        leafs[leafIndex].argumentAddresses[2] = maker;
+        leafs[leafIndex].argumentAddresses[3] = makerCallback;
+        leafs[leafIndex].argumentAddresses[4] = address(0);
+        leafs[leafIndex].argumentAddresses[5] = ratifier;
+        leafs[leafIndex].argumentAddresses[6] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[7] = getAddress(sourceChain, "boringVault");
+    }
+
+    /// @dev Collateral management for borrowing from a Midnight market: approve + supply/withdraw the
+    /// collateral at `collateralIndex` in market.collateralParams.
+    function _addMorphoMidnightCollateralLeafs(
+        ManageLeaf[] memory leafs,
+        DecoderCustomTypes.MidnightMarket memory market,
+        uint256 collateralIndex
+    ) internal {
+        (, address idAddress) = _getMidnightMarketId(market);
+        string memory marketName = _midnightMarketName(market);
+        address collateralToken = market.collateralParams[collateralIndex].token;
+
+        // Add approval leaf if not already added
+        if (
+            !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][collateralToken][getAddress(
+                sourceChain, "morphoMidnight"
+            )]
+        ) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                collateralToken,
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve Morpho Midnight to spend ", ERC20(collateralToken).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "morphoMidnight");
+            ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][collateralToken][getAddress(
+                sourceChain, "morphoMidnight"
+            )] = true;
+        }
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "morphoMidnight"),
+            false,
+            string.concat("supplyCollateral(", MIDNIGHT_MARKET_TUPLE, ",uint256,uint256,address)"),
+            new address[](3),
+            string.concat("Supply ", ERC20(collateralToken).symbol(), " as collateral to ", marketName),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = idAddress;
+        leafs[leafIndex].argumentAddresses[1] = address(uint160(collateralIndex));
+        leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "morphoMidnight"),
+            false,
+            string.concat("withdrawCollateral(", MIDNIGHT_MARKET_TUPLE, ",uint256,uint256,address,address)"),
+            new address[](4),
+            string.concat("Withdraw ", ERC20(collateralToken).symbol(), " collateral from ", marketName),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = idAddress;
+        leafs[leafIndex].argumentAddresses[1] = address(uint160(collateralIndex));
+        leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+        leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "boringVault");
+    }
+
+    /// @dev Repay debt units in a Midnight market (loan token pulled from the vault).
+    function _addMorphoMidnightRepayLeafs(ManageLeaf[] memory leafs, DecoderCustomTypes.MidnightMarket memory market)
+        internal
+    {
+        (, address idAddress) = _getMidnightMarketId(market);
+
+        _addMidnightLoanTokenApprovalLeaf(leafs, market.loanToken);
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "morphoMidnight"),
+            false,
+            string.concat("repay(", MIDNIGHT_MARKET_TUPLE, ",uint256,address,address,bytes)"),
+            new address[](2),
+            string.concat("Repay ", ERC20(market.loanToken).symbol(), " to ", _midnightMarketName(market)),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = idAddress;
+        leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
     }
 
     function _addMorphoRewardWrapperLeafs(ManageLeaf[] memory leafs) internal {
