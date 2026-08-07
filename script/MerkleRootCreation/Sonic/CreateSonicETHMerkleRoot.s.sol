@@ -61,8 +61,11 @@ contract CreateSonicETHMerkleRoot is Script, MerkleTreeHelper {
         _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
 
         // ========================== SiloV2 ==========================
-        _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_S_ETH_config"));
-        _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_ETH_wstkscETH_config"));
+        {
+            address[] memory incentivesControllers = new address[](0);
+            _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_S_ETH_config"), incentivesControllers);
+            _addSiloV2Leafs(leafs, getAddress(sourceChain, "silo_ETH_wstkscETH_config"), incentivesControllers);
+        }
 
         // ========================== Verify ==========================
         

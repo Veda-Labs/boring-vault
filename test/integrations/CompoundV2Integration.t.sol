@@ -5,6 +5,7 @@
 pragma solidity 0.8.21;
 
 import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
 import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
@@ -244,7 +245,7 @@ contract CompoundV2IntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullCompoundV2DecoderAndSanitizer is CompoundV2DecoderAndSanitizer {}
+contract FullCompoundV2DecoderAndSanitizer is CompoundV2DecoderAndSanitizer, BaseDecoderAndSanitizer {}
 
 interface IUnitroller {
     function _setMarketBorrowCaps(address[] memory cTokens, uint256[] memory newBorrowCaps) external;

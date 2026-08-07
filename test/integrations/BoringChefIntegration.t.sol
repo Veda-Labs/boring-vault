@@ -245,7 +245,7 @@ contract BoringChefIntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract FullBoringChefDecoderAndSanitizer is BoringChefDecoderAndSanitizer {
+contract FullBoringChefDecoderAndSanitizer is BoringChefDecoderAndSanitizer, BaseDecoderAndSanitizer {
 }
 
 // Temporary Mock Contract for test until real BoringChef is deployed
