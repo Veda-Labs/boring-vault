@@ -130,7 +130,9 @@ contract PancakeSwapV3IntegrationTest is Test, MerkleTreeHelper {
         tokens0[0] = getAddress(sourceChain, "WETH");
         address[] memory tokens1 = new address[](1);
         tokens1[0] = getAddress(sourceChain, "RETH");
-        _addPancakeSwapV3Leafs(leafs, tokens0, tokens1);
+        uint24[] memory fees = new uint24[](1);
+        fees[0] = 500;
+        _addPancakeSwapV3Leafs(leafs, tokens0, tokens1, fees);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -245,7 +247,9 @@ contract PancakeSwapV3IntegrationTest is Test, MerkleTreeHelper {
         tokens0[0] = getAddress(sourceChain, "WETH");
         address[] memory tokens1 = new address[](1);
         tokens1[0] = getAddress(sourceChain, "RETH");
-        _addPancakeSwapV3Leafs(leafs, tokens0, tokens1);
+        uint24[] memory fees = new uint24[](1);
+        fees[0] = 500;
+        _addPancakeSwapV3Leafs(leafs, tokens0, tokens1, fees);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -392,7 +396,9 @@ contract PancakeSwapV3IntegrationTest is Test, MerkleTreeHelper {
         tokens0[0] = getAddress(sourceChain, "WETH");
         address[] memory tokens1 = new address[](1);
         tokens1[0] = getAddress(sourceChain, "RETH");
-        _addPancakeSwapV3Leafs(leafs, tokens0, tokens1);
+        uint24[] memory fees = new uint24[](1);
+        fees[0] = 500;
+        _addPancakeSwapV3Leafs(leafs, tokens0, tokens1, fees);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 

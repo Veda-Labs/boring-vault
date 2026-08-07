@@ -13,6 +13,12 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {IComet} from "src/interfaces/IComet.sol";
 import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {
+    BackedCCIPDecoderAndSanitizer,
+    BACKED_CCIP_DRONE_TARGET_FLAG,
+    BACKED_CCIP_SOLANA_CHAIN_SELECTOR,
+    BACKED_CCIP_MAX_SVM_ACCOUNTS
+} from "src/base/DecodersAndSanitizers/Protocols/BackedCCIPDecoderAndSanitizer.sol";
 import "forge-std/Base.sol";
 import "forge-std/Test.sol";
 
@@ -2299,7 +2305,22 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     function _addPancakeSwapV3Leafs(ManageLeaf[] memory leafs, address[] memory token0, address[] memory token1)
         internal
     {
+        // Empty fees => legacy leaf format (no fee-tier binding), preserved byte-for-byte for existing callers
+        // (e.g. the production MerkleRootCreation scripts). Pass fees to bind the pool fee tier, matching the
+        // veda-90 decoder tightening (exactInput/mint now emit the fee tier between token hops).
+        uint24[] memory noFees;
+        _addPancakeSwapV3Leafs(leafs, token0, token1, noFees);
+    }
+
+    function _addPancakeSwapV3Leafs(
+        ManageLeaf[] memory leafs,
+        address[] memory token0,
+        address[] memory token1,
+        uint24[] memory fees
+    ) internal {
         require(token0.length == token1.length, "Token arrays must be of equal length");
+        bool bindFee = fees.length > 0;
+        require(!bindFee || fees.length == token0.length, "Fees array must match token arrays when provided");
         for (uint256 i; i < token0.length; ++i) {
             (token0[i], token1[i]) = token0[i] < token1[i] ? (token0[i], token1[i]) : (token1[i], token0[i]);
             // Approvals
@@ -2445,15 +2466,19 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 getAddress(sourceChain, "pancakeSwapV3NonFungiblePositionManager"),
                 false,
                 "mint((address,address,uint24,int24,int24,uint256,uint256,uint256,uint256,address,uint256))",
-                new address[](3),
+                new address[](bindFee ? 4 : 3),
                 string.concat(
                     "Mint PancakeSwapV3 ", ERC20(token0[i]).symbol(), " ", ERC20(token1[i]).symbol(), " position"
                 ),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
-            leafs[leafIndex].argumentAddresses[0] = token0[i];
-            leafs[leafIndex].argumentAddresses[1] = token1[i];
-            leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+            {
+                uint256 argIndex;
+                leafs[leafIndex].argumentAddresses[argIndex++] = token0[i];
+                if (bindFee) leafs[leafIndex].argumentAddresses[argIndex++] = address(uint160(fees[i]));
+                leafs[leafIndex].argumentAddresses[argIndex++] = token1[i];
+                leafs[leafIndex].argumentAddresses[argIndex++] = getAddress(sourceChain, "boringVault");
+            }
             // Increase liquidity
             unchecked {
                 leafIndex++;
@@ -2519,6 +2544,8 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 ),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
+            // PancakeSwapV3's exactInput sanitizer emits only path tokens + recipient (no fee tier),
+            // unlike UniswapV3's veda-90 change, so this leaf stays 3 addresses regardless of fee binding.
             leafs[leafIndex].argumentAddresses[0] = token0[i];
             leafs[leafIndex].argumentAddresses[1] = token1[i];
             leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
@@ -3463,49 +3490,49 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     function _addAaveV3Leafs(ManageLeaf[] memory leafs, ERC20[] memory supplyAssets, ERC20[] memory borrowAssets)
         internal
     {
-        _addAaveV3ForkLeafs("Aave V3", getAddress(sourceChain, "v3Pool"), leafs, supplyAssets, borrowAssets);
+        _addAaveV3ForkLeafs("Aave V3", getAddress(sourceChain, "v3Pool"), getAddress(sourceChain, "v3RewardsController"), leafs, supplyAssets, borrowAssets);
     }
 
     function _addAaveV3PrimeLeafs(ManageLeaf[] memory leafs, ERC20[] memory supplyAssets, ERC20[] memory borrowAssets)
         internal
     {
-        _addAaveV3ForkLeafs("Aave V3 Prime", getAddress(sourceChain, "v3PrimePool"), leafs, supplyAssets, borrowAssets);
+        _addAaveV3ForkLeafs("Aave V3 Prime", getAddress(sourceChain, "v3PrimePool"), getAddress(sourceChain, "v3RewardsController"), leafs, supplyAssets, borrowAssets);
     }
 
     function _addAaveV3LidoLeafs(ManageLeaf[] memory leafs, ERC20[] memory supplyAssets, ERC20[] memory borrowAssets)
         internal
     {
-        _addAaveV3ForkLeafs("Aave V3 Lido", getAddress(sourceChain, "v3LidoPool"), leafs, supplyAssets, borrowAssets);
+        _addAaveV3ForkLeafs("Aave V3 Lido", getAddress(sourceChain, "v3LidoPool"), getAddress(sourceChain, "v3RewardsController"), leafs, supplyAssets, borrowAssets);
     }
 
     function _addAaveV3HorizonLeafs(ManageLeaf[] memory leafs, ERC20[] memory supplyAssets, ERC20[] memory borrowAssets)
         internal
     {
-        _addAaveV3ForkLeafs("Aave V3 Horizon", getAddress(sourceChain, "v3HorizonPool"), leafs, supplyAssets, borrowAssets);
+        _addAaveV3ForkLeafs("Aave V3 Horizon", getAddress(sourceChain, "v3HorizonPool"), getAddress(sourceChain, "v3RewardsController"), leafs, supplyAssets, borrowAssets);
     }
 
     function _addSparkLendLeafs(ManageLeaf[] memory leafs, ERC20[] memory supplyAssets, ERC20[] memory borrowAssets)
         internal
     {
-        _addAaveV3ForkLeafs("SparkLend", getAddress(sourceChain, "sparkLendPool"), leafs, supplyAssets, borrowAssets);
+        _addAaveV3ForkLeafs("SparkLend", getAddress(sourceChain, "sparkLendPool"), getAddress(sourceChain, "v3RewardsController"), leafs, supplyAssets, borrowAssets);
     }
 
     function _addZerolendLeafs(ManageLeaf[] memory leafs, ERC20[] memory supplyAssets, ERC20[] memory borrowAssets)
         internal
     {
-        _addAaveV3ForkLeafs("Zerolend", getAddress(sourceChain, "zeroLendPool"), leafs, supplyAssets, borrowAssets);
+        _addAaveV3ForkLeafs("Zerolend", getAddress(sourceChain, "zeroLendPool"), getAddress(sourceChain, "v3RewardsController"), leafs, supplyAssets, borrowAssets);
     }
 
     function _addHypurrFiLeafs(ManageLeaf[] memory leafs, ERC20[] memory supplyAssets, ERC20[] memory borrowAssets)
         internal
     {
-        _addAaveV3ForkLeafs("HypurrFi", getAddress(sourceChain, "hypurrFiLendPool"), leafs, supplyAssets, borrowAssets);
+        _addAaveV3ForkLeafs("HypurrFi", getAddress(sourceChain, "hypurrFiLendPool"), getAddress(sourceChain, "v3RewardsController"), leafs, supplyAssets, borrowAssets);
     }
 
     function _addHyperLendLeafs(ManageLeaf[] memory leafs, ERC20[] memory supplyAssets, ERC20[] memory borrowAssets)
         internal
     {
-        _addAaveV3ForkLeafs("HyperLend", getAddress(sourceChain, "hyperLendPool"), leafs, supplyAssets, borrowAssets);
+        _addAaveV3ForkLeafs("HyperLend", getAddress(sourceChain, "hyperLendPool"), getAddress(sourceChain, "v3RewardsController"), leafs, supplyAssets, borrowAssets);
         unchecked {
             leafIndex++;
         }
@@ -3540,6 +3567,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     function _addAaveV3ForkLeafs(
         string memory protocolName,
         address protocolAddress,
+        address rewardsController,
         ManageLeaf[] memory leafs,
         ERC20[] memory supplyAssets,
         ERC20[] memory borrowAssets
@@ -3651,44 +3679,48 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
         }
         // Misc
-        for (uint256 i; i < supplyAssets.length; ++i) {
+        if (borrowAssets.length != 0) {
+            for (uint256 i; i < supplyAssets.length; ++i) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    protocolAddress,
+                    false,
+                    "setUserUseReserveAsCollateral(address,bool)",
+                    new address[](1),
+                    string.concat("Toggle ", supplyAssets[i].symbol(), " as collateral in ", protocolName),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = address(supplyAssets[i]);
+            }
             unchecked {
                 leafIndex++;
             }
             leafs[leafIndex] = ManageLeaf(
                 protocolAddress,
                 false,
-                "setUserUseReserveAsCollateral(address,bool)",
-                new address[](1),
-                string.concat("Toggle ", supplyAssets[i].symbol(), " as collateral in ", protocolName),
+                "setUserEMode(uint8)",
+                new address[](0),
+                string.concat("Set user e-mode in ", protocolName),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
-            leafs[leafIndex].argumentAddresses[0] = address(supplyAssets[i]);
         }
-        unchecked {
-            leafIndex++;
-        }
-        leafs[leafIndex] = ManageLeaf(
-            protocolAddress,
-            false,
-            "setUserEMode(uint8)",
-            new address[](0),
-            string.concat("Set user e-mode in ", protocolName),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
 
-        unchecked {
-            leafIndex++;
+        if (rewardsController != address(0)) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                rewardsController,
+                false,
+                "claimRewards(address[],uint256,address,address)",
+                new address[](1),
+                string.concat("Claim rewards"),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
         }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "v3RewardsController"),
-            false,
-            "claimRewards(address[],uint256,address,address)",
-            new address[](1),
-            string.concat("Claim rewards"),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
     }
 
     // only functions that can't hurt LTV of the position
@@ -3758,6 +3790,270 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+    }
+
+
+    // ========================================= Aave V4 =========================================
+
+    function _addAaveV4Leafs(
+        ManageLeaf[] memory leafs,
+        uint256[] memory supplyReserveIds,
+        ERC20[] memory supplyAssets,
+        uint256[] memory borrowReserveIds,
+        ERC20[] memory borrowAssets
+    ) internal {
+        _addAaveV4SpokeLeafs(
+            "Aave V4",
+            getAddress(sourceChain, "aaveV4MainSpoke"),
+            leafs,
+            supplyReserveIds,
+            supplyAssets,
+            borrowReserveIds,
+            borrowAssets
+        );
+    }
+
+    /**
+     * @notice Aave V4 spokes identify reserves with a per-spoke uint256 reserveId instead of the
+     *         underlying asset address, so each reserve leaf pins the reserveId by casting it to
+     *         an address (matching AaveV4DecoderAndSanitizer). The spoke is the approval spender,
+     *         and withdraw/borrow always send funds to the caller, so the only other sensitive
+     *         argument is the position owner `onBehalfOf`.
+     */
+    function _addAaveV4SpokeLeafs(
+        string memory protocolName,
+        address spokeAddress,
+        ManageLeaf[] memory leafs,
+        uint256[] memory supplyReserveIds,
+        ERC20[] memory supplyAssets,
+        uint256[] memory borrowReserveIds,
+        ERC20[] memory borrowAssets
+    ) internal {
+        require(supplyReserveIds.length == supplyAssets.length, "AaveV4 supply array length mismatch");
+        require(borrowReserveIds.length == borrowAssets.length, "AaveV4 borrow array length mismatch");
+        // The reserveId alone determines what the call leafs authorize, while the paired asset
+        // drives the approval leafs and descriptions, so verify they match on the spoke.
+        for (uint256 i; i < supplyReserveIds.length; ++i) {
+            _verifyAaveV4Reserve(spokeAddress, supplyReserveIds[i], supplyAssets[i]);
+        }
+        for (uint256 i; i < borrowReserveIds.length; ++i) {
+            _verifyAaveV4Reserve(spokeAddress, borrowReserveIds[i], borrowAssets[i]);
+        }
+        // Approvals are deduped via ownerToTokenToSpenderToApprovalInTree, so an asset already
+        // approved to this spoke (e.g. one appearing in both the supply and borrow arrays) emits
+        // no second approve leaf and all later leaf indices shift down accordingly.
+        string memory baseApprovalString = string.concat("Approve ", protocolName, " Spoke to spend ");
+        for (uint256 i; i < supplyAssets.length; ++i) {
+            if (
+                !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][address(supplyAssets[i])][spokeAddress]
+            ) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    address(supplyAssets[i]),
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat(baseApprovalString, supplyAssets[i].symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = spokeAddress;
+                ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][address(supplyAssets[i])][spokeAddress]
+                = true;
+            }
+        }
+        for (uint256 i; i < borrowAssets.length; ++i) {
+            if (
+                !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][address(borrowAssets[i])][spokeAddress]
+            ) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    address(borrowAssets[i]),
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat(baseApprovalString, borrowAssets[i].symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = spokeAddress;
+                ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][address(borrowAssets[i])][spokeAddress]
+                = true;
+            }
+        }
+        // Supplying
+        for (uint256 i; i < supplyReserveIds.length; ++i) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                spokeAddress,
+                false,
+                "supply(uint256,uint256,address)",
+                new address[](2),
+                string.concat(
+                    "Supply ",
+                    supplyAssets[i].symbol(),
+                    " to ",
+                    protocolName,
+                    " (reserve id ",
+                    vm.toString(supplyReserveIds[i]),
+                    ")"
+                ),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(uint160(supplyReserveIds[i]));
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+        }
+        // Withdrawing
+        for (uint256 i; i < supplyReserveIds.length; ++i) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                spokeAddress,
+                false,
+                "withdraw(uint256,uint256,address)",
+                new address[](2),
+                string.concat(
+                    "Withdraw ",
+                    supplyAssets[i].symbol(),
+                    " from ",
+                    protocolName,
+                    " (reserve id ",
+                    vm.toString(supplyReserveIds[i]),
+                    ")"
+                ),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(uint160(supplyReserveIds[i]));
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+        }
+        // Toggling collateral
+        for (uint256 i; i < supplyReserveIds.length; ++i) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                spokeAddress,
+                false,
+                "setUsingAsCollateral(uint256,bool,address)",
+                new address[](2),
+                string.concat(
+                    "Toggle ",
+                    supplyAssets[i].symbol(),
+                    " as collateral in ",
+                    protocolName,
+                    " (reserve id ",
+                    vm.toString(supplyReserveIds[i]),
+                    ")"
+                ),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(uint160(supplyReserveIds[i]));
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+        }
+        // Borrowing
+        for (uint256 i; i < borrowReserveIds.length; ++i) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                spokeAddress,
+                false,
+                "borrow(uint256,uint256,address)",
+                new address[](2),
+                string.concat(
+                    "Borrow ",
+                    borrowAssets[i].symbol(),
+                    " from ",
+                    protocolName,
+                    " (reserve id ",
+                    vm.toString(borrowReserveIds[i]),
+                    ")"
+                ),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(uint160(borrowReserveIds[i]));
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+        }
+        // Repaying
+        for (uint256 i; i < borrowReserveIds.length; ++i) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                spokeAddress,
+                false,
+                "repay(uint256,uint256,address)",
+                new address[](2),
+                string.concat(
+                    "Repay ",
+                    borrowAssets[i].symbol(),
+                    " to ",
+                    protocolName,
+                    " (reserve id ",
+                    vm.toString(borrowReserveIds[i]),
+                    ")"
+                ),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(uint160(borrowReserveIds[i]));
+            leafs[leafIndex].argumentAddresses[1] = getAddress(sourceChain, "boringVault");
+        }
+        // Position maintenance
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            spokeAddress,
+            false,
+            "updateUserRiskPremium(address)",
+            new address[](1),
+            string.concat("Update user risk premium in ", protocolName),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            spokeAddress,
+            false,
+            "updateUserDynamicConfig(address)",
+            new address[](1),
+            string.concat("Update user dynamic config in ", protocolName),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+    }
+
+    /**
+     * @notice Checks that a reserveId resolves to the expected underlying asset on the spoke, so a
+     *         transposed or stale id (ids differ per spoke) fails loudly at leaf-generation time
+     *         instead of producing a leaf whose description disagrees with what it authorizes.
+     * @dev Validation is generation-time only: spokes are upgradeable proxies, so live roots rely
+     *      on Aave governance never remapping reserve ids in place (ids are append-only today).
+     */
+    function _verifyAaveV4Reserve(address spokeAddress, uint256 reserveId, ERC20 asset) internal view {
+        // Mirror the decoder's bound check so leaf generation and call-time sanitization agree on
+        // which ids are representable.
+        require(reserveId <= type(uint160).max, "AaveV4 reserveId does not fit in 160 bits");
+        (bool success, bytes memory data) =
+            spokeAddress.staticcall(abi.encodeWithSignature("getReserve(uint256)", reserveId));
+        require(
+            success && data.length >= 32,
+            string.concat("AaveV4 getReserve(", vm.toString(reserveId), ") failed on spoke ", vm.toString(spokeAddress))
+        );
+        // The underlying asset is the first field of the spoke's fully static Reserve struct, so it
+        // occupies the first return word; trailing fields are deliberately ignored.
+        address underlying = abi.decode(data, (address));
+        require(
+            underlying == address(asset),
+            string.concat("AaveV4 reserve id ", vm.toString(reserveId), " does not match ", asset.symbol())
+        );
     }
 
 
@@ -8392,6 +8688,192 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[0] = address(uint160(destinationDomain));
         leafs[leafIndex].argumentAddresses[1] = recipient0;
         leafs[leafIndex].argumentAddresses[2] = recipient1;
+    }
+
+    // ========================================= Backed CCIP Bridge =========================================
+
+    /// @notice Adds leafs to bridge a Backed xStock through Backed's CCIP wrapper (BackedCCIPReceiver).
+    /// @dev For SVM (Solana) destinations, `accountIsWritableBitmap` and `solanaAccounts` must be the exact
+    ///      values the strategist will abi.encode into `chainSpecificArgs`; every account is pinned in the
+    ///      leaf because the accounts array controls which Solana accounts the CCIP message executes against.
+    ///      For EVM destinations pass a zero bitmap and an empty `solanaAccounts` array — the bridge ignores
+    ///      `chainSpecificArgs` there and the leaf pins it as empty bytes.
+    function _addBackedCCIPBridgeLeafs(
+        ManageLeaf[] memory leafs,
+        address backedCCIPBridge,
+        uint64 destinationChainSelector,
+        bytes32 tokenReceiver,
+        ERC20 asset,
+        uint64 accountIsWritableBitmap,
+        bytes32[] memory solanaAccounts
+    ) internal {
+        bool isSvmDestination = destinationChainSelector == BACKED_CCIP_SOLANA_CHAIN_SELECTOR;
+
+        require(tokenReceiver != bytes32(0), "Token receiver cannot be zero");
+        if (isSvmDestination) {
+            require(solanaAccounts.length > 0, "Solana accounts cannot be empty");
+            require(solanaAccounts.length <= BACKED_CCIP_MAX_SVM_ACCOUNTS, "Too many Solana accounts");
+            require(
+                solanaAccounts.length == BACKED_CCIP_MAX_SVM_ACCOUNTS
+                    || accountIsWritableBitmap >> solanaAccounts.length == 0,
+                "Writable bitmap exceeds account list"
+            );
+            require(solanaAccounts[solanaAccounts.length - 1] != BACKED_CCIP_DRONE_TARGET_FLAG, "Final Solana account is Drone target flag");
+        } else {
+            require(solanaAccounts.length == 0, "EVM destination cannot include Solana accounts");
+            require(accountIsWritableBitmap == 0, "EVM writable bitmap must be zero");
+            require(uint256(tokenReceiver) <= type(uint160).max, "EVM token receiver must be canonical");
+        }
+
+        // Approve the bridge to spend the asset.
+        if (
+            !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][address(asset)][backedCCIPBridge]
+        ) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                address(asset),
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve Backed CCIP Bridge to spend ", asset.symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = backedCCIPBridge;
+            _verifyBackedCCIPApprovalLeafMatchesConfiguredDecoder(leafs[leafIndex]);
+            ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][address(asset)][backedCCIPBridge]
+            = true;
+        }
+
+        // Add send leaf.
+        unchecked {
+            leafIndex++;
+        }
+        uint256 argumentCount = isSvmDestination ? 5 + 2 * solanaAccounts.length : 4;
+        leafs[leafIndex] = ManageLeaf(
+            backedCCIPBridge,
+            true,
+            "send(uint64,bytes32,address,uint256,bytes)",
+            new address[](argumentCount),
+            string.concat(
+                "Bridge ",
+                asset.symbol(),
+                " to chain ",
+                vm.toString(destinationChainSelector),
+                " via Backed CCIP Bridge"
+            ),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = address(uint160(destinationChainSelector));
+        leafs[leafIndex].argumentAddresses[1] = address(bytes20(bytes16(tokenReceiver)));
+        leafs[leafIndex].argumentAddresses[2] = address(bytes20(bytes16(tokenReceiver << 128)));
+        leafs[leafIndex].argumentAddresses[3] = address(asset);
+        if (isSvmDestination) {
+            leafs[leafIndex].argumentAddresses[4] = address(uint160(accountIsWritableBitmap));
+            for (uint256 i; i < solanaAccounts.length; ++i) {
+                leafs[leafIndex].argumentAddresses[5 + 2 * i] = address(bytes20(bytes16(solanaAccounts[i])));
+                leafs[leafIndex].argumentAddresses[6 + 2 * i] = address(bytes20(bytes16(solanaAccounts[i] << 128)));
+            }
+        }
+
+        _verifyBackedCCIPLeafMatchesConfiguredDecoder(
+            leafs[leafIndex], destinationChainSelector, tokenReceiver, asset, accountIsWritableBitmap, solanaAccounts
+        );
+    }
+
+    error MerkleTreeHelper__BackedCCIPDecoderLeafMismatch(address decoderAndSanitizer);
+
+    function _verifyBackedCCIPApprovalLeafMatchesConfiguredDecoder(ManageLeaf memory leaf) private view {
+        if (bytes4(keccak256(bytes(leaf.signature))) != BaseDecoderAndSanitizer.approve.selector) {
+            revert MerkleTreeHelper__BackedCCIPDecoderLeafMismatch(leaf.decoderAndSanitizer);
+        }
+
+        (bool success, bytes memory returndata) = leaf.decoderAndSanitizer.staticcall(
+            abi.encodeWithSelector(BaseDecoderAndSanitizer.approve.selector, leaf.argumentAddresses[0], uint256(0))
+        );
+        if (!success || returndata.length < 64) {
+            revert MerkleTreeHelper__BackedCCIPDecoderLeafMismatch(leaf.decoderAndSanitizer);
+        }
+
+        bytes memory decoderArguments = abi.decode(returndata, (bytes));
+        if (keccak256(abi.encodePacked(leaf.argumentAddresses[0])) != keccak256(decoderArguments)) {
+            revert MerkleTreeHelper__BackedCCIPDecoderLeafMismatch(leaf.decoderAndSanitizer);
+        }
+    }
+
+    /// @dev Root generation must use the same deployed decoder implementation that the manager will call.
+    ///      This catches stale address registries and old length-inferred decoder deployments before a root
+    ///      containing an unusable or differently interpreted leaf can be produced.
+    function _verifyBackedCCIPLeafMatchesConfiguredDecoder(
+        ManageLeaf memory leaf,
+        uint64 destinationChainSelector,
+        bytes32 tokenReceiver,
+        ERC20 asset,
+        uint64 accountIsWritableBitmap,
+        bytes32[] memory solanaAccounts
+    ) private view {
+        if (bytes4(keccak256(bytes(leaf.signature))) != BackedCCIPDecoderAndSanitizer.send.selector) {
+            revert MerkleTreeHelper__BackedCCIPDecoderLeafMismatch(leaf.decoderAndSanitizer);
+        }
+
+        bytes memory chainSpecificArgs;
+        if (destinationChainSelector == BACKED_CCIP_SOLANA_CHAIN_SELECTOR) {
+            chainSpecificArgs = abi.encode(accountIsWritableBitmap, solanaAccounts);
+        }
+
+        (bool success, bytes memory returndata) = leaf.decoderAndSanitizer.staticcall(
+            abi.encodeWithSelector(
+                BackedCCIPDecoderAndSanitizer.send.selector,
+                destinationChainSelector,
+                tokenReceiver,
+                address(asset),
+                uint256(0),
+                chainSpecificArgs
+            )
+        );
+        if (!success || returndata.length < 64) {
+            revert MerkleTreeHelper__BackedCCIPDecoderLeafMismatch(leaf.decoderAndSanitizer);
+        }
+
+        bytes memory leafArguments;
+        for (uint256 i; i < leaf.argumentAddresses.length; ++i) {
+            leafArguments = abi.encodePacked(leafArguments, leaf.argumentAddresses[i]);
+        }
+        bytes memory decoderArguments = abi.decode(returndata, (bytes));
+        if (keccak256(leafArguments) != keccak256(decoderArguments)) {
+            revert MerkleTreeHelper__BackedCCIPDecoderLeafMismatch(leaf.decoderAndSanitizer);
+        }
+
+        // Fingerprint both selector-gated branches as well as the canonical happy-path output above.
+        // The former length-inferred decoder accepts both probes, so a stale deployment cannot silently
+        // pass parity merely because the leaf's intended call happens to use the same argument shape.
+        bytes memory emptyArgs;
+        (success,) = leaf.decoderAndSanitizer.staticcall(
+            abi.encodeWithSelector(
+                BackedCCIPDecoderAndSanitizer.send.selector,
+                BACKED_CCIP_SOLANA_CHAIN_SELECTOR,
+                bytes32(uint256(1)),
+                address(asset),
+                uint256(0),
+                emptyArgs
+            )
+        );
+        if (success) revert MerkleTreeHelper__BackedCCIPDecoderLeafMismatch(leaf.decoderAndSanitizer);
+
+        bytes32[] memory probeAccounts = new bytes32[](1);
+        probeAccounts[0] = bytes32(uint256(1));
+        (success,) = leaf.decoderAndSanitizer.staticcall(
+            abi.encodeWithSelector(
+                BackedCCIPDecoderAndSanitizer.send.selector,
+                BACKED_CCIP_SOLANA_CHAIN_SELECTOR ^ uint64(1),
+                bytes32(uint256(1)),
+                address(asset),
+                uint256(0),
+                abi.encode(uint64(0), probeAccounts)
+            )
+        );
+        if (success) revert MerkleTreeHelper__BackedCCIPDecoderLeafMismatch(leaf.decoderAndSanitizer);
     }
 
     // ========================================= Avalanche C-Chain Bridge / Core Bridge =========================================
