@@ -13,6 +13,12 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {IComet} from "src/interfaces/IComet.sol";
 import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
+import {
+    BackedCCIPDecoderAndSanitizer,
+    BACKED_CCIP_DRONE_TARGET_FLAG,
+    BACKED_CCIP_SOLANA_CHAIN_SELECTOR,
+    BACKED_CCIP_MAX_SVM_ACCOUNTS
+} from "src/base/DecodersAndSanitizers/Protocols/BackedCCIPDecoderAndSanitizer.sol";
 import "forge-std/Base.sol";
 import "forge-std/Test.sol";
 
@@ -2206,7 +2212,22 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     function _addPancakeSwapV3Leafs(ManageLeaf[] memory leafs, address[] memory token0, address[] memory token1)
         internal
     {
+        // Empty fees => legacy leaf format (no fee-tier binding), preserved byte-for-byte for existing callers
+        // (e.g. the production MerkleRootCreation scripts). Pass fees to bind the pool fee tier, matching the
+        // veda-90 decoder tightening (exactInput/mint now emit the fee tier between token hops).
+        uint24[] memory noFees;
+        _addPancakeSwapV3Leafs(leafs, token0, token1, noFees);
+    }
+
+    function _addPancakeSwapV3Leafs(
+        ManageLeaf[] memory leafs,
+        address[] memory token0,
+        address[] memory token1,
+        uint24[] memory fees
+    ) internal {
         require(token0.length == token1.length, "Token arrays must be of equal length");
+        bool bindFee = fees.length > 0;
+        require(!bindFee || fees.length == token0.length, "Fees array must match token arrays when provided");
         for (uint256 i; i < token0.length; ++i) {
             (token0[i], token1[i]) = token0[i] < token1[i] ? (token0[i], token1[i]) : (token1[i], token0[i]);
             // Approvals
@@ -2352,15 +2373,19 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 getAddress(sourceChain, "pancakeSwapV3NonFungiblePositionManager"),
                 false,
                 "mint((address,address,uint24,int24,int24,uint256,uint256,uint256,uint256,address,uint256))",
-                new address[](3),
+                new address[](bindFee ? 4 : 3),
                 string.concat(
                     "Mint PancakeSwapV3 ", ERC20(token0[i]).symbol(), " ", ERC20(token1[i]).symbol(), " position"
                 ),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
-            leafs[leafIndex].argumentAddresses[0] = token0[i];
-            leafs[leafIndex].argumentAddresses[1] = token1[i];
-            leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+            {
+                uint256 argIndex;
+                leafs[leafIndex].argumentAddresses[argIndex++] = token0[i];
+                if (bindFee) leafs[leafIndex].argumentAddresses[argIndex++] = address(uint160(fees[i]));
+                leafs[leafIndex].argumentAddresses[argIndex++] = token1[i];
+                leafs[leafIndex].argumentAddresses[argIndex++] = getAddress(sourceChain, "boringVault");
+            }
             // Increase liquidity
             unchecked {
                 leafIndex++;
@@ -2426,6 +2451,8 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
                 ),
                 getAddress(sourceChain, "rawDataDecoderAndSanitizer")
             );
+            // PancakeSwapV3's exactInput sanitizer emits only path tokens + recipient (no fee tier),
+            // unlike UniswapV3's veda-90 change, so this leaf stays 3 addresses regardless of fee binding.
             leafs[leafIndex].argumentAddresses[0] = token0[i];
             leafs[leafIndex].argumentAddresses[1] = token1[i];
             leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
@@ -8568,6 +8595,192 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         leafs[leafIndex].argumentAddresses[0] = address(uint160(destinationDomain));
         leafs[leafIndex].argumentAddresses[1] = recipient0;
         leafs[leafIndex].argumentAddresses[2] = recipient1;
+    }
+
+    // ========================================= Backed CCIP Bridge =========================================
+
+    /// @notice Adds leafs to bridge a Backed xStock through Backed's CCIP wrapper (BackedCCIPReceiver).
+    /// @dev For SVM (Solana) destinations, `accountIsWritableBitmap` and `solanaAccounts` must be the exact
+    ///      values the strategist will abi.encode into `chainSpecificArgs`; every account is pinned in the
+    ///      leaf because the accounts array controls which Solana accounts the CCIP message executes against.
+    ///      For EVM destinations pass a zero bitmap and an empty `solanaAccounts` array — the bridge ignores
+    ///      `chainSpecificArgs` there and the leaf pins it as empty bytes.
+    function _addBackedCCIPBridgeLeafs(
+        ManageLeaf[] memory leafs,
+        address backedCCIPBridge,
+        uint64 destinationChainSelector,
+        bytes32 tokenReceiver,
+        ERC20 asset,
+        uint64 accountIsWritableBitmap,
+        bytes32[] memory solanaAccounts
+    ) internal {
+        bool isSvmDestination = destinationChainSelector == BACKED_CCIP_SOLANA_CHAIN_SELECTOR;
+
+        require(tokenReceiver != bytes32(0), "Token receiver cannot be zero");
+        if (isSvmDestination) {
+            require(solanaAccounts.length > 0, "Solana accounts cannot be empty");
+            require(solanaAccounts.length <= BACKED_CCIP_MAX_SVM_ACCOUNTS, "Too many Solana accounts");
+            require(
+                solanaAccounts.length == BACKED_CCIP_MAX_SVM_ACCOUNTS
+                    || accountIsWritableBitmap >> solanaAccounts.length == 0,
+                "Writable bitmap exceeds account list"
+            );
+            require(solanaAccounts[solanaAccounts.length - 1] != BACKED_CCIP_DRONE_TARGET_FLAG, "Final Solana account is Drone target flag");
+        } else {
+            require(solanaAccounts.length == 0, "EVM destination cannot include Solana accounts");
+            require(accountIsWritableBitmap == 0, "EVM writable bitmap must be zero");
+            require(uint256(tokenReceiver) <= type(uint160).max, "EVM token receiver must be canonical");
+        }
+
+        // Approve the bridge to spend the asset.
+        if (
+            !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][address(asset)][backedCCIPBridge]
+        ) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                address(asset),
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve Backed CCIP Bridge to spend ", asset.symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = backedCCIPBridge;
+            _verifyBackedCCIPApprovalLeafMatchesConfiguredDecoder(leafs[leafIndex]);
+            ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][address(asset)][backedCCIPBridge]
+            = true;
+        }
+
+        // Add send leaf.
+        unchecked {
+            leafIndex++;
+        }
+        uint256 argumentCount = isSvmDestination ? 5 + 2 * solanaAccounts.length : 4;
+        leafs[leafIndex] = ManageLeaf(
+            backedCCIPBridge,
+            true,
+            "send(uint64,bytes32,address,uint256,bytes)",
+            new address[](argumentCount),
+            string.concat(
+                "Bridge ",
+                asset.symbol(),
+                " to chain ",
+                vm.toString(destinationChainSelector),
+                " via Backed CCIP Bridge"
+            ),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = address(uint160(destinationChainSelector));
+        leafs[leafIndex].argumentAddresses[1] = address(bytes20(bytes16(tokenReceiver)));
+        leafs[leafIndex].argumentAddresses[2] = address(bytes20(bytes16(tokenReceiver << 128)));
+        leafs[leafIndex].argumentAddresses[3] = address(asset);
+        if (isSvmDestination) {
+            leafs[leafIndex].argumentAddresses[4] = address(uint160(accountIsWritableBitmap));
+            for (uint256 i; i < solanaAccounts.length; ++i) {
+                leafs[leafIndex].argumentAddresses[5 + 2 * i] = address(bytes20(bytes16(solanaAccounts[i])));
+                leafs[leafIndex].argumentAddresses[6 + 2 * i] = address(bytes20(bytes16(solanaAccounts[i] << 128)));
+            }
+        }
+
+        _verifyBackedCCIPLeafMatchesConfiguredDecoder(
+            leafs[leafIndex], destinationChainSelector, tokenReceiver, asset, accountIsWritableBitmap, solanaAccounts
+        );
+    }
+
+    error MerkleTreeHelper__BackedCCIPDecoderLeafMismatch(address decoderAndSanitizer);
+
+    function _verifyBackedCCIPApprovalLeafMatchesConfiguredDecoder(ManageLeaf memory leaf) private view {
+        if (bytes4(keccak256(bytes(leaf.signature))) != BaseDecoderAndSanitizer.approve.selector) {
+            revert MerkleTreeHelper__BackedCCIPDecoderLeafMismatch(leaf.decoderAndSanitizer);
+        }
+
+        (bool success, bytes memory returndata) = leaf.decoderAndSanitizer.staticcall(
+            abi.encodeWithSelector(BaseDecoderAndSanitizer.approve.selector, leaf.argumentAddresses[0], uint256(0))
+        );
+        if (!success || returndata.length < 64) {
+            revert MerkleTreeHelper__BackedCCIPDecoderLeafMismatch(leaf.decoderAndSanitizer);
+        }
+
+        bytes memory decoderArguments = abi.decode(returndata, (bytes));
+        if (keccak256(abi.encodePacked(leaf.argumentAddresses[0])) != keccak256(decoderArguments)) {
+            revert MerkleTreeHelper__BackedCCIPDecoderLeafMismatch(leaf.decoderAndSanitizer);
+        }
+    }
+
+    /// @dev Root generation must use the same deployed decoder implementation that the manager will call.
+    ///      This catches stale address registries and old length-inferred decoder deployments before a root
+    ///      containing an unusable or differently interpreted leaf can be produced.
+    function _verifyBackedCCIPLeafMatchesConfiguredDecoder(
+        ManageLeaf memory leaf,
+        uint64 destinationChainSelector,
+        bytes32 tokenReceiver,
+        ERC20 asset,
+        uint64 accountIsWritableBitmap,
+        bytes32[] memory solanaAccounts
+    ) private view {
+        if (bytes4(keccak256(bytes(leaf.signature))) != BackedCCIPDecoderAndSanitizer.send.selector) {
+            revert MerkleTreeHelper__BackedCCIPDecoderLeafMismatch(leaf.decoderAndSanitizer);
+        }
+
+        bytes memory chainSpecificArgs;
+        if (destinationChainSelector == BACKED_CCIP_SOLANA_CHAIN_SELECTOR) {
+            chainSpecificArgs = abi.encode(accountIsWritableBitmap, solanaAccounts);
+        }
+
+        (bool success, bytes memory returndata) = leaf.decoderAndSanitizer.staticcall(
+            abi.encodeWithSelector(
+                BackedCCIPDecoderAndSanitizer.send.selector,
+                destinationChainSelector,
+                tokenReceiver,
+                address(asset),
+                uint256(0),
+                chainSpecificArgs
+            )
+        );
+        if (!success || returndata.length < 64) {
+            revert MerkleTreeHelper__BackedCCIPDecoderLeafMismatch(leaf.decoderAndSanitizer);
+        }
+
+        bytes memory leafArguments;
+        for (uint256 i; i < leaf.argumentAddresses.length; ++i) {
+            leafArguments = abi.encodePacked(leafArguments, leaf.argumentAddresses[i]);
+        }
+        bytes memory decoderArguments = abi.decode(returndata, (bytes));
+        if (keccak256(leafArguments) != keccak256(decoderArguments)) {
+            revert MerkleTreeHelper__BackedCCIPDecoderLeafMismatch(leaf.decoderAndSanitizer);
+        }
+
+        // Fingerprint both selector-gated branches as well as the canonical happy-path output above.
+        // The former length-inferred decoder accepts both probes, so a stale deployment cannot silently
+        // pass parity merely because the leaf's intended call happens to use the same argument shape.
+        bytes memory emptyArgs;
+        (success,) = leaf.decoderAndSanitizer.staticcall(
+            abi.encodeWithSelector(
+                BackedCCIPDecoderAndSanitizer.send.selector,
+                BACKED_CCIP_SOLANA_CHAIN_SELECTOR,
+                bytes32(uint256(1)),
+                address(asset),
+                uint256(0),
+                emptyArgs
+            )
+        );
+        if (success) revert MerkleTreeHelper__BackedCCIPDecoderLeafMismatch(leaf.decoderAndSanitizer);
+
+        bytes32[] memory probeAccounts = new bytes32[](1);
+        probeAccounts[0] = bytes32(uint256(1));
+        (success,) = leaf.decoderAndSanitizer.staticcall(
+            abi.encodeWithSelector(
+                BackedCCIPDecoderAndSanitizer.send.selector,
+                BACKED_CCIP_SOLANA_CHAIN_SELECTOR ^ uint64(1),
+                bytes32(uint256(1)),
+                address(asset),
+                uint256(0),
+                abi.encode(uint64(0), probeAccounts)
+            )
+        );
+        if (success) revert MerkleTreeHelper__BackedCCIPDecoderLeafMismatch(leaf.decoderAndSanitizer);
     }
 
     // ========================================= Avalanche C-Chain Bridge / Core Bridge =========================================

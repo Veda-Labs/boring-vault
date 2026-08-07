@@ -5,12 +5,13 @@
 pragma solidity 0.8.21;
 
 import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol"; 
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {BeraborrowDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/BeraborrowDecoderAndSanitizer.sol"; 
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol"; 
 import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/ERC4626DecoderAndSanitizer.sol";
 
-contract FullBeraborrowDecoderAndSanitizer is BeraborrowDecoderAndSanitizer {}
+contract FullBeraborrowDecoderAndSanitizer is BeraborrowDecoderAndSanitizer, BaseDecoderAndSanitizer {}
         
 
 contract BeraborrowIntegrationTest is BaseTestIntegration {
@@ -182,7 +183,7 @@ contract BeraborrowIntegrationTest is BaseTestIntegration {
         
         deal(getAddress(sourceChain, "WBTC"), address(boringVault), 10e8);
         
-        ManageLeaf[] memory leafs = new ManageLeaf[](4);
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
 
         address[] memory managedVaults = new address[](1);
         managedVaults[0] = getAddress(sourceChain, "bbWBTCManagedVault");
@@ -246,7 +247,7 @@ contract BeraborrowIntegrationTest is BaseTestIntegration {
         
         deal(getAddress(sourceChain, "WBTC"), address(boringVault), 10e8);
         
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
 
         address[] memory managedVaults = new address[](1);
         managedVaults[0] = getAddress(sourceChain, "bbWBTCManagedVault");
