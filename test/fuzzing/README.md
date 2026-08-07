@@ -294,47 +294,61 @@ Medusa generates the following (gitignored):
 
 ### Finding 1: `setFirstDepositTimestamp` Bug (YS System)
 
-**Status**: Open (Handler Workaround Applied)  
-**Invariant**: Rule 14 - `startVestingTimeLEendVestingTime`  
+**Status**: Acknowledged — WONTFIX in source; handler models the real precondition  
+**Invariant**: Rule 14 - `startVestingTimeLEendVestingTime` (and Rule 15)  
 **Severity**: Info
 
 #### Description
 
-A combination of two issues creates an invalid vesting state where `startVestingTime > endVestingTime`:
+A combination of two issues can create an invalid vesting state where `startVestingTime > endVestingTime`:
 
 1. `_updateExchangeRate()` doesn't clear `vestingGains` when `totalSupply == 0`
 2. `setFirstDepositTimestamp()` only updates `startVestingTime`, leaving stale `endVestingTime`
 
-#### Reproduction Sequence
+Together these bite only when a vault reaches `totalSupply == 0` while a vest is still
+active, and is then re-entered. In production this is unreachable: deprecated vaults are
+never fully drained (they retain dust), and a vault emptying *mid-vest* is more unlikely
+still. The source is therefore intentionally left as-is; the fuzz model is constrained to
+match that real-world precondition rather than exploring the unreachable state.
+
+#### Reproduction Sequence (the state we now exclude)
 
 ```
 1. depositYS       → creates shares
 2. vestYield       → sets vestingGains, startTime, endTime
 3. warpTime(huge)  → time passes endTime
-4. withdrawYS(all) → totalSupply = 0, vestingGains NOT cleared
+4. withdrawYS(all) → totalSupply = 0, vestingGains NOT cleared   ← unreachable in production
 5. warpTime        → more time passes
 6. bulkDepositYS   → triggers setFirstDepositTimestamp
                      startTime = now (large), endTime = old (small)
                      Result: startTime > endTime
 ```
 
-#### Handler Workaround
+#### Handler Fix (prevention, not repair)
 
-The fuzzing handlers work around this bug:
+The earlier approach let the bad state happen and tried to repair it afterwards via a
+best-effort `vestYield` (`fixVestingStateAfterFirstDeposit`). That repair reverts whenever
+the contract's own guards block it (e.g. min-update delay), so it silently left the invalid
+state and the invariant caught it — a flaky failure. It has been removed.
 
-1. **`TellerHandler.depositYS()`**: Tracks if vault was empty before deposit
-2. **`AccountantHandler.fixVestingStateAfterFirstDeposit()`**: Called after deposit to empty vault, performs a minimal `vestYield` to reset timestamps
+Instead, the withdraw handlers refuse to drain the YS vault to zero while a vest is live,
+which is exactly the production invariant (`vestYield` already refuses to vest into an empty
+vault, so the only remaining entry into the bad state was a full withdrawal mid-vest):
 
 ```solidity
-// In TellerHandler.depositYS():
-bool vaultWasEmpty = vaultYS.totalSupply() == 0;
-// ... deposit ...
-if (vaultWasEmpty && succeeded) {
-    accountantHandler.fixVestingStateAfterFirstDeposit();
-}
+// TellerHandler._clampYSWithdrawForActiveVest(), applied in withdrawYS + bulkWithdrawYS:
+(, uint128 vestingGains, , , ) = accountantHandler.accountantYS().vestingState();
+if (vestingGains == 0) return shareAmount;
+uint256 supply = vaultYS.totalSupply();
+if (shareAmount < supply) return shareAmount;   // other holders keep it non-empty
+return supply > 1 ? supply - 1 : 0;             // leave dust, or skip the withdrawal
 ```
 
-#### Suggested Source Contract Fix
+With this guard, `totalSupply == 0` always implies `vestingGains == 0`, so the first-deposit
+`setFirstDepositTimestamp` can never produce `start > end`. Once the vest fully accrues the
+vault can empty normally.
+
+#### Suggested Source Contract Fix (if ever prioritized)
 
 ```solidity
 function setFirstDepositTimestamp() external requiresAuth {

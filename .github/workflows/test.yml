@@ -96,7 +96,7 @@ jobs:
       - name: Run Forge build
         run: |
           forge --version
-          forge build --skip script
+          forge build
         id: build
 
       # Persist the compiled artifacts even though the test step below fails on
@@ -123,3 +123,20 @@ jobs:
             --skip BeraborrowIntegration --skip BeraETHIntegration \
             --skip ScrollBridgeIntegration
         id: test
+
+      # Use nightly Foundry for Tempo tests because stable heavily lags network upgrades
+      # (stable's embedded Tempo precompiles are pre-T5; this nightly is T7-aware).
+      # We can't pin an exact nightly version because they are periodically deleted.
+      - name: Install Foundry (nightly, for Tempo precompiles)
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      # Tempo tests run against the native Tempo precompiles (network = "tempo", Foundry >= 1.7.0).
+      # The profiles partition the test set: default excludes test/**Tempo*, tempo runs only those.
+      - name: Run Forge tests (Tempo)
+        run: |
+          forge test -vv
+        env:
+          FOUNDRY_PROFILE: tempo
+        id: test-tempo

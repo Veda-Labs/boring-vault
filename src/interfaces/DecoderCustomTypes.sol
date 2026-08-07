@@ -4,6 +4,7 @@
 // Licensed under Software Evaluation License, Version 1.0
 // Last audited: boring-vault@c54949f556cbc9a5e752ef1d6e8c09d64f4975b7 — https://macroaudits.com/library/audits/sevenSeas-47
 pragma solidity 0.8.21;
+
 contract DecoderCustomTypes {
     // ========================================= BALANCER =========================================
     struct JoinPoolRequest {
@@ -104,7 +105,7 @@ contract DecoderCustomTypes {
     }
 
     // ========================================= UNISWAP V4 =========================================
-    
+
     struct SwapParams {
         /// Whether to swap token0 for token1 or vice versa
         bool zeroForOne;
@@ -136,7 +137,7 @@ contract DecoderCustomTypes {
         bytes hookData;
     }
 
-     /// @notice Parameters for a single-hop exact-output swap
+    /// @notice Parameters for a single-hop exact-output swap
     struct ExactOutputSingleParams {
         PoolKey poolKey;
         bool zeroForOne;
@@ -144,7 +145,6 @@ contract DecoderCustomTypes {
         uint128 amountInMaximum;
         bytes hookData;
     }
-
 
     // ========================================= MORPHO BLUE =========================================
 
@@ -166,6 +166,29 @@ contract DecoderCustomTypes {
         uint256 amount;
         uint256 minReturnAmount;
         uint256 flags;
+    }
+
+    struct OneInchLimitOrder {
+        uint256 salt;
+        address maker;
+        address receiver;
+        address makerAsset;
+        address takerAsset;
+        uint256 makingAmount;
+        uint256 takingAmount;
+        uint256 makerTraits;
+    }
+
+    // V6 fillOrder uses Address (uint256) for all address fields — upper bits carry flags
+    struct OneInchV6Order {
+        uint256 salt;
+        uint256 maker;
+        uint256 receiver;
+        uint256 makerAsset;
+        uint256 takerAsset;
+        uint256 makingAmount;
+        uint256 takingAmount;
+        uint256 makerTraits;
     }
 
     // ========================================= PENDLE =========================================
@@ -195,7 +218,7 @@ contract DecoderCustomTypes {
         uint256 guessOffchain; // pass 0 in to skip this variable
         uint256 maxIteration; // every iteration, the diff between guessMin and guessMax will be divided by 2
         uint256 eps; // the max eps between the returned result & the correct result, base 1e18. Normally this number will be set
-            // to 1e15 (1e18/1000 = 0.1%)
+        // to 1e15 (1e18/1000 = 0.1%)
     }
 
     struct SwapData {
@@ -416,7 +439,7 @@ contract DecoderCustomTypes {
     }
 
     // ========================================= Algebra V4 =========================================
-    
+
     struct AlgebraMintParams {
         address token0;
         address token1;
@@ -536,7 +559,7 @@ contract DecoderCustomTypes {
     }
 
     // ========================================= Odos ==================================
-    
+
     struct swapTokenInfo {
         address inputToken;
         uint256 inputAmount;
@@ -556,13 +579,13 @@ contract DecoderCustomTypes {
         address outputReceiver;
     }
     // ========================================= Level ==================================
-    
-    /// @dev for reference 
+
+    /// @dev for reference
     //enum OrderType {
     //    MINT,
     //    REDEEM
     //}
-    
+
     struct LevelOrder {
         uint8 order_type;
         address benefactor;
@@ -570,7 +593,7 @@ contract DecoderCustomTypes {
         address collateral_asset;
         uint256 collateral_amount;
         uint256 lvlusd_amount;
-    }    
+    }
 
     struct LevelOrderV2 {
         address beneficiary;
@@ -584,9 +607,9 @@ contract DecoderCustomTypes {
         uint256[] ratios;
     }
 
-
     // ========================================= Royco ==================================
-    struct APOffer { // RecipeMarketHub
+    struct APOffer {
+        // RecipeMarketHub
         uint256 offerID;
         bytes32 targetMarketHash;
         address ap;
@@ -596,7 +619,9 @@ contract DecoderCustomTypes {
         address[] incentivesRequested;
         uint256[] incentiveAmountsRequested;
     }
-    struct APOfferVault { // VaultMarketHub (renamed to avoid collision)
+
+    struct APOfferVault {
+        // VaultMarketHub (renamed to avoid collision)
         uint256 offerID;
         address targetVault;
         address ap;
@@ -614,14 +639,14 @@ contract DecoderCustomTypes {
     }
 
     // ========================================= Permit2 ==================================
-    
+
     struct TokenSpenderPair {
-        address token; 
+        address token;
         address spender;
     }
 
     // ========================================= OnChainQueue ==================================
-    
+
     struct OnChainWithdraw {
         uint96 nonce; // read from state, used to make it impossible for request Ids to be repeated.
         address user; // msg.sender
@@ -634,7 +659,7 @@ contract DecoderCustomTypes {
     }
 
     // ========================================= Beraborrow ==================================
-    
+
     struct OpenDenVaultParams {
         address denManager;
         address collVault;
@@ -665,7 +690,7 @@ contract DecoderCustomTypes {
         bytes _preDeposit;
     }
 
-     struct RedeemCollateralVaultParams {
+    struct RedeemCollateralVaultParams {
         address denManager;
         address collVault;
         uint256 _debtAmount;
@@ -695,7 +720,7 @@ contract DecoderCustomTypes {
     }
 
     // ========================================= Tac Crosschain Layer ==================================
-    
+
     struct TokenAmount {
         address evmAddress;
         uint256 amount;
@@ -719,7 +744,7 @@ contract DecoderCustomTypes {
     }
 
     // ========================================= Valantis ==================================
-    
+
     struct DirectSwapParams {
         bool[] isUniversalPool;
         address[] pools;
@@ -732,7 +757,7 @@ contract DecoderCustomTypes {
         uint256 amountOutMin;
         uint256 deadline;
         bytes32 code;
-    }    
+    }
 
     struct UniversalPoolSwapPayload {
         bool isZeroToOne;
@@ -744,18 +769,18 @@ contract DecoderCustomTypes {
         bytes swapFeeModuleContext;
     }
 
-  /**
-   * @notice Internal struct used for single swap payloads in Sovereign pools.
-   */
-  struct SovereignPoolSwapPayload {
-      bool isZeroToOne;
-      address recipient;
-      address swapTokenOut;
-      uint256 amountOutMin;
-      bytes externalContext;
-      bytes verificationContext;
-      bytes swapFeeModuleContext;
-  }
+    /**
+     * @notice Internal struct used for single swap payloads in Sovereign pools.
+     */
+    struct SovereignPoolSwapPayload {
+        bool isZeroToOne;
+        address recipient;
+        address swapTokenOut;
+        uint256 amountOutMin;
+        bytes externalContext;
+        bytes verificationContext;
+        bytes swapFeeModuleContext;
+    }
 
     struct SovereignPoolSwapContextData {
         bytes externalContext;
@@ -794,7 +819,7 @@ contract DecoderCustomTypes {
         MINT,
         REDEEM
     }
-    
+
     struct EthenaOrder {
         string order_id;
         EthenaOrderType order_type;
@@ -811,7 +836,7 @@ contract DecoderCustomTypes {
         address[] addresses;
         uint128[] ratios;
     }
-    
+
     enum SignatureType {
         EIP712,
         EIP1271
@@ -820,6 +845,80 @@ contract DecoderCustomTypes {
     struct EthenaSignature {
         SignatureType signature_type;
         bytes signature_bytes;
+    }
+
+    // ========================================= LI.FI ==================================
+
+    // Matches LibSwap.SwapData in the LI.FI contracts repo.
+    // Used by GenericSwapFacet.swapTokensGeneric().
+    struct LifiSwapData {
+        address callTo; // contract to call for the swap
+        address approveTo; // contract to approve input token to
+        address sendingAssetId; // token being sold (address(0) = native)
+        address receivingAssetId; // token being bought (address(0) = native)
+        uint256 fromAmount; // amount of sendingAssetId to sell
+        bytes callData; // calldata forwarded to callTo
+        bool requiresDeposit; // whether the facet should pull tokens in
+    }
+
+    // ========================================= OpenOcean ==================================
+
+    struct OpenOceanCallDescription {
+        uint256 target;
+        uint256 gasLimit;
+        uint256 value;
+        bytes data;
+    }
+
+    // Used by swap() and swapGmxV2()
+    // NOTE: guaranteedAmount is only emitted in events — no on-chain enforcement, can be any value.
+    // NOTE: referrer is only emitted in events — no logic effect.
+    struct OpenOceanSwapDescription {
+        address srcToken;
+        address dstToken;
+        address srcReceiver;
+        address dstReceiver;
+        uint256 amount;
+        uint256 minReturnAmount;
+        uint256 guaranteedAmount;
+        uint256 flags;
+        address referrer;
+        bytes permit;
+    }
+
+    // Used by simpleSwap() — same layout as OpenOceanSwapDescription minus guaranteedAmount.
+    // NOTE: referrer is only emitted in events — no logic effect.
+    struct OpenOceanSimpleSwapDescription {
+        address srcToken;
+        address dstToken;
+        address srcReceiver;
+        address dstReceiver;
+        uint256 amount;
+        uint256 minReturnAmount;
+        uint256 flags;
+        address referrer;
+        bytes permit;
+    }
+
+    // OpenOcean Limit Order Protocol v2 order struct.
+    // Dynamic bytes fields (makerAssetData, takerAssetData, getMakerAmount, getTakerAmount,
+    // predicate, permit, interaction) must all be empty when used with OpenOceanLimitOrderAdapter.
+    struct OpenOceanLimitOrder {
+        uint256 salt;
+        address makerAsset;
+        address takerAsset;
+        address maker;
+        address receiver;
+        address allowedSender;
+        uint256 makingAmount;
+        uint256 takingAmount;
+        bytes makerAssetData;
+        bytes takerAssetData;
+        bytes getMakerAmount;
+        bytes getTakerAmount;
+        bytes predicate;
+        bytes permit;
+        bytes interaction;
     }
 
     // ========================================= Predicate Proxy ==================================
@@ -838,7 +937,7 @@ contract DecoderCustomTypes {
         uint256 value;
         bytes callData;
     }
-    
+
     struct RouteDescription {
         address inputToken; // Token used as input for the route
         address outputToken; // Token received as output from the route
@@ -857,6 +956,65 @@ contract DecoderCustomTypes {
         uint256 minOutputAmount; // Minimum acceptable output amount
         bool isPermit2; // Whether to use Permit2 for token transfers
         bytes32 uniquePID; // Unique identifier for the partner
+    }
+
+    // === Swapper ===
+
+    struct TokenRoute {
+        address tokenIn;
+        address tokenOut;
+    }
+
+    struct SwapConfig {
+        TokenRoute tokenRoute;
+        address adapter;
+        address quoteAsset;
+        bytes swapData;
+        uint256 slippageBps;
+        address receiver;
+    }
+
+    struct GPv2OrderData {
+        address sellToken;
+        address buyToken;
+        address receiver;
+        uint256 sellAmount;
+        uint256 buyAmount;
+        uint32 validTo;
+        bytes32 appData;
+        uint256 feeAmount;
+        bytes32 kind;
+        bool partiallyFillable;
+        bytes32 sellTokenBalance;
+        bytes32 buyTokenBalance;
+    }
+
+    struct OrderParams {
+        uint32 destChainId;
+        uint32 fillDeadline;
+        address tokenIn;
+        bytes32 tokenOut;
+        uint128 amountIn;
+        uint128 amountOut;
+        bytes32 recipient;
+        bytes32 solver;
+        address sender;
+    }
+
+    struct OrderData {
+        uint16 version;
+        bytes32 sender;
+        uint64 nonce;
+        uint32 originChainId;
+        uint32 destChainId;
+        uint64 createdAt;
+        uint64 fillDeadline;
+        bytes32 tokenIn;
+        bytes32 tokenOut;
+        uint128 amountIn;
+        uint128 amountOut;
+        bytes32 recipient;
+        bytes32 solver;
     }
 
     // ====================================== Etherfi =========================================

@@ -4,9 +4,12 @@
 solc_version = '0.8.21'
 auto_detect_solc = false
 evm_version = 'cancun'
+# Tempo tests need the tempo network family (see [profile.tempo]); exclude them everywhere else.
+no_match_path = "test/**Tempo*"
 optimizer = true
 optimizer_runs = 200
 fs_permissions = [{ access = "read-write", path = "./" }]
+deny_warnings = false
 use_literal_content = true
 cbor_metadata=true
 memory_limit = 4294967296
@@ -19,6 +22,15 @@ remappings = [
     "@ccip=lib/ccip/",
     "@oapp-auth=lib/OAppAuth/src/",
 ]
+
+# Tempo network family (requires Foundry >= 1.7.0): embeds the Tempo precompiles in revm so fork
+# tests execute the REAL stablecoin DEX / TIP-20 implementations. Runs ONLY the Tempo test files.
+# Usage: FOUNDRY_PROFILE=tempo forge test
+[profile.tempo]
+network = "tempo"
+match_path = "test/**Tempo*"
+no_match_path = "script/**" # benign override of the default profile's Tempo exclusion
+skip = ["script/**"] # script/ has pre-existing compile errors unrelated to Tempo; skip building it
 
 [fuzz]
 runs = 8000
@@ -77,6 +89,7 @@ katana = "${KATANA_RPC_URL}"
 tac = "${TAC_RPC_URL}"
 plasma = "${PLASMA_RPC_URL}"
 inkSepolia= "${INK_SEPOLIA_RPC_URL}"
+xlayer="${XLAYER_RPC_URL}"
 mantle = "${MANTLE_RPC_URL}"
 sei = "${SEI_RPC_URL}"
 monad = "${MONAD_RPC_URL}"
