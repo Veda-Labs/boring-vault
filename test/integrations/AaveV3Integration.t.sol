@@ -315,6 +315,22 @@ contract AaveV3IntegrationTest is Test, MerkleTreeHelper {
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
     }
 
+    function testAaveV3SupplyOnlyOmitsBorrowPositionMaintenance() external {
+        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ERC20[] memory supplyAssets = new ERC20[](1);
+        supplyAssets[0] = getERC20(sourceChain, "WSTETH");
+        ERC20[] memory borrowAssets = new ERC20[](0);
+
+        _addAaveV3Leafs(leafs, supplyAssets, borrowAssets);
+
+        assertEq(leafs[0].signature, "approve(address,uint256)");
+        assertEq(leafs[1].signature, "supply(address,uint256,address,uint16)");
+        assertEq(leafs[2].signature, "withdraw(address,uint256,address)");
+        assertEq(leafs[3].signature, "claimRewards(address[],uint256,address,address)");
+        assertEq(leafs[3].target, getAddress(sourceChain, "v3RewardsController"));
+        assertEq(leafs[4].signature, "");
+    }
+
     // ========================================= HELPER FUNCTIONS =========================================
 
     function _startFork(string memory rpcKey, uint256 blockNumber) internal returns (uint256 forkId) {
