@@ -56,11 +56,11 @@ contract CreateSonicIncentiveHandlerMerkleRoot is Script, MerkleTreeHelper {
         // ========================== Tellers ==========================
         ERC20[] memory tellerAssetsUSD = new ERC20[](1);
         tellerAssetsUSD[0] = getERC20(sourceChain, "USDC");
-        _addTellerLeafs(leafs, getAddress(sourceChain, "scUSDTeller"), tellerAssetsUSD, false);
+        _addTellerLeafs(leafs, getAddress(sourceChain, "scUSDTeller"), tellerAssetsUSD, false, false);
 
         ERC20[] memory tellerAssetsETH = new ERC20[](1);
         tellerAssetsETH[0] = getERC20(sourceChain, "WETH");
-        _addTellerLeafs(leafs, getAddress(sourceChain, "scETHTeller"), tellerAssetsETH, false);
+        _addTellerLeafs(leafs, getAddress(sourceChain, "scETHTeller"), tellerAssetsETH, false, false);
 
         // ========================== Rings Voter Contracts ==========================
         //scUSD Voter

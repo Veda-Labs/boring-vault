@@ -76,7 +76,12 @@ contract CreateHyperUsdMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== Resolv USR Protocol ==========================
         // USR uses Resolv protocol for minting and burning (redeeming)
-        _addAllResolvLeafs(leafs);
+        {
+            ERC20[] memory resolvAssets = new ERC20[](2);
+            resolvAssets[0] = getERC20(sourceChain, "USDC");
+            resolvAssets[1] = getERC20(sourceChain, "USDT");
+            _addAllResolvLeafs(leafs, resolvAssets);
+        }
 
 
         // // ========================== Teller ==========================

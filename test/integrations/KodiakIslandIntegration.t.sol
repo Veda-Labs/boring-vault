@@ -5,6 +5,7 @@
 pragma solidity 0.8.21;
 
 import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {BoringVault} from "src/base/BoringVault.sol";
 import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
@@ -419,4 +420,4 @@ contract KodiakIslandIntegrationTest is Test, MerkleTreeHelper {
     }
 }
 
-contract KodiakDecoderAndSanitizer is KodiakIslandDecoderAndSanitizer {}
+contract KodiakDecoderAndSanitizer is KodiakIslandDecoderAndSanitizer, BaseDecoderAndSanitizer {}

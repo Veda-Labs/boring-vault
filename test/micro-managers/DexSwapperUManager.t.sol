@@ -119,10 +119,11 @@ contract DexSwapperUManagerTest is Test, MainnetAddresses {
         leafs[0] = ManageLeaf(address(WEETH), false, "approve(address,uint256)", new address[](1));
         leafs[0].argumentAddresses[0] = uniV3Router;
         leafs[1] =
-            ManageLeaf(uniV3Router, false, "exactInput((bytes,address,uint256,uint256,uint256))", new address[](3));
+            ManageLeaf(uniV3Router, false, "exactInput((bytes,address,uint256,uint256,uint256))", new address[](4));
         leafs[1].argumentAddresses[0] = address(WEETH);
-        leafs[1].argumentAddresses[1] = address(WETH);
-        leafs[1].argumentAddresses[2] = address(boringVault);
+        leafs[1].argumentAddresses[1] = address(uint160(500));
+        leafs[1].argumentAddresses[2] = address(WETH);
+        leafs[1].argumentAddresses[3] = address(boringVault);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
@@ -296,10 +297,11 @@ contract DexSwapperUManagerTest is Test, MainnetAddresses {
         leafs[0] = ManageLeaf(address(WEETH), false, "approve(address,uint256)", new address[](1));
         leafs[0].argumentAddresses[0] = uniV3Router;
         leafs[1] =
-            ManageLeaf(uniV3Router, false, "exactInput((bytes,address,uint256,uint256,uint256))", new address[](3));
+            ManageLeaf(uniV3Router, false, "exactInput((bytes,address,uint256,uint256,uint256))", new address[](4));
         leafs[1].argumentAddresses[0] = address(WEETH);
-        leafs[1].argumentAddresses[1] = address(WETH);
-        leafs[1].argumentAddresses[2] = address(boringVault);
+        leafs[1].argumentAddresses[1] = address(uint160(500));
+        leafs[1].argumentAddresses[2] = address(WETH);
+        leafs[1].argumentAddresses[3] = address(boringVault);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 

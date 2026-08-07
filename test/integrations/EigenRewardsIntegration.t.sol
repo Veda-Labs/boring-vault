@@ -65,7 +65,7 @@ contract EigenRewardsIntegrationTest is Test, MerkleTreeHelper {
     function testProcessClaim() external {
         deal(getAddress(sourceChain, "EIGEN"), address(boringVault), 0);
 
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addLeafsForEigenLayerLST(
             leafs,
             getAddress(sourceChain, "EIGEN"),
@@ -83,7 +83,7 @@ contract EigenRewardsIntegrationTest is Test, MerkleTreeHelper {
         manager.setManageRoot(strategist, manageTree[manageTree.length - 1][0]);
 
         ManageLeaf[] memory manageLeafs = new ManageLeaf[](1);
-        manageLeafs[0] = leafs[6];
+        manageLeafs[0] = leafs[8];
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
@@ -119,7 +119,7 @@ contract EigenRewardsIntegrationTest is Test, MerkleTreeHelper {
         deal(getAddress(sourceChain, "EIGEN"), address(boringVault), 1_000e18);
 
         address claimer = getAddress(sourceChain, "dev0Address");
-        ManageLeaf[] memory leafs = new ManageLeaf[](8);
+        ManageLeaf[] memory leafs = new ManageLeaf[](16);
         _addLeafsForEigenLayerLST(
             leafs,
             getAddress(sourceChain, "EIGEN"),
@@ -137,7 +137,7 @@ contract EigenRewardsIntegrationTest is Test, MerkleTreeHelper {
         manager.setManageRoot(strategist, manageTree[manageTree.length - 1][0]);
 
         ManageLeaf[] memory manageLeafs = new ManageLeaf[](1);
-        manageLeafs[0] = leafs[6];
+        manageLeafs[0] = leafs[8];
 
         bytes32[][] memory manageProofs = _getProofsUsingTree(manageLeafs, manageTree);
 
