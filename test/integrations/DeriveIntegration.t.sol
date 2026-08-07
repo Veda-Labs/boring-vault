@@ -5,6 +5,7 @@
 pragma solidity 0.8.21;
 
 import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol"; 
+import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {DeriveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/DeriveDecoderAndSanitizer.sol"; 
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol"; 
@@ -12,7 +13,7 @@ import {ERC4626DecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protoco
 import {CurveDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CurveDecoderAndSanitizer.sol"; 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
-contract FullDeriveDecoderAndSanitizer is DeriveDecoderAndSanitizer {}
+contract FullDeriveDecoderAndSanitizer is DeriveDecoderAndSanitizer, BaseDecoderAndSanitizer {}
 
 contract DeriveIntegrationTest is BaseTestIntegration {
 
@@ -248,7 +249,7 @@ contract DeriveIntegrationTest is BaseTestIntegration {
         tx_ = _getTxArrays(1); 
         
         //manage leafs
-        tx_.manageLeafs[0] = leafs[2]; //redeem stDRV
+        tx_.manageLeafs[0] = leafs[3]; //redeem stDRV
 
         //generate proofs
         manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);

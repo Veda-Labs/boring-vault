@@ -68,7 +68,9 @@ contract WormholeIntegrationTest is BaseTestIntegration {
         );
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
-        _generateLeafs("WormholeBridgeWETHToMonad.json", leafs, manageTree[manageTree.length - 1][0], manageTree);
+        // Write the generated tree to the gitignored test/fixtures dir instead of the repo root.
+        vm.createDir("./test/fixtures", true);
+        _generateLeafs("test/fixtures/WormholeBridgeWETHToMonad.json", leafs, manageTree[manageTree.length - 1][0], manageTree);
 
         manager.setManageRoot(address(this), manageTree[manageTree.length - 1][0]);
 
