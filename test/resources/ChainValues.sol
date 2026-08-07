@@ -57,6 +57,7 @@ contract ChainValues {
     uint64 public constant ccipBscChainSelector = 11344663589394136015;
     uint64 public constant ccipKatanaChainSelector = 2459028469735686113;
     uint64 public constant ccipMonadChainSelector = 8481857512324358265;
+    uint64 public constant ccipSolanaChainSelector = 124615329519749607;
     uint32 public constant layerZeroBaseEndpointId = 30184;
     uint32 public constant layerZeroMainnetEndpointId = 30101;
     uint32 public constant layerZeroOptimismEndpointId = 30111;
@@ -1758,6 +1759,10 @@ contract ChainValues {
 
         // MorphoBlue
         values[base]["morphoBlue"] = 0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb.toBytes32();
+
+        // Morpho Midnight (fixed-rate lending singleton, docs.morpho.org contract addresses)
+        values[base]["morphoMidnight"] = 0xAdedD8ab6dE832766Fedf0FaC4992E5C4D3EA18A.toBytes32();
+        values[base]["morphoMidnightSetterRatifier"] = 0x800B5F12A61B8198a5a6EfD794Cac6699B294d63.toBytes32();
         values[base]["weETH_wETH_915"] = 0x78d11c03944e0dc298398f0545dc8195ad201a18b0388cb8058b1bcb89440971;
         values[base]["wstETH_wETH_945"] = 0x3a4048c64ba1b375330d376b1ce40e4047d03b47ab4d48af484edec9fec801ba;
         values[base]["cbETH_wETH_965"] = 0x6600aae6c56d242fa6ba68bd527aff1a146e77813074413186828fd3f1cdca91;
