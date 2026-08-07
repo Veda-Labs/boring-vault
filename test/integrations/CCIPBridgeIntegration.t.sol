@@ -144,7 +144,7 @@ contract CCIPBridgeIntegrationTest is Test, MerkleTreeHelper {
         message.tokenAmounts[0].token = getAddress(sourceChain, "WETH");
         message.tokenAmounts[0].amount = 100e18;
         message.feeToken = getAddress(sourceChain, "WETH");
-        message.extraArgs = abi.encode(bytes4(0x97a657c9), 0);
+        message.extraArgs = _evmExtraArgs(0);
 
         targetData[1] = abi.encodeWithSignature(
             "ccipSend(uint64,(bytes,bytes,(address,uint256)[],address,bytes))", ccipArbitrumChainSelector, message
@@ -192,7 +192,7 @@ contract CCIPBridgeIntegrationTest is Test, MerkleTreeHelper {
         message.tokenAmounts[0].token = getAddress(sourceChain, "WETH");
         message.tokenAmounts[0].amount = 100e18;
         message.feeToken = getAddress(sourceChain, "WETH");
-        message.extraArgs = abi.encode(bytes4(0x97a657c9), 0);
+        message.extraArgs = _evmExtraArgs(0);
 
         targetData[1] = abi.encodeWithSignature(
             "ccipSend(uint64,(bytes,bytes,(address,uint256)[],address,bytes))", ccipArbitrumChainSelector, message
@@ -210,7 +210,8 @@ contract CCIPBridgeIntegrationTest is Test, MerkleTreeHelper {
 
         // Fix the data length, but set the extraArgs tag to invalid.
         message.data = "";
-        message.extraArgs = abi.encode(bytes4(0x97a657c8), 0);
+        // Invalid tag (neither EVM nor SVM) must be rejected before any struct decode.
+        message.extraArgs = abi.encodePacked(bytes4(0x97a657c8), abi.encode(uint256(0)));
         targetData[1] = abi.encodeWithSignature(
             "ccipSend(uint64,(bytes,bytes,(address,uint256)[],address,bytes))", ccipArbitrumChainSelector, message
         );
@@ -220,7 +221,7 @@ contract CCIPBridgeIntegrationTest is Test, MerkleTreeHelper {
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
         // Fix the tag, but set gas limit to non zero.
-        message.extraArgs = abi.encode(bytes4(0x97a657c9), 1);
+        message.extraArgs = _evmExtraArgs(1);
         targetData[1] = abi.encodeWithSignature(
             "ccipSend(uint64,(bytes,bytes,(address,uint256)[],address,bytes))", ccipArbitrumChainSelector, message
         );
@@ -230,7 +231,7 @@ contract CCIPBridgeIntegrationTest is Test, MerkleTreeHelper {
         manager.manageVaultWithMerkleVerification(manageProofs, decodersAndSanitizers, targets, targetData, values);
 
         // Fix the gas limit and call now succeeds.
-        message.extraArgs = abi.encode(bytes4(0x97a657c9), 0);
+        message.extraArgs = _evmExtraArgs(0);
         targetData[1] = abi.encodeWithSignature(
             "ccipSend(uint64,(bytes,bytes,(address,uint256)[],address,bytes))", ccipArbitrumChainSelector, message
         );
@@ -238,6 +239,12 @@ contract CCIPBridgeIntegrationTest is Test, MerkleTreeHelper {
     }
 
     // ========================================= HELPER FUNCTIONS =========================================
+
+    /// @notice Canonical CCIP EVMExtraArgsV1 encoding: `tag ++ abi.encode(EVMExtraArgsV1)`, exactly
+    ///         what Client._argsToBytes produces and what the onramp (and now the decoder) parse.
+    function _evmExtraArgs(uint256 gasLimit) internal pure returns (bytes memory) {
+        return abi.encodePacked(bytes4(0x97a657c9), abi.encode(gasLimit));
+    }
 
     function _startFork(string memory rpcKey, uint256 blockNumber) internal returns (uint256 forkId) {
         forkId = vm.createFork(vm.envString(rpcKey), blockNumber);

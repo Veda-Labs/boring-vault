@@ -2208,6 +2208,99 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         }
     }
 
+    /// @notice Adds leafs to bridge assets to an SVM (Solana) chain using CCIP.
+    /// @param svmTokenReceiver The 32 byte Solana address receiving the tokens, committed to the leaf
+    ///        split across 2 address slots. WARNING: this MUST be the recipient's OWNER/wallet address
+    ///        (a regular wallet or a program PDA, e.g. a boring-vault-svm sub-account PDA) — CCIP
+    ///        delivers tokens to the associated token account DERIVED from it. Committing an ATA or any
+    ///        other token-account address here strands the bridged tokens irrecoverably (the derived
+    ///        ATA-of-an-ATA can never sign, and CCIP has no clawback). The value is committed in the
+    ///        merkle root, so review it at root-generation time; it is not visible in the leaf
+    ///        description string.
+    function _addCcipSvmBridgeLeafs(
+        ManageLeaf[] memory leafs,
+        uint64 destinationChainSelector,
+        bytes32 svmTokenReceiver,
+        ERC20[] memory bridgeAssets,
+        ERC20[] memory feeTokens
+    ) internal {
+        require(svmTokenReceiver != bytes32(0), "svmTokenReceiver cannot be zero");
+        address tokenReceiver0 = address(bytes20(bytes16(svmTokenReceiver)));
+        address tokenReceiver1 = address(bytes20(bytes16(svmTokenReceiver << 128)));
+        // Bridge ERC20 Assets
+        for (uint256 i; i < feeTokens.length; i++) {
+            if (
+                !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][address(feeTokens[i])][getAddress(
+                    sourceChain, "ccipRouter"
+                )]
+            ) {
+                // Add fee token approval.
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    address(feeTokens[i]),
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve ", sourceChain, " CCIP Router to spend ", feeTokens[i].symbol()),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "ccipRouter");
+                ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][address(feeTokens[i])][getAddress(
+                    sourceChain, "ccipRouter"
+                )] = true;
+            }
+            for (uint256 j; j < bridgeAssets.length; j++) {
+                if (
+                    !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][address(
+                        bridgeAssets[j]
+                    )][getAddress(sourceChain, "ccipRouter")]
+                ) {
+                    // Add bridge asset approval.
+                    unchecked {
+                        leafIndex++;
+                    }
+                    leafs[leafIndex] = ManageLeaf(
+                        address(bridgeAssets[j]),
+                        false,
+                        "approve(address,uint256)",
+                        new address[](1),
+                        string.concat("Approve ", sourceChain, " CCIP Router to spend ", bridgeAssets[j].symbol()),
+                        getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                    );
+                    leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "ccipRouter");
+                    ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][address(
+                        bridgeAssets[j]
+                    )][getAddress(sourceChain, "ccipRouter")] = true;
+                }
+                // Add ccipSend leaf.
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    getAddress(sourceChain, "ccipRouter"),
+                    false,
+                    "ccipSend(uint64,(bytes,bytes,(address,uint256)[],address,bytes))",
+                    new address[](5),
+                    string.concat(
+                        "Bridge ",
+                        bridgeAssets[j].symbol(),
+                        " to SVM chain ",
+                        vm.toString(destinationChainSelector),
+                        " using CCIP"
+                    ),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = address(uint160(destinationChainSelector));
+                leafs[leafIndex].argumentAddresses[1] = tokenReceiver0;
+                leafs[leafIndex].argumentAddresses[2] = tokenReceiver1;
+                leafs[leafIndex].argumentAddresses[3] = address(bridgeAssets[j]);
+                leafs[leafIndex].argumentAddresses[4] = address(feeTokens[i]);
+            }
+        }
+    }
+
     // ========================================= PancakeSwap V3 =========================================
 
     function _addPancakeSwapV3Leafs(ManageLeaf[] memory leafs, address[] memory token0, address[] memory token1)

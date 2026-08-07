@@ -363,6 +363,22 @@ contract DecoderCustomTypes {
         uint256 gasLimit;
     }
 
+    // Extra args for SVM (Solana) destinations. Encoded as SVM_EXTRA_ARGS_V1_TAG ++ abi.encode(SVMExtraArgsV1),
+    // matching Client._svmArgsToBytes in chainlink-ccip v1.6 (SVM_EXTRA_ARGS_V1_TAG == 0x1f3b3aba ==
+    // bytes4(keccak256("CCIP SVMExtraArgsV1"))). The vendored @ccip submodule predates SVM support and does
+    // not define this struct, so this is the local copy of the canonical layout. The field order and types
+    // below MUST match chainlink-ccip's Client.SVMExtraArgsV1 exactly: both the CCIP onramp and the
+    // CCIPDecoderAndSanitizer abi.decode the same bytes, so a mismatch would let them disagree on what they
+    // parse. An edit here is caught by CCIPSVMBridgeIntegrationTest.testSvmExtraArgsMatchesCanonicalCcipLayout,
+    // which pins this ABI layout against a hand-built canonical reference.
+    struct SVMExtraArgsV1 {
+        uint32 computeUnits;
+        uint64 accountIsWritableBitmap;
+        bool allowOutOfOrderExecution;
+        bytes32 tokenReceiver;
+        bytes32[] accounts;
+    }
+
     // ========================================= OFT =========================================
 
     struct SendParam {
