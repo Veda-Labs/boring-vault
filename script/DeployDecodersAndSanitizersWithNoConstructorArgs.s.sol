@@ -73,6 +73,8 @@ import {MerklDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols
 import {MorphoBlueDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MorphoBlueDecoderAndSanitizer.sol";
 import {MorphoBlueDecoderAndSanitizerSingleton} from
     "src/base/DecodersAndSanitizers/MorphoBlueDecoderAndSanitizerSingleton.sol";
+import {MorphoMidnightDecoderAndSanitizerSingleton} from
+    "src/base/DecodersAndSanitizers/MorphoMidnightDecoderAndSanitizerSingleton.sol";
 import {MorphoRewardsMerkleClaimerDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/MorphoRewardsMerkleClaimerDecoderAndSanitizer.sol";
 import {MorphoRewardsWrapperDecoderAndSanitizer} from
@@ -183,6 +185,10 @@ contract DeployDecodersAndSanitizersWithNoConstructorArgsScript is
         creationCode = type(MorphoBlueDecoderAndSanitizerSingleton).creationCode;
         constructorArgs = hex"";
         deployContract("Morpho Blue Decoder and Sanitizer Singleton V0.0", creationCode, constructorArgs, 0);
+
+        creationCode = type(MorphoMidnightDecoderAndSanitizerSingleton).creationCode;
+        constructorArgs = hex"";
+        deployContract("Morpho Midnight Decoder and Sanitizer Singleton V0.0", creationCode, constructorArgs, 0);
 
         // creationCode = type(LiquidUSDSeiDecoderAndSanitizer).creationCode;
         // constructorArgs = hex"";
