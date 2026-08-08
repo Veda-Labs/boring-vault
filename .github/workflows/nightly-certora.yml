@@ -113,6 +113,35 @@ jobs:
           CONFIGS: ${{ matrix.configs }}
         run: |
           set -uo pipefail
+
+          # Certora's cloud intermittently fails to RETURN results ("request failed" /
+          # "Could not find job results") even when the proof itself passed ("No errors
+          # found by Prover!"). certoraRun then exits non-zero, reddening the nightly and
+          # paging Slack for a Certora-side blip, not a rule violation. Retry only those
+          # transient backend errors; a real violation doesn't match the pattern and fails
+          # fast (no wasted re-proofs).
+          MAX_ATTEMPTS=3
+          RETRY_SLEEP=60
+          TRANSIENT_RE='Could not find job results|request failed|An error occurred'
+
+          # Runs one certoraRun, streaming output live while capturing it to match on.
+          # Returns certoraRun's exit code; retries in place on transient cloud errors.
+          run_certora() {
+            local attempt=1 rc log
+            log="$(mktemp)"
+            while :; do
+              certoraRun "$@" --wait_for_results all 2>&1 | tee "$log"
+              rc=${PIPESTATUS[0]}
+              if [ "$rc" -eq 0 ]; then rm -f "$log"; return 0; fi
+              if [ "$attempt" -ge "$MAX_ATTEMPTS" ] || ! grep -qE "$TRANSIENT_RE" "$log"; then
+                rm -f "$log"; return "$rc"
+              fi
+              echo "::warning::Certora transient cloud error (attempt ${attempt}/${MAX_ATTEMPTS}), retrying in ${RETRY_SLEEP}s: $*"
+              attempt=$((attempt + 1))
+              sleep "$RETRY_SLEEP"
+            done
+          }
+
           fail=0
           while IFS= read -r line; do
             # skip blank lines
@@ -120,7 +149,7 @@ jobs:
             # Parse the config line into args honoring quotes (no eval).
             mapfile -t -d '' parts < <(printf '%s' "$line" | xargs printf '%s\0')
             echo "::group::certoraRun ${parts[*]}"
-            if ! certoraRun "${parts[@]}" --wait_for_results all; then
+            if ! run_certora "${parts[@]}"; then
               echo "::error::Certora verification failed for: $line"
               fail=1
             fi
