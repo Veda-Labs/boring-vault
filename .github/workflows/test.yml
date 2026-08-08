@@ -131,6 +131,10 @@ jobs:
         uses: foundry-rs/foundry-toolchain@v1
         with:
           version: nightly
+          # Don't cache: nightly releases are periodically deleted, and a cached
+          # foundryup pins a dead nightly tag → persistent HTTP 404 on re-runs.
+          # Resolve a current nightly fresh each run.
+          cache: false
 
       # Tempo tests run against the native Tempo precompiles (network = "tempo", Foundry >= 1.7.0).
       # The profiles partition the test set: default excludes test/**Tempo*, tempo runs only those.
