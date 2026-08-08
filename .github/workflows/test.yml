@@ -96,7 +96,7 @@ jobs:
       - name: Run Forge build
         run: |
           forge --version
-          forge build
+          forge build --skip script
         id: build
 
       # Persist the compiled artifacts even though the test step below fails on
