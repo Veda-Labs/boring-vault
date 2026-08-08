@@ -36,6 +36,11 @@ skip = ["script/**"] # script/ has pre-existing compile errors unrelated to Temp
 runs = 8000
 seed = "0x0000000000000000000000000000000000000000000000000000000000000002"
 
+# CI profile: skip building script/ (pre-existing veda-90 arity errors, tracked in #65)
+# so `forge test` under FOUNDRY_PROFILE=ci doesn't compile them. Nothing in test/ needs script/.
+[profile.ci]
+skip = ["script/**"]
+
 # CI profile: caps fuzz/invariant so the test job finishes fast (test.yml sets
 # FOUNDRY_PROFILE=ci). Without this, `--profile ci` is a no-op and fuzz runs 8000.
 [profile.ci.fuzz]
@@ -46,6 +51,10 @@ seed = "0x0000000000000000000000000000000000000000000000000000000000000002"
 runs = 32
 depth = 100
 fail_on_revert = false
+
+# Nightly profile: same script/ skip as [profile.ci] (nightly-fuzz.yml sets FOUNDRY_PROFILE=nightly).
+[profile.nightly]
+skip = ["script/**"]
 
 # Nightly profile: deep fuzz/invariant run for the scheduled nightly-fuzz.yml
 # (FOUNDRY_PROFILE=nightly). Higher intensity than CI.
