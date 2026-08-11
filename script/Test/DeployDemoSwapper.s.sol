@@ -16,7 +16,7 @@ import {GenericRateProviderWithStalenessCheck} from "src/helper/GenericRateProvi
 import "forge-std/Script.sol";
 
 /**
- *  source .env && forge script script/Test/DeployDemoSwapper.s.sol:DeployDemoSwapperScript --broadcast --etherscan-api-key $ETHERSCAN_KEY --verify
+ *  source .env && forge script script/Test/DeployDemoSwapper.s.sol:DeployDemoSwapperScript --broadcast --trezor --sender $TREZOR_ADDRESS --mnemonic-derivation-paths "$DERIVATION_PATH" --etherscan-api-key $ETHERSCAN_KEY --verify
  * @dev Optionally can change `--with-gas-price` to something more reasonable
  */
 contract DeployDemoSwapperScript is Script, MerkleTreeHelper {
@@ -49,19 +49,30 @@ contract DeployDemoSwapperScript is Script, MerkleTreeHelper {
     function run() external {
         vm.startBroadcast();
 
-        BoringSwapper swapper = new BoringSwapper(
-            getAddress(sourceChain, "txBundlerAddress"),
-            AdapterRegistry(registry),
-            IFeeRegistry(feeRegistry),
-            BoringVault(payable(boringVault)),
-            IPriceValidator(validator)
+        Deployer deployer = Deployer(getAddress(sourceChain, "newDeployer"));
+        BoringSwapper swapper = BoringSwapper(
+            deployer.deployContract(
+                "Demo Boring Swapper V0.0",
+                type(BoringSwapper).creationCode,
+                abi.encode(
+                    address(deployer),
+                    AdapterRegistry(registry),
+                    IFeeRegistry(feeRegistry),
+                    BoringVault(payable(boringVault)),
+                    IPriceValidator(validator)
+                ),
+                0
+            )
         );
         console.log("BoringSwapper (DEMO vault):", address(swapper));
 
         address usdQuoteAsset = getAddress(sourceChain, "USDC");
-        address usdcRateProvider = _deployChainlinkRateProvider(USDC_USD_FEED);
-        address rlusdRateProvider = _deployChainlinkRateProvider(RLUSD_USD_FEED);
-        address pyusdRateProvider = _deployChainlinkRateProvider(PYUSD_USD_FEED);
+        address usdcRateProvider =
+            _deployChainlinkRateProvider(deployer, "Demo USDC USD Rate Provider V0.0", USDC_USD_FEED);
+        address rlusdRateProvider =
+            _deployChainlinkRateProvider(deployer, "Demo RLUSD USD Rate Provider V0.0", RLUSD_USD_FEED);
+        address pyusdRateProvider =
+            _deployChainlinkRateProvider(deployer, "Demo PYUSD USD Rate Provider V0.0", PYUSD_USD_FEED);
         console.log("USDC RateProvider:", usdcRateProvider);
         console.log("RLUSD RateProvider:", rlusdRateProvider);
         console.log("PYUSD RateProvider:", pyusdRateProvider);
@@ -75,7 +86,6 @@ contract DeployDemoSwapperScript is Script, MerkleTreeHelper {
 
         Deployer.Tx[] memory txs = new Deployer.Tx[](16);
         txs[0] = Deployer.Tx({target: address(swapper), data: abi.encodeWithSignature("setAuthority(address)", rolesAuthority), value: 0});
-
         txs[1] = Deployer.Tx({
             target: address(swapper), data: abi.encodeWithSelector(BoringSwapper.setApprovedAdapter.selector, uniswapV3Adapter, true), value: 0
         });
@@ -160,14 +170,16 @@ contract DeployDemoSwapperScript is Script, MerkleTreeHelper {
             value: 0
         });
 
-        Deployer(getAddress(sourceChain, "txBundlerAddress")).bundleTxs(txs);
+        deployer.bundleTxs(txs);
 
         vm.stopBroadcast();
     }
 
-    function _deployChainlinkRateProvider(address feed) internal returns (address) {
-        return address(
-            new GenericRateProviderWithStalenessCheck(
+    function _deployChainlinkRateProvider(Deployer deployer, string memory name, address feed) internal returns (address) {
+        return deployer.deployContract(
+            name,
+            type(GenericRateProviderWithStalenessCheck).creationCode,
+            abi.encode(
                 GenericRateProviderWithStalenessCheck.ConstructorArgs({
                     target: feed,
                     selector: 0x50d25bcd,
@@ -186,7 +198,8 @@ contract DeployDemoSwapperScript is Script, MerkleTreeHelper {
                     lastUpdateSelector: 0x8205bf6a,
                     lastUpdateOffset: 0
                 })
-            )
+            ),
+            0
         );
     }
 
@@ -202,3 +215,4 @@ contract DeployDemoSwapperScript is Script, MerkleTreeHelper {
         return BoringSwapper.RateProviderConfig(rateProviders, intermediaries, skipValidation);
     }
 }
+
