@@ -7,9 +7,11 @@ pragma solidity 0.8.21;
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {ISwapperTypes} from "src/interfaces/ISwapperTypes.sol";
 import {IAdapter} from "src/interfaces/IAdapter.sol";
+import {ISwapper} from "src/interfaces/ISwapper.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {AddressToBytes32Lib} from "src/helper/AddressToBytes32Lib.sol";
 import {IM0OrderBook} from "src/interfaces/IM0OrderBook.sol";
+import {M0SolverRegistry} from "src/base/Periphery/SolverRegistry.sol";
 
 contract M0Adapter is IAdapter {
     using AddressToBytes32Lib for bytes32;
@@ -18,20 +20,23 @@ contract M0Adapter is IAdapter {
     //============================== Errors ===============================
     
     error M0Adapter__CrossChainNotAllowed();
-    error M0Adapter__PrivateOrdersNotAllowed();
+    error M0Adapter__IncorrectSolverForRoute();
     error M0Adapter__NotCancelFunction();
     error M0Adapter__OrderIdMismatch();
     error M0Adapter__InvalidAddress();
     error M0Adapter__SenderMismatch();
+    error M0Adapter__ZeroSalt();
         
     //============================== Immutables ===============================
     
-    address immutable orderBook;
+    address public immutable orderBook;
+    M0SolverRegistry public immutable solverRegistry;
 
     //============================== Constructor ===============================
     
-    constructor(address _orderBook) {
+    constructor(address _orderBook, M0SolverRegistry _solverRegistry) {
         orderBook = _orderBook;
+        solverRegistry = _solverRegistry;
     }
 
     //============================== Limit Orders ===============================
@@ -42,9 +47,13 @@ contract M0Adapter is IAdapter {
         returns (OrderInfo memory)
     {
 
-        DecoderCustomTypes.OrderParams memory order =
-             abi.decode(swapConfig.swapData, (DecoderCustomTypes.OrderParams));
-        
+        (DecoderCustomTypes.OrderParams memory order, bytes32 salt) =
+             abi.decode(swapConfig.swapData, (DecoderCustomTypes.OrderParams, bytes32));
+
+        if (salt == bytes32(0)) revert M0Adapter__ZeroSalt();
+
+        bytes32 protocolHash = keccak256(swapConfig.swapData);
+
         if (uint256(order.tokenOut) >> 160 != 0) revert M0Adapter__InvalidAddress();
         if (uint256(order.recipient) >> 160 != 0) revert M0Adapter__InvalidAddress();
 
@@ -52,8 +61,17 @@ contract M0Adapter is IAdapter {
         if (ERC20(order.tokenOut.toAddress()) != swapConfig.tokenRoute.tokenOut) revert Adapter__TokenOutMismatch();
         if (order.recipient.toAddress() != address(swapConfig.receiver)) revert Adapter__ReceiverMismatch();
         if (order.destChainId != block.chainid) revert M0Adapter__CrossChainNotAllowed();
-        if (order.solver != bytes32(0)) revert M0Adapter__PrivateOrdersNotAllowed();
         if (order.sender != swapper) revert M0Adapter__SenderMismatch();
+
+        // EVM-only solver addresses must not contain dirty upper bits.
+        if (uint256(order.solver) >> 160 != 0) revert M0Adapter__InvalidAddress();
+        // Registry updates govern new orders. Preserve validation for an exact order hash that the
+        // swapper already approved so the order can still be filled or cancelled after rotation.
+        if (
+            order.solver.toAddress()
+                != solverRegistry.getSolver(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut)
+                && !ISwapper(swapper).approvedHashes(protocolHash)
+        ) revert M0Adapter__IncorrectSolverForRoute();
 
         bytes32 m0OrderId = IM0OrderBook(orderBook).getOrderId(
             DecoderCustomTypes.OrderData({
@@ -80,7 +98,7 @@ contract M0Adapter is IAdapter {
             outputToken: order.tokenOut.toAddress(),
             inputAmount: order.amountIn,
             outputAmount: order.amountOut,
-            protocolHash: keccak256(swapConfig.swapData), //hash the swapData since m0 doesn't use a domain separator pattern
+            protocolHash: protocolHash, //hash the swapData since m0 doesn't use a domain separator pattern
             hook: orderBook,
             hookData: abi.encodeWithSignature("openOrder((uint32,uint32,address,bytes32,uint128,uint128,bytes32,bytes32,address))", order),
             context: abi.encode(m0OrderId)

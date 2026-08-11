@@ -12,4 +12,5 @@ interface ISwapper {
     function oracles(ERC20 intermediary, address quoteAsset, uint256 index) external view returns (address);
     function baseOracleLength(ERC20 baseAsset, address quoteAsset) external view returns (uint256);
     function maxSlippageBpsPerRoute(bytes32 routeId) external view returns (uint256);
+    function approvedHashes(bytes32 protocolHash) external view returns (bool);
 }

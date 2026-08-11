@@ -13,6 +13,7 @@ import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecode
 import {BoringVault} from "src/base/BoringVault.sol";
 import {AdapterRegistry} from "src/base/Periphery/AdapterRegistry.sol";
 import {M0Adapter} from "src/base/Periphery/adapters/M0Adapter.sol";
+import {M0SolverRegistry} from "src/base/Periphery/SolverRegistry.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 import {PriceValidator} from "src/base/Periphery/adapters/price/PriceValidator.sol";
@@ -46,6 +47,7 @@ contract M0AdapterTest is BaseTestIntegration {
 
     address m0Adapter;
 
+    M0SolverRegistry solverRegistry;
     AdapterRegistry registry;
     BoringSwapper swapper;
     PriceValidator validator;
@@ -65,7 +67,8 @@ contract M0AdapterTest is BaseTestIntegration {
         swapper = new BoringSwapper(address(this), registry, new FeeRegistry(address(this), 1000), boringVault, IPriceValidator(address(validator)));
         swapper.setAuthority(rolesAuthority);
 
-        m0Adapter = address(new M0Adapter(getAddress(sourceChain, "m0OrderBook")));
+        solverRegistry = new M0SolverRegistry();
+        m0Adapter = address(new M0Adapter(getAddress(sourceChain, "m0OrderBook"), solverRegistry));
 
         swapper.setRouteConfig(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDC"), 500, 0, 0);
         swapper.setApprovedAdapter(m0Adapter, true);
@@ -86,7 +89,13 @@ contract M0AdapterTest is BaseTestIntegration {
         rolesAuthority.setRoleCapability(BORING_VAULT_ROLE, address(swapper), BoringSwapper.replaceOrder.selector, true);
     }
 
-    // ====================================== Entrypoint Functions ====================================== 
+    bytes32 constant TEST_SALT = bytes32(uint256(0x5a17));
+
+    function _encodeOrderWithSalt(DecoderCustomTypes.OrderParams memory order) internal pure returns (bytes memory) {
+        return abi.encode(order, TEST_SALT);
+    }
+
+    // ====================================== Entrypoint Functions ======================================
         
     function testM0OrderBook__OpenOrder() external {
 
@@ -95,7 +104,7 @@ contract M0AdapterTest is BaseTestIntegration {
             getERC20(sourceChain, "USDC")
         );
 
-        bytes memory m0Data = abi.encode(
+        bytes memory m0Data = _encodeOrderWithSalt(
             DecoderCustomTypes.OrderParams({ 
                 destChainId: uint32(1),
                 fillDeadline: uint32(block.timestamp + 3600),
@@ -149,8 +158,182 @@ contract M0AdapterTest is BaseTestIntegration {
         //verify the correct one does
         swapperOrderId = 1;
         rec = swapper.getOrderRecord(swapperOrderId);
-        bytes32 predicted = abi.decode(rec.context, (bytes32)); 
+        bytes32 predicted = abi.decode(rec.context, (bytes32));
         assertEq(m0OrderId, predicted);
+    }
+
+    function testM0OrderBook__OpenOrderWithRegisteredSolver() external {
+        address registeredSolver = address(0x69);
+        solverRegistry.setSolver(getERC20(sourceChain, "WETH"), getERC20(sourceChain, "USDC"), registeredSolver);
+
+        ISwapperTypes.TokenRoute memory tokenRoute = ISwapperTypes.TokenRoute(
+            getERC20(sourceChain, "WETH"),
+            getERC20(sourceChain, "USDC")
+        );
+
+        bytes memory m0Data = _encodeOrderWithSalt(
+            DecoderCustomTypes.OrderParams({
+                destChainId: uint32(1),
+                fillDeadline: uint32(block.timestamp + 3600),
+                tokenIn: getAddress(sourceChain, "WETH"),
+                tokenOut: getBytes32(sourceChain, "USDC"),
+                amountIn: 1000000000000000,
+                amountOut: 2200000,
+                recipient: address(boringVault).toBytes32(),
+                solver: registeredSolver.toBytes32(),
+                sender: address(swapper)
+            })
+        );
+
+        ISwapperTypes.SwapConfig memory config = ISwapperTypes.SwapConfig({
+            tokenRoute: tokenRoute,
+            adapter: m0Adapter,
+            quoteAsset: getAddress(sourceChain, "USDC"),
+            swapData: m0Data,
+            slippageBps: 250,
+            receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
+        });
+
+        (bytes32[][] memory manageTree, Tx memory tx_, ) = _setupLeavesAndState(config);
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+        vm.recordLogs();
+        _submitManagerCall(manageProofs, tx_);
+        Vm.Log[] memory entries = vm.getRecordedLogs();
+
+        bytes32 sig = keccak256(
+            "OrderOpened(bytes32,address,address,address,uint128,uint32,bytes32,uint128,bytes32,uint32)"
+        );
+
+        bytes32 m0OrderId;
+        for (uint256 i = 0; i < entries.length; i++) {
+            if (entries[i].topics[0] == sig) {
+                m0OrderId = abi.decode(entries[i].data, (bytes32));
+                break;
+            }
+        }
+
+        BoringSwapper.OrderRecord memory rec = swapper.getOrderRecord(1);
+        bytes32 predicted = abi.decode(rec.context, (bytes32));
+        assertEq(m0OrderId, predicted);
+    }
+
+    function testM0OrderBook__CancelAfterSolverOverwrite() external {
+        address oldSolver = address(0x69);
+        address newSolver = address(0x70);
+        ERC20 tokenIn = getERC20(sourceChain, "WETH");
+        ERC20 tokenOut = getERC20(sourceChain, "USDC");
+        solverRegistry.setSolver(tokenIn, tokenOut, oldSolver);
+
+        ISwapperTypes.SwapConfig memory config = ISwapperTypes.SwapConfig({
+            tokenRoute: ISwapperTypes.TokenRoute(tokenIn, tokenOut),
+            adapter: m0Adapter,
+            quoteAsset: getAddress(sourceChain, "USDC"),
+            swapData: _encodeOrderWithSalt(
+                DecoderCustomTypes.OrderParams({
+                    destChainId: uint32(block.chainid),
+                    fillDeadline: uint32(block.timestamp + 3600),
+                    tokenIn: address(tokenIn),
+                    tokenOut: address(tokenOut).toBytes32(),
+                    amountIn: 1000000000000000,
+                    amountOut: 2200000,
+                    recipient: address(boringVault).toBytes32(),
+                    solver: oldSolver.toBytes32(),
+                    sender: address(swapper)
+                })
+            ),
+            slippageBps: 250,
+            receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
+        });
+
+        (bytes32[][] memory manageTree, Tx memory tx_, ) = _setupLeavesAndState(config);
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+        _submitManagerCall(manageProofs, tx_);
+
+        BoringSwapper.OrderRecord memory record = swapper.getOrderRecord(1);
+        bytes32 m0OrderId = abi.decode(record.context, (bytes32));
+        DecoderCustomTypes.OrderData memory orderData =
+            IM0OrderBook(getAddress(sourceChain, "m0OrderBook")).getOrderData(m0OrderId);
+        bytes memory cancelFunctionAndArgs = abi.encodeWithSignature(
+            "cancelOrder(bytes32,(uint16,bytes32,uint64,uint32,uint32,uint64,uint64,bytes32,bytes32,uint128,uint128,bytes32,bytes32))",
+            m0OrderId,
+            orderData
+        );
+
+        solverRegistry.overwriteSolver(tokenIn, tokenOut, oldSolver, newSolver);
+        swapper.cancelOrder(1, config, cancelFunctionAndArgs);
+
+        IM0OrderBook.Order memory order = IM0OrderBook(getAddress(sourceChain, "m0OrderBook")).getOrder(m0OrderId);
+        assertEq(uint8(order.status), uint8(IM0OrderBook.OrderStatus.Cancelled));
+    }
+
+    function testM0OrderBook__NewOrderWithPreviousSolverAfterOverwriteReverts() external {
+        address oldSolver = address(0x69);
+        address newSolver = address(0x70);
+        ERC20 tokenIn = getERC20(sourceChain, "WETH");
+        ERC20 tokenOut = getERC20(sourceChain, "USDC");
+        solverRegistry.setSolver(tokenIn, tokenOut, oldSolver);
+        solverRegistry.overwriteSolver(tokenIn, tokenOut, oldSolver, newSolver);
+
+        ISwapperTypes.SwapConfig memory config = ISwapperTypes.SwapConfig({
+            tokenRoute: ISwapperTypes.TokenRoute(tokenIn, tokenOut),
+            adapter: m0Adapter,
+            quoteAsset: getAddress(sourceChain, "USDC"),
+            swapData: _encodeOrderWithSalt(
+                DecoderCustomTypes.OrderParams({
+                    destChainId: uint32(block.chainid),
+                    fillDeadline: uint32(block.timestamp + 3600),
+                    tokenIn: address(tokenIn),
+                    tokenOut: address(tokenOut).toBytes32(),
+                    amountIn: 1000000000000000,
+                    amountOut: 2200000,
+                    recipient: address(boringVault).toBytes32(),
+                    solver: oldSolver.toBytes32(),
+                    sender: address(swapper)
+                })
+            ),
+            slippageBps: 250,
+            receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
+        });
+
+        vm.expectRevert(M0Adapter.M0Adapter__IncorrectSolverForRoute.selector);
+        M0Adapter(m0Adapter).verifyLimitOrder(config, address(swapper));
+    }
+
+    function testM0OrderBook__ZeroSaltReverts() external {
+        ISwapperTypes.TokenRoute memory tokenRoute = ISwapperTypes.TokenRoute(
+            getERC20(sourceChain, "WETH"),
+            getERC20(sourceChain, "USDC")
+        );
+
+        bytes memory m0Data = abi.encode(
+            DecoderCustomTypes.OrderParams({
+                destChainId: uint32(1),
+                fillDeadline: uint32(block.timestamp + 3600),
+                tokenIn: getAddress(sourceChain, "WETH"),
+                tokenOut: getBytes32(sourceChain, "USDC"),
+                amountIn: 1000000000000000,
+                amountOut: 2200000,
+                recipient: address(boringVault).toBytes32(),
+                solver: address(0).toBytes32(),
+                sender: address(swapper)
+            }),
+            bytes32(0)
+        );
+
+        ISwapperTypes.SwapConfig memory config = ISwapperTypes.SwapConfig({
+            tokenRoute: tokenRoute,
+            adapter: m0Adapter,
+            quoteAsset: getAddress(sourceChain, "USDC"),
+            swapData: m0Data,
+            slippageBps: 250,
+            receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
+        });
+
+        (bytes32[][] memory manageTree, Tx memory tx_, ) = _setupLeavesAndState(config);
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+
+        vm.expectRevert(M0Adapter.M0Adapter__ZeroSalt.selector);
+        _submitManagerCall(manageProofs, tx_);
     }
 
     function testM0OrderBook__Cancel() external {
@@ -160,7 +343,7 @@ contract M0AdapterTest is BaseTestIntegration {
             getERC20(sourceChain, "USDC")
         );
 
-        bytes memory m0Data = abi.encode(
+        bytes memory m0Data = _encodeOrderWithSalt(
             DecoderCustomTypes.OrderParams({ 
                 destChainId: uint32(block.chainid),
                 fillDeadline: uint32(block.timestamp + 3600),
@@ -251,7 +434,7 @@ contract M0AdapterTest is BaseTestIntegration {
             getERC20(sourceChain, "USDC")
         );
 
-        bytes memory m0Data = abi.encode(
+        bytes memory m0Data = _encodeOrderWithSalt(
             DecoderCustomTypes.OrderParams({
                 destChainId: uint32(block.chainid),
                 fillDeadline: uint32(block.timestamp + 3600),
@@ -342,7 +525,7 @@ contract M0AdapterTest is BaseTestIntegration {
             getERC20(sourceChain, "USDC")
         );
 
-        bytes memory m0Data = abi.encode(
+        bytes memory m0Data = _encodeOrderWithSalt(
             DecoderCustomTypes.OrderParams({
                 destChainId: uint32(block.chainid),
                 fillDeadline: uint32(block.timestamp + 3600),
@@ -452,7 +635,7 @@ contract M0AdapterTest is BaseTestIntegration {
             getERC20(sourceChain, "USDC")
         );
 
-        bytes memory m0Data = abi.encode(
+        bytes memory m0Data = _encodeOrderWithSalt(
             DecoderCustomTypes.OrderParams({ 
                 destChainId: uint32(block.chainid),
                 fillDeadline: uint32(block.timestamp + 3600),
@@ -547,7 +730,7 @@ contract M0AdapterTest is BaseTestIntegration {
             getERC20(sourceChain, "USDC")
         );
 
-        bytes memory m0Data = abi.encode(
+        bytes memory m0Data = _encodeOrderWithSalt(
             DecoderCustomTypes.OrderParams({ 
                 destChainId: uint32(block.chainid),
                 fillDeadline: uint32(block.timestamp + 3600),
@@ -584,7 +767,7 @@ contract M0AdapterTest is BaseTestIntegration {
             getERC20(sourceChain, "USDC")
         );
 
-        bytes memory m0Data = abi.encode(
+        bytes memory m0Data = _encodeOrderWithSalt(
             DecoderCustomTypes.OrderParams({ 
                 destChainId: uint32(block.chainid),
                 fillDeadline: uint32(block.timestamp + 3600),
@@ -621,7 +804,7 @@ contract M0AdapterTest is BaseTestIntegration {
             getERC20(sourceChain, "USDC")
         );
 
-        bytes memory m0Data = abi.encode(
+        bytes memory m0Data = _encodeOrderWithSalt(
             DecoderCustomTypes.OrderParams({ 
                 destChainId: uint32(block.chainid),
                 fillDeadline: uint32(block.timestamp + 3600),
@@ -660,7 +843,7 @@ contract M0AdapterTest is BaseTestIntegration {
         // lower 160 bits = the EXPECTED USDC (passes the old lower-160 check); upper 96 bits dirtied.
         bytes32 dirtyTokenOut = bytes32(uint256(getBytes32(sourceChain, "USDC")) | (uint256(0xDEAD) << 160));
 
-        bytes memory m0Data = abi.encode(
+        bytes memory m0Data = _encodeOrderWithSalt(
             DecoderCustomTypes.OrderParams({
                 destChainId: uint32(block.chainid),
                 fillDeadline: uint32(block.timestamp + 3600),
@@ -690,6 +873,45 @@ contract M0AdapterTest is BaseTestIntegration {
         _submitManagerCall(manageProofs, tx_);
     }
 
+    function testM0OrderBook__DirtySolverReverts() external {
+        ISwapperTypes.TokenRoute memory tokenRoute = ISwapperTypes.TokenRoute(
+            getERC20(sourceChain, "WETH"),
+            getERC20(sourceChain, "USDC")
+        );
+
+        // lower 160 bits = the EXPECTED solver (registered address(0), passes the lower-160 check); upper 96 bits dirtied.
+        bytes32 dirtySolver = bytes32(uint256(address(0).toBytes32()) | (uint256(0xDEAD) << 160));
+
+        bytes memory m0Data = _encodeOrderWithSalt(
+            DecoderCustomTypes.OrderParams({
+                destChainId: uint32(block.chainid),
+                fillDeadline: uint32(block.timestamp + 3600),
+                tokenIn: getAddress(sourceChain, "WETH"),
+                tokenOut: getBytes32(sourceChain, "USDC"),
+                amountIn: 1000000000000000,
+                amountOut: 2200000,
+                recipient: address(boringVault).toBytes32(),
+                solver: dirtySolver,
+                sender: address(swapper)
+            })
+        );
+
+        ISwapperTypes.SwapConfig memory config = ISwapperTypes.SwapConfig({
+            tokenRoute: tokenRoute,
+            adapter: m0Adapter,
+            quoteAsset: getAddress(sourceChain, "USDC"),
+            swapData: m0Data,
+            slippageBps: 250,
+            receiver: BoringVault(payable(getAddress(sourceChain, "boringVault")))
+        });
+
+        (bytes32[][] memory manageTree, Tx memory tx_, ) = _setupLeavesAndState(config);
+        bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
+
+        vm.expectRevert(M0Adapter.M0Adapter__InvalidAddress.selector);
+        _submitManagerCall(manageProofs, tx_);
+    }
+
     function testM0OrderBook__DirtyRecipientReverts() external {
         ISwapperTypes.TokenRoute memory tokenRoute = ISwapperTypes.TokenRoute(
             getERC20(sourceChain, "WETH"),
@@ -699,7 +921,7 @@ contract M0AdapterTest is BaseTestIntegration {
         // lower 160 bits = the EXPECTED vault (passes the old lower-160 check); upper 96 bits dirtied.
         bytes32 dirtyRecipient = bytes32(uint256(address(boringVault).toBytes32()) | (uint256(0xBEEF) << 160));
 
-        bytes memory m0Data = abi.encode(
+        bytes memory m0Data = _encodeOrderWithSalt(
             DecoderCustomTypes.OrderParams({
                 destChainId: uint32(block.chainid),
                 fillDeadline: uint32(block.timestamp + 3600),
@@ -736,7 +958,7 @@ contract M0AdapterTest is BaseTestIntegration {
             getERC20(sourceChain, "USDC")
         );
 
-        bytes memory m0Data = abi.encode(
+        bytes memory m0Data = _encodeOrderWithSalt(
             DecoderCustomTypes.OrderParams({ 
                 destChainId: uint32(696969),
                 fillDeadline: uint32(block.timestamp + 3600),
@@ -766,14 +988,14 @@ contract M0AdapterTest is BaseTestIntegration {
         _submitManagerCall(manageProofs, tx_); 
     }
 
-    function testM0OrderBook__PrivateOrdersNotAllowedReverts() external {
+    function testM0OrderBook__IncorrectSolverForRouteReverts() external {
 
         ISwapperTypes.TokenRoute memory tokenRoute = ISwapperTypes.TokenRoute(
             getERC20(sourceChain, "WETH"),
             getERC20(sourceChain, "USDC")
         );
 
-        bytes memory m0Data = abi.encode(
+        bytes memory m0Data = _encodeOrderWithSalt(
             DecoderCustomTypes.OrderParams({ 
                 destChainId: uint32(1),
                 fillDeadline: uint32(block.timestamp + 3600),
@@ -799,8 +1021,8 @@ contract M0AdapterTest is BaseTestIntegration {
         (bytes32[][] memory manageTree, Tx memory tx_, ) = _setupLeavesAndState(config);
         bytes32[][] memory manageProofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
 
-        vm.expectRevert(M0Adapter.M0Adapter__PrivateOrdersNotAllowed.selector);
-        _submitManagerCall(manageProofs, tx_); 
+        vm.expectRevert(M0Adapter.M0Adapter__IncorrectSolverForRoute.selector);
+        _submitManagerCall(manageProofs, tx_);
     }
 
     function testM0OrderBook__NotCancelFunctionReverts() external {
@@ -810,7 +1032,7 @@ contract M0AdapterTest is BaseTestIntegration {
             getERC20(sourceChain, "USDC")
         );
 
-        bytes memory m0Data = abi.encode(
+        bytes memory m0Data = _encodeOrderWithSalt(
             DecoderCustomTypes.OrderParams({ 
                 destChainId: uint32(block.chainid),
                 fillDeadline: uint32(block.timestamp + 3600),
@@ -893,7 +1115,7 @@ contract M0AdapterTest is BaseTestIntegration {
             getERC20(sourceChain, "USDC")
         );
 
-        bytes memory m0Data = abi.encode(
+        bytes memory m0Data = _encodeOrderWithSalt(
             DecoderCustomTypes.OrderParams({ 
                 destChainId: uint32(block.chainid),
                 fillDeadline: uint32(block.timestamp + 3600),
