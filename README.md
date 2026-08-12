@@ -93,4 +93,6 @@ op inject -i .env.tpl -o .env
 source scripts/rpc-env.sh
 ```
 
-Then `forge test` as usual. To change an endpoint or add a chain, edit `.env.tpl` (a reviewable diff — no per-dev drift); to rotate a key, update it once in the 1Password `Shared` vault. `.env` is gitignored, so a plaintext key never lands in git.
+Then `forge test`. To change an endpoint or add a chain, edit `.env.tpl` (a reviewable diff — no per-dev drift); to rotate a key, update it once in the 1Password `Shared` vault. `.env` is gitignored, so a plaintext key never lands in git.
+
+> **Note:** CI skips the deprecated Berachain / Corn / Scroll suites (ETHFI-35). Some of them (e.g. `KodiakIslandIntegration`, `InfraredIntegration`, `HoneyIntegration`, `GoldiVaultIntegration`) fork the **sunset bArtio testnet**, whose RPC is dead — so `.env.tpl` intentionally omits `BARTIO_RPC_URL`. For a clean local run, mirror CI's `--skip` set (see [`.github/workflows/test.yml`](.github/workflows/test.yml)); a bare `forge test` will fail on those deprecated suites.

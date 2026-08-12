@@ -41,6 +41,11 @@ FLARE_RPC_URL="https://flare-api.flare.network/ext/C/rpc"
 # Tempo has no env var: it's a hardcoded [rpc_endpoints] entry in foundry.toml
 # (used only under FOUNDRY_PROFILE=tempo). Nothing to set here.
 #
-# foundry.toml [rpc_endpoints] also lists chains the test suite doesn't exercise
-# (polygon, bsc, zircuit, sei, ink, unichain, corn, *Testnet, …). Add them here
-# only if you enable tests that fork them.
+# Intentionally omitted: RPCs used ONLY by suites CI skips as deprecated (ETHFI-35).
+# Notably BARTIO_RPC_URL (KodiakIsland / Infrared / Honey / GoldiVault fork the
+# bArtio Berachain testnet, which is sunset — no live endpoint to point at), plus
+# the Corn / Scroll suites. A naive local `forge test` runs these and fails on the
+# missing/dead RPC, so run locally with the SAME --skip set as CI (see README /
+# .github/workflows/test.yml). foundry.toml [rpc_endpoints] lists further chains the
+# suite doesn't exercise (polygon, bsc, zircuit, sei, ink, unichain, *Testnet); add
+# here only if you enable tests that fork them.
