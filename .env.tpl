@@ -6,7 +6,7 @@
 #     source scripts/rpc-env.sh
 #
 # Requires the 1Password CLI (`op`) signed in (`op signin`) with read access to the
-# Shared vault. Only the two API keys are secret — the {{ op://… }} refs below. Every
+# Shared vault. Only the two API keys are secret (the op:// references below). Every
 # other endpoint is a public, pinned archive RPC. Changing an endpoint or rotating a
 # key is one diff here / one 1Password edit — no per-dev .env drift.
 
