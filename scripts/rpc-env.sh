@@ -35,7 +35,8 @@ _rpcenv_load() {
     # clobber their -a state when we're done.
     case "$-" in *a*) had_a=1 ;; esac
     set -a
-    eval "$rendered"
+    # shellcheck disable=SC1090
+    source <(printf '%s\n' "$rendered")   # load KEY="value" lines (no eval)
     [ "$had_a" -eq 1 ] || set +a
 
     echo "rpc-env: loaded $(printf '%s\n' "$rendered" | grep -cE '^[A-Z][A-Z0-9_]*_RPC_URL=') RPC endpoints from 1Password."
