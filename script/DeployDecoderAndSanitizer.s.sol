@@ -134,6 +134,7 @@ import {FullFluidDexDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Fu
 import {P1USDDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/P1USDDecoderAndSanitizer.sol";
 import {SentayETHMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentayETHMainnetDecoderAndSanitizer.sol";
 import {GoldenGooseFillerDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/FillerDecoderAndSanitizer.sol"; 
+import {BoringSwapperDecoder} from "src/base/DecodersAndSanitizers/Protocols/BoringSwapperDecoderAndSanitizer.sol"; 
 import {LiquidVaultsOPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidVaultsOPDecoderAndSanitizer.sol"; 
 import {SymbioticLRTDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SymbioticLRTDecoderAndSanitizer.sol";
 import {LiquidETHOptimismDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidETHOptimismDecoderAndSanitizer.sol";
@@ -161,6 +162,7 @@ import "forge-std/StdJson.sol";
 contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
     Deployer public deployer = Deployer(deployerAddress);
     Deployer public bobDeployer = Deployer(0xF3d0672a91Fd56C9ef04C79ec67d60c34c6148a0);
+    Deployer public newDeployer = Deployer(0xe80F045fc6F551229f98FA21E0Db35784A590e05);
 
     string[] addressKeys;
 

@@ -2,6 +2,8 @@
 cache/
 out/
 broadcast/
+# vscode-solidity extension compile output
+bin/
 
 # Ignores development broadcast logs
 !/broadcast
@@ -23,6 +25,8 @@ dependencies/*
 CLAUDE.md
 .serena
 flatten.sol
+swapper_todos.txt
+decoder_regen_todos.txt
 
 tools/*
 

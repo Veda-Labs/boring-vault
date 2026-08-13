@@ -1,0 +1,46 @@
+// SPDX-License-Identifier: SEL-1.0
+// Copyright © 2025 Veda Tech Labs
+// Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
+// Licensed under Software Evaluation License, Version 1.0
+pragma solidity 0.8.21;
+
+import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
+
+contract BoringSwapperDecoder {
+
+    function swap(DecoderCustomTypes.SwapConfig memory swapConfig) external pure returns (bytes memory addressesFound) {
+        return abi.encodePacked(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut, address(swapConfig.receiver));
+    }
+
+    function submitOrder(DecoderCustomTypes.SwapConfig memory swapConfig) external pure returns (bytes memory addressesFound) {
+        return abi.encodePacked(swapConfig.tokenRoute.tokenIn, swapConfig.tokenRoute.tokenOut, address(swapConfig.receiver));
+    }
+
+    function cancelOrder(
+        uint256 /*orderId*/,
+        DecoderCustomTypes.SwapConfig memory cancelConfig,
+        bytes calldata /*cancelData*/
+    ) external pure returns (bytes memory addressesFound) {
+        return abi.encodePacked(
+            cancelConfig.tokenRoute.tokenIn,
+            cancelConfig.tokenRoute.tokenOut,
+            address(cancelConfig.receiver)
+        );
+    }
+
+    function replaceOrder(
+        uint256,
+        DecoderCustomTypes.SwapConfig memory cancelConfig,
+        bytes calldata /*cancelData*/,
+        DecoderCustomTypes.SwapConfig memory newConfig
+    ) external pure returns (bytes memory addressesFound) {
+        return abi.encodePacked(
+            cancelConfig.tokenRoute.tokenIn,
+            cancelConfig.tokenRoute.tokenOut,
+            address(cancelConfig.receiver),
+            newConfig.tokenRoute.tokenIn,
+            newConfig.tokenRoute.tokenOut,
+            address(newConfig.receiver)
+        );
+    }
+}

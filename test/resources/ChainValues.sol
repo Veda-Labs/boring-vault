@@ -45,9 +45,9 @@ contract ChainValues {
     string public constant tac = "tac";
     string public constant plasma = "plasma";
     string public constant inkSepolia = "inkSepolia";
+    string public constant tempo = "tempo";
     string public constant monad = "monad";
     string public constant sei = "sei";
-    string public constant tempo = "tempo";
 
     // Bridging constants.
     uint64 public constant ccipArbitrumChainSelector = 4949039107694359620;
@@ -169,9 +169,9 @@ contract ChainValues {
         _addBartioValues();
         _addTACTestnetValues();
         _addInkSepoliaValues();
+        _addTempoValues();
         _addMonadValues();
         _addSeiValues();
-        _addTempoValues();
     }
 
     function _addMainnetValues() private {
@@ -261,6 +261,8 @@ contract ChainValues {
         values[mainnet]["uniV3Router"] = 0xE592427A0AEce92De3Edee1F18E0157C05861564.toBytes32();
         values[mainnet]["uniV2Router"] = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D.toBytes32();
         values[mainnet]["uniV2Factory"] = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f.toBytes32();
+        values[mainnet]["uniV3Factory"] = 0x1F98431c8aD98523631AE4a59f267346ea31F984.toBytes32();
+        values[mainnet]["curveMetaRegistry"] = 0xF98B45FA17DE75FB1aD0e7aFD971b0ca00e379fC.toBytes32();
         values[mainnet]["uniV4PoolManager"] = 0x000000000004444c5dc75cB358380D2e3dE08A90.toBytes32();
         values[mainnet]["uniV4PositionManager"] = 0xbD216513d74C8cf14cf4747E6AaA6420FF64ee9e.toBytes32();
         values[mainnet]["uniV4UniversalRouter"] = 0x66a9893cC07D91D95644AEDD05D03f95e1dBA8Af.toBytes32();
@@ -402,6 +404,7 @@ contract ChainValues {
         values[mainnet]["AUSD"] = 0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a.toBytes32();
         values[mainnet]["ausdOFTAdapter"] = 0x9CaB7Ede13dc56652E44D2404E969C212f22689b.toBytes32();
         values[mainnet]["BTCb"] = 0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072.toBytes32();
+        values[mainnet]["mUSD"] = 0xacA92E438df0B2401fF60dA7E4337B687a2435DA.toBytes32();
         values[mainnet]["KERNEL"] = 0x3f80B1c54Ae920Be41a77f8B902259D48cf24cCf.toBytes32();
         values[mainnet]["axlSAGA"] = 0xF42fCFfc27A5B8d0afEC45659407B82f9F32fA98.toBytes32();
         values[mainnet]["mUSD"] = 0xacA92E438df0B2401fF60dA7E4337B687a2435DA.toBytes32();
@@ -974,10 +977,24 @@ contract ChainValues {
 
         values[mainnet]["uniswapV3PositionManager"] = 0xC36442b4a4522E871399CD717aBDD847Ab11FE88.toBytes32();
 
+        // LI.FI
+        values[mainnet]["lifi"] = 0x1231DEB6f5749EF6cE6943a275A1D3E7486F4EaE.toBytes32();
+
+        // OpenOcean
+        values[mainnet]["openOceanRouter"] = 0x6352a56caadC4F1E25CD6c75970Fa768A3304e64.toBytes32();
+        values[mainnet]["openOceanCaller"] = 0xa8F8296f4053fd65e89b245d6c7F983a70234C8b.toBytes32();
+
+        // BoringSwapper oracle rate providers (USD-denominated)
+        values[mainnet]["usdcUsdRateProvider"] = 0x8d99465A5F1631f9B7063C9437e6C09AC3504527.toBytes32();
+        values[mainnet]["wethUsdRateProvider"] = 0x2F22FBE27D24CA359eb282A6a13c0017C13dEDa4.toBytes32();
+
         // 1Inch
         values[mainnet]["aggregationRouterV5"] = 0x1111111254EEB25477B68fb85Ed929f73A960582.toBytes32();
         values[mainnet]["aggregationRouterV6"] = 0x111111125421cA6dc452d289314280a0f8842A65.toBytes32();
-        values[mainnet]["oneInchExecutor"] = 0x990636ecB3FF04d33D92e970d3d588bF5cD8d086.toBytes32();
+        values[mainnet]["oneInchExecutor"] = 0xa58BdD0Ab5EBBb8dC425090feA8FD0bA969c1668.toBytes32();
+        values[mainnet]["oneInchFeeTaker"] =  0xc0DFdB9E7a392c3dBBE7c6FBe8FBC1789C9FE05e.toBytes32();
+        values[mainnet]["oneInchFeeReceiver"] = 0x90CbE4BDd538D6e9b379bFF5fE72c3d67A521De5.toBytes32();
+
         values[mainnet]["wETHweETH5bps"] = 0x7A415B19932c0105c82FDB6b720bb01B0CC2CAe3.toBytes32();
 
         // Gearbox
@@ -1669,6 +1686,13 @@ contract ChainValues {
 
         //Mellow DVstETH
         values[mainnet]["dvStethWhitelistedEthWrapper"] = 0xfD4a4922d1AFe70000Ce0Ec6806454e78256504e.toBytes32();
+
+        //Cowswap
+        values[mainnet]["cowswapSettlement"] = 0x9008D19f58AAbD9eD0D60971565AA8510560ab41.toBytes32();
+        values[mainnet]["cowswapVaultRelayer"] = 0xC92E8bdf79f0507f65a392b0ab4667716BFE0110.toBytes32();
+
+        //M0 
+        values[mainnet]["m0OrderBook"] = 0xe39B012AB3b20E94a9beEa557eB0DE4171D4D3E4.toBytes32();
 
         // MPortal
         values[mainnet]["mportalProxy"] = 0xD925C84b55E4e44a53749fF5F2a5A13F63D128fd.toBytes32();
@@ -3427,24 +3451,44 @@ contract ChainValues {
         values[plasma]["redSnwapperExecutor"] = 0xd2b37aDE14708bf18904047b1E31F8166d39612b.toBytes32();
     }
 
+    function _addTempoValues() private {
+        values[tempo]["deployerAddress"] = 0x91e2458037709CafC7206D26Bd9c6DdE8b0A8A12.toBytes32();
+        values[tempo]["txBundlerAddress"] = 0x91e2458037709CafC7206D26Bd9c6DdE8b0A8A12.toBytes32();
+        values[tempo]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
+        values[tempo]["pathUSD"] = 0x20C0000000000000000000000000000000000000.toBytes32();
+        // senpathUSD ERC4626 (Morpho) vault — its asset() is pathUSD.
+        values[tempo]["senpathUSD"] = 0x9a044AE05E5e6290DcF56afd69548565e957a626.toBytes32();
+        // Merkl Distributor — canonical address (EIP-1967 proxy live on Tempo).
+        values[tempo]["merklDistributor"] = 0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae.toBytes32();
+        // Tempo native stablecoin DEX
+        values[tempo]["stablecoinDEX"] = 0xDEc0000000000000000000000000000000000000.toBytes32();
+    }
     function _addMonadValues() private {
         values[monad]["newDeployer"] = 0xe80F045fc6F551229f98FA21E0Db35784A590e05.toBytes32();
         values[monad]["txBundlerAddress"] = 0xe80F045fc6F551229f98FA21E0Db35784A590e05.toBytes32();
         values[monad]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
-        values[monad]["ETH"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32(); // Monad doesn't have native ETH, using common ETH placeholder to bypass UniV4 helper check
+        values[monad]["ETH"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32(); // Native
         values[monad]["NATIVE"] = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE.toBytes32();
         values[monad]["WMON"] = 0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A.toBytes32();
         values[monad]["mUSD"] = 0xacA92E438df0B2401fF60dA7E4337B687a2435DA.toBytes32();
         values[monad]["USDC"] = 0x754704Bc059F8C67012fEd69BC8A327a5aafb603.toBytes32();
+        values[monad]["WETH"] = 0xEE8c0E9f1BFFb4Eb878d8f15f368A02a35481242.toBytes32();
+
         values[monad]["steakhouseMUSDVault"] = 0xBEEF067C9D2591aCCAB7d1C336a41ca3bd45b8f5.toBytes32();
         values[monad]["steakhouseUSDCVault"] = 0xBEEF0C61DA39F7EA2bFa7B0f9d6338A3a2DD2fF0.toBytes32();
 
+        values[monad]["balancerVault"] = address(1).toBytes32();
+        values[monad]["vauld"] = address(1).toBytes32();
+
+        values[monad]["steakhouseMUSDVault"] = 0xBEEF067C9D2591aCCAB7d1C336a41ca3bd45b8f5.toBytes32();
+        values[monad]["steakhouseUSDCVault"] = 0xBEEF0C61DA39F7EA2bFa7B0f9d6338A3a2DD2fF0.toBytes32();
         // MPortal — same deterministic proxy address as mainnet.
         values[monad]["mportalProxy"] = 0xD925C84b55E4e44a53749fF5F2a5A13F63D128fd.toBytes32();
 
         // UniV3
         values[monad]["uniswapV3NonFungiblePositionManager"] = 0x7197E214c0b767cFB76Fb734ab638E2c192F4E53.toBytes32();
         values[monad]["uniV3Router"] = 0xfE31F71C1b106EAc32F1A19239c9a9A72ddfb900.toBytes32();
+
         // UniV4
         values[monad]["uniswapV4PositionManager"] = 0x5b7eC4a94fF9beDb700fb82aB09d5846972F4016.toBytes32();
         values[monad]["uniV4UniversalRouter"] = 0x0D97Dc33264bfC1c226207428A79b26757fb9dc3.toBytes32();
@@ -3493,6 +3537,17 @@ contract ChainValues {
         values[monad]["wormholeMultiTokenExecutorPayee"] = 0x7D73bE2ac3edDc8C5c0A1418b410b9710d4AF40D.toBytes32();
         values[monad]["wormholeExecutorQuoter"] = 0xa54008017941EcE968623a0Dd8Ee907E2b133596.toBytes32();
         values[monad]["wormholeExecutorPayee"] = 0x6a8BFC410A3Cc7306d52872F116AFb12F1cec6C6.toBytes32();
+
+        //Lifi
+        values[monad]["lifi"] = 0x026F252016A7C47CDEf1F05a3Fc9E20C92a49C37.toBytes32();
+
+        //M0
+        values[monad]["m0OrderBook"] = 0xe39B012AB3b20E94a9beEa557eB0DE4171D4D3E4.toBytes32();
+        
+        //Swapper Oracles
+        values[monad]["usdcUsdRateProvider"] = 0xDe4c2aE69841538915e657fDc3010BdBBf45A13a.toBytes32();
+        values[monad]["wethUsdRateProvider"] = 0xf90AaeDaBb011A0a439090f3025d843F7A59c202.toBytes32();
+
     }
 
     function _addSeiValues() private {
@@ -3508,14 +3563,4 @@ contract ChainValues {
         values[sei]["usdcMessageTransmitterV2"] = 0x81D40F21F12A8F0E3252Bccb954D722d4c464B64.toBytes32();
     }
 
-    function _addTempoValues() private {
-        values[tempo]["deployerAddress"] = 0x91e2458037709CafC7206D26Bd9c6DdE8b0A8A12.toBytes32();
-        values[tempo]["txBundlerAddress"] = 0x91e2458037709CafC7206D26Bd9c6DdE8b0A8A12.toBytes32();
-        values[tempo]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
-        values[tempo]["pathUSD"] = 0x20C0000000000000000000000000000000000000.toBytes32();
-        // senpathUSD ERC4626 (Morpho) vault — its asset() is pathUSD.
-        values[tempo]["senpathUSD"] = 0x9a044AE05E5e6290DcF56afd69548565e957a626.toBytes32();
-        // Merkl Distributor — canonical address (EIP-1967 proxy live on Tempo).
-        values[tempo]["merklDistributor"] = 0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae.toBytes32();
-    }
 }

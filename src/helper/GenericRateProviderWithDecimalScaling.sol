@@ -8,6 +8,7 @@ pragma solidity 0.8.21;
 import {GenericRateProvider} from "src/helper/GenericRateProvider.sol";
 
 contract GenericRateProviderWithDecimalScaling is GenericRateProvider {
+
     //============================== STRUCTS ===============================
     struct ConstructorArgs {
         address target;

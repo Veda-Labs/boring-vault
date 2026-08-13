@@ -38,6 +38,7 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     mapping(address => mapping(address => mapping(address => bool))) public ownerToOogaBoogaSellTokenToBuyTokenToInTree;
     mapping(address => mapping(address => mapping(address => bool))) public ownerToGlueXSellTokenToBuyTokenToInTree;
     mapping(address => mapping(address => mapping(address => bool))) public ownerToSushiSellTokenToBuyTokenToInTree;
+    mapping(address => mapping(address => mapping(address => bool))) public ownerToBoringSwapperSellTokenToBuyTokenToInTree;
 
     function setSourceChainName(string memory _chain) internal {
         sourceChain = _chain;
@@ -16981,6 +16982,170 @@ function _addTellerLeafsWithReferral(
                     ownerToSushiSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokens[j]][tokens[i]]
                     = true;
                 }
+            }
+        }
+    }
+
+    // ========================================= BoringSwapper =========================================
+
+    /// @notice Build BoringSwapper leafs for an explicit set of directed token pairs.
+    /// @param pairs array of [token0, token1] pairs. Each pair enables the token0 -> token1 route.
+    /// @param kind per-pair direction: SwapKind.Sell = one-way (token0 -> token1 only),
+    ///        SwapKind.BuyAndSell = two-way (token0 -> token1 and token1 -> token0).
+    function _addBoringSwapperLeafs(
+        ManageLeaf[] memory leafs,
+        address partnerSwapperAddress,
+        address[][] memory pairs,
+        SwapKind[] memory kind
+    ) internal {
+        // Collect every enabled directed route (tokenIn -> tokenOut) so replaceOrder can be
+        // built over the cartesian product of allowed routes. A pair contributes one route when
+        // one-way (Sell) and two routes when two-way (BuyAndSell).
+        address[] memory routeIn = new address[](pairs.length * 2);
+        address[] memory routeOut = new address[](pairs.length * 2);
+        uint256 routeCount;
+
+        for (uint256 k = 0; k < pairs.length; k++) {
+            address token0 = pairs[k][0];
+            address token1 = pairs[k][1];
+
+            _addBoringSwapperDirectedLeafs(leafs, partnerSwapperAddress, token0, token1, true);
+            routeIn[routeCount] = token0;
+            routeOut[routeCount] = token1;
+            routeCount++;
+
+            if (kind[k] == SwapKind.BuyAndSell) {
+                _addBoringSwapperDirectedLeafs(leafs, partnerSwapperAddress, token1, token0, true);
+                routeIn[routeCount] = token1;
+                routeOut[routeCount] = token0;
+                routeCount++;
+            }
+        }
+
+        // replaceOrder: one leaf per (cancelRoute × newRoute) over the enabled routes.
+        for (uint256 ci = 0; ci < routeCount; ci++) {
+            for (uint256 ni = 0; ni < routeCount; ni++) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    partnerSwapperAddress,
+                    false,
+                    "replaceOrder(uint256,((address,address),address,address,bytes,uint256,address),bytes,((address,address),address,address,bytes,uint256,address))",
+                    new address[](6),
+                    string.concat(
+                        "Replace ", ERC20(routeIn[ci]).symbol(), "->", ERC20(routeOut[ci]).symbol(),
+                        " with ", ERC20(routeIn[ni]).symbol(), "->", ERC20(routeOut[ni]).symbol()
+                    ),
+                    getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+                );
+                leafs[leafIndex].argumentAddresses[0] = routeIn[ci]; // cancelIn
+                leafs[leafIndex].argumentAddresses[1] = routeOut[ci]; // cancelOut
+                leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+                leafs[leafIndex].argumentAddresses[3] = routeIn[ni]; // newIn
+                leafs[leafIndex].argumentAddresses[4] = routeOut[ni]; // newOut
+                leafs[leafIndex].argumentAddresses[5] = getAddress(sourceChain, "boringVault");
+            }
+        }
+    }
+
+    /// @notice Emit the approval + swap/submitOrder(/cancelOrder) leafs for a single directed
+    ///         route (tokenIn -> tokenOut). Deduped via tree-state mappings so a token reused as
+    ///         tokenIn across pairs is only approved once and a route is only added once.
+    function _addBoringSwapperDirectedLeafs(
+        ManageLeaf[] memory leafs,
+        address partnerSwapperAddress,
+        address tokenIn,
+        address tokenOut,
+        bool includeCancel
+    ) internal {
+        if (
+            !ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][tokenIn][partnerSwapperAddress]
+        ) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                tokenIn,
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve Swapper to spend ", ERC20(tokenIn).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = partnerSwapperAddress;
+            ownerToTokenToSpenderToApprovalInTree[getAddress(sourceChain, "boringVault")][tokenIn][partnerSwapperAddress]
+            = true;
+        }
+
+        if (ownerToBoringSwapperSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokenIn][tokenOut]) {
+            return;
+        }
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            partnerSwapperAddress,
+            false,
+            "swap(((address,address),address,address,bytes,uint256,address))",
+            new address[](3),
+            string.concat("Swap ", ERC20(tokenIn).symbol(), "->", ERC20(tokenOut).symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = tokenIn;
+        leafs[leafIndex].argumentAddresses[1] = tokenOut;
+        leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            partnerSwapperAddress,
+            false,
+            "submitOrder(((address,address),address,address,bytes,uint256,address))",
+            new address[](3),
+            string.concat("Submit order ", ERC20(tokenIn).symbol(), "->", ERC20(tokenOut).symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = tokenIn;
+        leafs[leafIndex].argumentAddresses[1] = tokenOut;
+        leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+
+        if (includeCancel) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                partnerSwapperAddress,
+                false,
+                "cancelOrder(uint256,((address,address),address,address,bytes,uint256,address),bytes)",
+                new address[](3),
+                string.concat("Cancel order ", ERC20(tokenIn).symbol(), "->", ERC20(tokenOut).symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = tokenIn;
+            leafs[leafIndex].argumentAddresses[1] = tokenOut;
+            leafs[leafIndex].argumentAddresses[2] = getAddress(sourceChain, "boringVault");
+        }
+
+        ownerToBoringSwapperSellTokenToBuyTokenToInTree[getAddress(sourceChain, "boringVault")][tokenIn][tokenOut] = true;
+    }
+
+    function _addBoringSwapperEOALeafs(
+        ManageLeaf[] memory leafs,
+        address partnerSwapperAddress,
+        address[][] memory pairs,
+        SwapKind[] memory kind
+    ) internal {
+        for (uint256 k = 0; k < pairs.length; k++) {
+            address token0 = pairs[k][0];
+            address token1 = pairs[k][1];
+
+            _addBoringSwapperDirectedLeafs(leafs, partnerSwapperAddress, token0, token1, false);
+
+            if (kind[k] == SwapKind.BuyAndSell) {
+                _addBoringSwapperDirectedLeafs(leafs, partnerSwapperAddress, token1, token0, false);
             }
         }
     }

@@ -886,9 +886,6 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
         // Bound minShares to 0-95% of expected to allow some slippage margin
         minShares = bound(minShares, 0, (expectedShares * 95) / 100);
         
-        // Track if vault was empty before deposit (will trigger setFirstDepositTimestamp)
-        bool vaultWasEmpty = vaultYS.totalSupply() == 0;
-        
         // Capture YS state in AccountantHandler - deposits realize yield via _updateExchangeRate()
         if (address(accountantHandler) != address(0)) {
             accountantHandler.beginYSOperation(DEPOSIT_SELECTOR);
@@ -907,19 +904,29 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
         }
         vm.stopPrank();
         
-        // Fix stale vesting state if deposit to empty vault triggered setFirstDepositTimestamp bug
-        if (vaultWasEmpty && succeeded && address(accountantHandler) != address(0)) {
-            accountantHandler.fixVestingStateAfterFirstDeposit();
-        }
-        
         // Capture post-state in AccountantHandler
         if (address(accountantHandler) != address(0)) {
             accountantHandler.endYSOperation(succeeded);
         }
-        
+
         _afterCall();
     }
-    
+
+    /// @dev Deprecated vaults retain dust and are never fully emptied while a yield vest is still
+    ///      active — that transient (totalSupply == 0 with vestingGains > 0) is unreachable in
+    ///      production and is the only way to reach the acknowledged `setFirstDepositTimestamp`
+    ///      edge where startVestingTime > endVestingTime (see test/fuzzing/README.md, Finding 1).
+    ///      Clamp the burn so the YS vault never fully empties while a vest is live. Returns the
+    ///      (possibly reduced) share amount; 0 signals the caller to skip the withdrawal.
+    function _clampYSWithdrawForActiveVest(uint256 shareAmount) internal view returns (uint256) {
+        if (address(accountantHandler) == address(0)) return shareAmount;
+        (, uint128 vestingGains, , , ) = accountantHandler.accountantYS().vestingState();
+        if (vestingGains == 0) return shareAmount;
+        uint256 supply = vaultYS.totalSupply();
+        if (shareAmount < supply) return shareAmount; // other holders keep the vault non-empty
+        return supply > 1 ? supply - 1 : 0; // leave 1 wei of shares as dust, or skip entirely
+    }
+
     /**
      * @notice Withdraw from TellerWithYieldStreaming
      */
@@ -935,6 +942,8 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
         
         uint256 actorShares = vaultYS.balanceOf(actor);
         shareAmount = bound(shareAmount, 1, actorShares);
+        shareAmount = _clampYSWithdrawForActiveVest(shareAmount);
+        if (shareAmount == 0) { _afterCall(); return; }
         minAssets = bound(minAssets, 0, shareAmount);
         timeDelta = bound(timeDelta, 0, 7 days);
         
@@ -976,9 +985,6 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
         // Bound minShares to 0-95% of expected to allow some slippage margin
         minShares = bound(minShares, 0, (expectedShares * 95) / 100);
         
-        // Track if vault was empty before deposit (will trigger setFirstDepositTimestamp)
-        bool vaultWasEmpty = vaultYS.totalSupply() == 0;
-        
         // Capture YS state in AccountantHandler - deposits realize yield via _updateExchangeRate()
         if (address(accountantHandler) != address(0)) {
             accountantHandler.beginYSOperation(TellerWithMultiAssetSupport.bulkDeposit.selector);
@@ -997,12 +1003,7 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
             succeeded = true;
         }
         vm.stopPrank();
-        
-        // Fix stale vesting state if deposit to empty vault triggered setFirstDepositTimestamp bug
-        if (vaultWasEmpty && succeeded && address(accountantHandler) != address(0)) {
-            accountantHandler.fixVestingStateAfterFirstDeposit();
-        }
-        
+
         // Capture post-state in AccountantHandler
         if (address(accountantHandler) != address(0)) {
             accountantHandler.endYSOperation(succeeded);
@@ -1028,6 +1029,8 @@ contract TellerHandler is CommonBase, StdCheats, StdUtils {
         // Solver burns shares, assets go to a random actor
         address recipient = _getRandomActor(actorSeed);
         shareAmount = bound(shareAmount, 1, solverShares);
+        shareAmount = _clampYSWithdrawForActiveVest(shareAmount);
+        if (shareAmount == 0) { _afterCall(); return; }
         minAssets = bound(minAssets, 0, shareAmount);
         
         // Capture YS state in AccountantHandler - withdrawals realize yield via getRateInQuoteSafe -> _updateExchangeRate()

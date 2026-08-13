@@ -569,63 +569,6 @@ contract AccountantHandler is CommonBase, StdCheats, StdUtils {
     }
     
     /**
-     * @notice Fix vesting state after a deposit to an empty vault created invalid state
-     * @dev Called by TellerHandler after depositYS/bulkDepositYS when vault was empty
-     *      This corrects the startVestingTime > endVestingTime condition by doing a minimal vestYield
-     */
-    function fixVestingStateAfterFirstDeposit() external {
-        // Check if vesting state is invalid
-        (, , , uint64 startTime, uint64 endTime) = accountantYS.vestingState();
-        
-        // Only fix if we have an invalid state: startVestingTime > endVestingTime
-        // and there are shares (deposit succeeded)
-        if (startTime <= endTime || vaultYS.totalSupply() == 0) return;
-        
-        // Reset vesting state by doing a minimal vestYield call
-        syncVestedAssets();
-        
-        // Get min vesting duration
-        uint64 minVest = accountantYS.minimumVestingTime();
-        uint64 maxVest = accountantYS.maximumVestingTime();
-        uint256 duration = minVest > 0 ? minVest : 1 days;
-        if (duration > maxVest && maxVest > 0) duration = maxVest;
-        
-        // Calculate safe yield amount that will pass the daily yield check:
-        // dailyYieldBps = (yieldAmount * 1 day / duration) * 10000 / totalAssets
-        // For it to pass: dailyYieldBps <= maxDeviationYield
-        // Therefore: yieldAmount <= totalAssets * maxDeviationYield * duration / (10000 * 1 day)
-        uint256 totalAssets = accountantYS.totalAssets();
-        uint32 maxDeviation = accountantYS.maxDeviationYield();
-        
-        // Calculate max safe yield - use 1% of max deviation to be safe
-        // yieldAmount = totalAssets * maxDeviation * duration / (10000 * 1 days * 100)
-        uint256 yieldAmount;
-        if (totalAssets > 0) {
-            yieldAmount = totalAssets.mulDivDown(maxDeviation, 10000);
-            yieldAmount = yieldAmount.mulDivDown(duration, 1 days);
-            yieldAmount = yieldAmount / 100; // Use 1% of max to be very safe
-            if (yieldAmount == 0) yieldAmount = 1;
-        } else {
-            yieldAmount = 1;
-        }
-        
-        // Ensure vault has enough assets for the yield
-        uint256 vaultBal = baseAsset.balanceOf(address(vaultYS));
-        if (vaultBal < totalAssets + yieldAmount) {
-            deal(address(baseAsset), address(vaultYS), totalAssets + yieldAmount);
-        }
-        
-        vm.prank(strategist);
-        try accountantYS.vestYield(yieldAmount, duration) {
-            // Success - vesting state is now valid
-            cumulativeVestedAssetsReleased = 0; // Reset tracking for new vest
-        } catch {
-            // If vestYield fails, the invariant will catch the invalid state
-            // This is expected if the contract has checks we can't bypass
-        }
-    }
-    
-    /**
      * @notice Vest yield on AccountantWithYieldStreaming
      * @param yieldAmount The amount of yield to vest (bounded dynamically based on totalAssets)
      * @param duration The vesting duration
