@@ -123,3 +123,24 @@ jobs:
             --skip BeraborrowIntegration --skip BeraETHIntegration \
             --skip ScrollBridgeIntegration
         id: test
+
+      # Use nightly Foundry for Tempo tests because stable heavily lags network upgrades
+      # (stable's embedded Tempo precompiles are pre-T5; this nightly is T7-aware).
+      # We can't pin an exact nightly version because they are periodically deleted.
+      - name: Install Foundry (nightly, for Tempo precompiles)
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+          # Don't cache: nightly releases are periodically deleted, and a cached
+          # foundryup pins a dead nightly tag → persistent HTTP 404 on re-runs.
+          # Resolve a current nightly fresh each run.
+          cache: false
+
+      # Tempo tests run against the native Tempo precompiles (network = "tempo", Foundry >= 1.7.0).
+      # The profiles partition the test set: default excludes test/**Tempo*, tempo runs only those.
+      - name: Run Forge tests (Tempo)
+        run: |
+          forge test -vv
+        env:
+          FOUNDRY_PROFILE: tempo
+        id: test-tempo
