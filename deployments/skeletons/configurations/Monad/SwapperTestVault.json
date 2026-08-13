@@ -1,0 +1,133 @@
+{
+    "deploymentParameters": {
+      "logLevel": 4,
+      "useHardwareWallet": true,
+      "privateKeyEnvName": "BORING_DEVELOPER",
+      "chainName": "monad",
+      "evmVersion": "cancun",
+      "deployerContractAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "newDeployer"
+      },
+      "nativeWrapperAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "WMON"
+      },
+      "deploymentOwnerAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "newDeployer"
+      },
+      "deploymentFileName": "skeletons/addresses/Mainnet/SwapperTestVault.json"
+    },
+    "rolesAuthorityConfiguration": {
+      "rolesAuthorityDeploymentName": "Swapper Test Vault Roles Authority V0.1"
+    },
+    "lensConfiguration": {
+      "lensDeploymentName": "Arctic Architecture Lens V0.3"
+    },
+    "boringVaultConfiguration": {
+      "boringVaultDeploymentName": "Swapper Test Vault Boring Vault V0.1",
+      "boringVaultName": "Swapper Test Vault Vault ",
+      "boringVaultSymbol": "bigSwappaUSD",
+      "boringVaultDecimals": 6
+    },
+    "managerConfiguration": {
+      "managerDeploymentName": "Swapper Test Vault Manager V0.1",
+      "balancerVaultAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "balancerVault"
+      }
+    },
+    "accountantConfiguration": {
+      "accountantDeploymentName": "Swapper Test Vault Accountant V0.1",
+      "accountantParameters": {
+        "kind": {
+          "variableRate": true,
+          "fixedRate": false,
+          "yieldStreaming": false
+        },
+        "payoutConfiguration": {
+          "payoutTo": "0x0000000000000000000000000000000000000001",
+          "optionalPaymentSplitterName": "Swapper Test Vault Payment Splitter V0.1",
+          "splits": []
+        },
+        "accountantDeploymentParameters": {
+          "allowedExchangeRateChangeLower": 9950,
+          "allowedExchangeRateChangeUpper": 10050,
+          "base": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "USDC"
+          },
+          "minimumUpateDelayInSeconds": 21600,
+          "performanceFee": 1050,
+          "platformFee": 0,
+          "startingExchangeRate": 1000000
+        }
+      }
+    },
+    "tellerConfiguration": {
+      "tellerDeploymentName": "Swapper Test Vault Teller V0.1",
+      "tellerParameters": {
+        "kind": {
+          "teller": false,
+          "tellerWithRemediation": false,
+          "tellerWithCcip": false,
+          "tellerWithLayerZero": true,
+          "tellerWithYieldStreaming": false,
+          "tellerWithLayerZeroRateLimiting": false
+        },
+        "layerZero": {
+          "endpointAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "name": "LayerZeroEndPoint"
+          },
+          "lzTokenAddressOrName": {
+            "address": "0x0000000000000000000000000000000000000001",
+            "name": "ZRO"
+          },
+          "lzChains": []
+        }
+      }
+    },
+    "boringQueueConfiguration": {
+      "boringQueueDeploymentName": "Swapper Test Vault Boring Queue V0.1",
+      "boringQueueSolverName": "Swapper Test Vault Boring Solver V0.1",
+      "excessToSolverNonSelfSolve": true,
+      "queueParameters": {
+        "kind": {
+          "boringQueue": true,
+          "boringQueueWithTracking": false
+        }
+      }
+    },
+    "droneConfiguration": {
+      "droneDeploymentBaseName": "Swapper Test Vault Drone V0.1",
+      "droneCount": 0,
+      "safeGasToForwardNative": 21000
+    },
+    "pauserConfiguration": {
+      "shouldDeploy": true,
+      "pauserDeploymentName": "Swapper Test Vault Pauser V0.1"
+    },
+    "timelockConfiguration": {
+      "shouldDeploy": false,
+      "timelockDeploymentName": "Swapper Test VaultTimelock V0.1",
+      "timelockParameters": {
+        "executors": ["0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b"],
+        "minDelay": 0,
+        "proposers": ["0x0463E60C7cE10e57911AB7bD1667eaa21de3e79b"]
+      }
+    },
+    "aaveV3BufferHelperConfiguration": {
+      "shouldDeploy": false,
+      "aaveV3BufferHelperDeploymentName": "Swapper Test Vault AaveV3 Buffer Helper V0.1",
+      "aaveV3PoolAddressOrName": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "name": "v3Pool"
+      }
+    },
+    "aaveV3BufferLensConfiguration": {
+      "shouldDeploy": false,
+      "aaveV3BufferLensDeploymentName": "AaveV3 Buffer Lens V0.1"
+    }
+  }

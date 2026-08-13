@@ -71,17 +71,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         // ===================== EtherFi Debt Manager ==========================
         _addEtherFiDebtManagerLeafs(leafs);
 
-        // ===================== Midas Vault ==========================
-        ERC20[] memory midasVaultTokens = new ERC20[](2);
-        midasVaultTokens[0] = getERC20(sourceChain, "USDC");
-        midasVaultTokens[1] = getERC20(sourceChain, "USDT");
-
-        ERC20[] memory midasVaultRedeemAssets = new ERC20[](1);
-        midasVaultRedeemAssets[0] = getERC20(sourceChain, "USDC");
-
-        _addMidasVaultLeafs(leafs, midasVaultTokens, midasVaultRedeemAssets, getAddress(sourceChain, "liquidRWA"), getAddress(sourceChain, "liquidRWA_DepositAdapter"), getAddress(sourceChain, "liquidRWA_RedemptionVault"));
-
-        // CCTP Bridge
+        // ===================== Midas Vault ===================        // CCTP Bridge
         _addCCTPBridgeLeafs(leafs, cctpMainnetDomainId);
 
         // ========================== Verify ==========================

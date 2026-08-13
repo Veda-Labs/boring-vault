@@ -89,18 +89,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         // ========================== LayerZero ==========================
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WEETH_OFT"), getAddress(sourceChain, "WEETH_OFT"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
 
-        // ===================== Midas Vault ==========================
-        setAddress(true, optimism, "rawDataDecoderAndSanitizer", midasVaultDecoderAndSanitizer);
-        ERC20[] memory midasVaultTokens = new ERC20[](2);
-        midasVaultTokens[0] = getERC20(sourceChain, "USDC");
-        midasVaultTokens[1] = getERC20(sourceChain, "USDT");
-
-        ERC20[] memory midasVaultRedeemAssets = new ERC20[](1);
-        midasVaultRedeemAssets[0] = getERC20(sourceChain, "USDC");
-
-        _addMidasVaultLeafs(leafs, midasVaultTokens, midasVaultRedeemAssets, getAddress(sourceChain, "liquidRWA"), getAddress(sourceChain, "liquidRWA_DepositAdapter"), getAddress(sourceChain, "liquidRWA_RedemptionVault"));
-        setAddress(true, optimism, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
-
+        // ===================== Midas Vault ===================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
