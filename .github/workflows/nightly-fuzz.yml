@@ -42,6 +42,10 @@ jobs:
       SONIC_MAINNET_RPC_URL: ${{ secrets.SONIC_MAINNET_RPC_URL }}
       SWELL_CHAIN_RPC_URL: ${{ secrets.SWELL_CHAIN_RPC_URL }}
       TAC_RPC_URL: ${{ secrets.TAC_RPC_URL }}
+      # Monad archive at the pinned block is served by Goldsky (full URL in the secret).
+      # Required by test/integrations/MPortalMonadIntegration.t.sol, which is private-only
+      # (absent upstream), so the synced-from-public workflow never carried this line.
+      MONAD_RPC_URL: ${{ secrets.MONAD_RPC_URL }}
     steps:
       - uses: actions/checkout@v4
         with:
