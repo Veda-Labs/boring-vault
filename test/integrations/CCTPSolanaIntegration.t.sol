@@ -7,10 +7,13 @@ pragma solidity 0.8.21;
 import {BaseTestIntegration} from "test/integrations/BaseTestIntegration.t.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {CCTPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCTPDecoderAndSanitizer.sol";
+import {CCTPDecoderAndSanitizerSingleton} from "src/base/DecodersAndSanitizers/CCTPDecoderAndSanitizerSingleton.sol";
 import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
-contract FullCCTPDecoderAndSanitizer is CCTPDecoderAndSanitizer {}
+contract FullCCTPDecoderAndSanitizer is CCTPDecoderAndSanitizer {
+    constructor() CCTPDecoderAndSanitizer(5) {}
+}
 
 contract CCTPSolanaIntegrationTest is BaseTestIntegration {
     // USDC ATA address of the boring-vault-svm sub-account-0 PDA, with nonzero high bytes
@@ -171,7 +174,8 @@ contract CCTPSolanaIntegrationTest is BaseTestIntegration {
         // leaf still verifies against a redeployed decoder.
         address usdc = getAddress(sourceChain, "USDC");
         bytes32 vaultAsBytes32 = bytes32(uint256(uint160(address(boringVault))));
-        bytes memory sensitive = CCTPDecoderAndSanitizer(rawDataDecoderAndSanitizer).depositForBurn(100e6, 13, vaultAsBytes32, usdc, vaultAsBytes32, 50e6, 500);
+        bytes memory sensitive =
+            CCTPDecoderAndSanitizer(rawDataDecoderAndSanitizer).depositForBurn(100e6, 13, vaultAsBytes32, usdc, vaultAsBytes32, 50_000, 500);
         assertEq(
             sensitive,
             abi.encodePacked(address(uint160(13)), address(boringVault), usdc, address(boringVault)),
@@ -180,7 +184,26 @@ contract CCTPSolanaIntegrationTest is BaseTestIntegration {
 
         // The EVM branch still rejects nonzero high bytes.
         vm.expectRevert(CCTPDecoderAndSanitizer.CCTPDecoderAndSanitizer__InvalidAddress.selector);
-        CCTPDecoderAndSanitizer(rawDataDecoderAndSanitizer).depositForBurn(100e6, 13, SOLANA_MINT_RECIPIENT, usdc, bytes32(0), 50e6, 500);
+        CCTPDecoderAndSanitizer(rawDataDecoderAndSanitizer).depositForBurn(100e6, 13, SOLANA_MINT_RECIPIENT, usdc, bytes32(0), 0, 500);
+    }
+
+    function testFuzz_MaxFeeCapBoundary(uint256 amount, uint256 maxFee) external {
+        // The decoder must accept maxFee up to exactly 5 bps of amount and revert above it.
+        amount = bound(amount, 1, type(uint128).max);
+        maxFee = bound(maxFee, 0, type(uint128).max);
+        CCTPDecoderAndSanitizer decoder = new FullCCTPDecoderAndSanitizer();
+        address usdc = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
+
+        if (maxFee * 10_000 > amount * 5) {
+            vm.expectRevert(CCTPDecoderAndSanitizer.CCTPDecoderAndSanitizer__FeeTooHigh.selector);
+        }
+        decoder.depositForBurn(amount, SOLANA_DOMAIN, SOLANA_MINT_RECIPIENT, usdc, bytes32(0), maxFee, 2000);
+    }
+
+    function testMaxFeeBpsConstructorBounds() external {
+        new CCTPDecoderAndSanitizerSingleton(50);
+        vm.expectRevert(CCTPDecoderAndSanitizer.CCTPDecoderAndSanitizer__InvalidMaxFeeBps.selector);
+        new CCTPDecoderAndSanitizerSingleton(51);
     }
 
     function testAddCCTPBridgeLeafsRejectsSolanaDomain() external {

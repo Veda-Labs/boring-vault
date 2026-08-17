@@ -56,8 +56,7 @@ contract SonicEthMainnetDecoderAndSanitizer is
     constructor(address _uniswapV3NonFungiblePositionManager, address _odosRouter, address _fluidFactory)
         UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
         OdosDecoderAndSanitizer(_odosRouter)
-        FluidDexDecoderAndSanitizer(_fluidFactory)
-    {}
+        FluidDexDecoderAndSanitizer(_fluidFactory) CCTPDecoderAndSanitizer(5) {}
 
     //============================== HANDLE FUNCTION COLLISIONS ===============================
     /**

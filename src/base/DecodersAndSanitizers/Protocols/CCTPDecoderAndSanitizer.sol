@@ -12,22 +12,35 @@ contract CCTPDecoderAndSanitizer is BaseDecoderAndSanitizer {
     /// _addCCTPBridgeToSolanaLeafs uses to build the matching 6-slot leaves.
     uint32 internal constant CCTP_SOLANA_DOMAIN = 5;
 
+    /// @dev Hard ceiling on the constructor-set fee cap.
+    uint256 internal constant MAX_FEE_BPS_CEILING = 50;
+
+    /// @dev Caps how much fee authority a strategist can grant Circle per call. The fee charged is
+    /// the Circle-attested feeExecuted, bounded onchain only by maxFee, so an oversized maxFee lets
+    /// a misbehaving attester skim up to that amount. Immutable, so the cap is tuned by redeploy.
+    uint256 internal immutable cctpMaxFeeBps;
+
     error CCTPDecoderAndSanitizer__InvalidAddress();
+    error CCTPDecoderAndSanitizer__FeeTooHigh();
+    error CCTPDecoderAndSanitizer__InvalidMaxFeeBps();
+
+    constructor(uint256 _cctpMaxFeeBps) {
+        if (_cctpMaxFeeBps > MAX_FEE_BPS_CEILING) revert CCTPDecoderAndSanitizer__InvalidMaxFeeBps();
+        cctpMaxFeeBps = _cctpMaxFeeBps;
+    }
 
     function depositForBurn(
-        uint256, /*amount*/
+        uint256 amount,
         uint32 destinationDomain,
         bytes32 mintRecipient,
         address burnToken,
         bytes32 destinationCaller,
-        uint256, /*maxFee*/
+        uint256 maxFee,
         uint32 /*minFinalityThreshold*/
-    )
-        external
-        pure
-        virtual
-        returns (bytes memory addressesFound)
-    {
+    ) external view virtual returns (bytes memory addressesFound) {
+        // The fee charged is whatever Circle attests up to maxFee, so cap the grantable headroom.
+        if (maxFee * 10_000 > amount * cctpMaxFeeBps) revert CCTPDecoderAndSanitizer__FeeTooHigh();
+
         if (destinationDomain == CCTP_SOLANA_DOMAIN) {
             // Solana mintRecipient and destinationCaller are full 32 byte pubkeys. mintRecipient is a
             // USDC token account, not a wallet. Commit both halves of each across 2 leaf address slots,

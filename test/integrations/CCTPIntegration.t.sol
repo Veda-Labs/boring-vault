@@ -9,7 +9,9 @@ import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {CCTPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCTPDecoderAndSanitizer.sol";
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
-contract FullCCTPDecoderAndSanitizer is CCTPDecoderAndSanitizer {}
+contract FullCCTPDecoderAndSanitizer is CCTPDecoderAndSanitizer {
+    constructor() CCTPDecoderAndSanitizer(5) {}
+}
 
 contract CCTPIntegrationTest is BaseTestIntegration {
     function _setUpMainnet() internal {
@@ -56,7 +58,7 @@ contract CCTPIntegrationTest is BaseTestIntegration {
             getBytes32(sourceChain, "boringVault"),
             getAddress(sourceChain, "USDC"),
             getBytes32(sourceChain, "boringVault"),
-            50e6,
+            50_000, // 5 bps of 100e6, the exact fee cap boundary
             500 //FAST
         );
 
