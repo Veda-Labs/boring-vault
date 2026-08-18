@@ -22,12 +22,13 @@ jobs:
     permissions:
       contents: read
     strategy:
-      # Scheduled runs only fire from the default branch, so cover both main and dev
-      # from this one workflow via a branch axis crossed with the scenario axis
-      # (branch × scenario = 10 jobs). fail-fast off so one failure doesn't cancel the rest.
+      # Scheduled runs only fire from the default branch. This repo has no `dev` branch,
+      # so the matrix is main-only (the inherited `dev` leg failed at checkout every night),
+      # crossed with the scenario axis (1 branch × 5 scenarios = 5 jobs). fail-fast off so
+      # one failure doesn't cancel the rest.
       fail-fast: false
       matrix:
-        branch: [main, dev]
+        branch: [main]
         scenario: [A, B, C, D, E]
         # configs attach per-scenario (each include entry extends both branch combos).
         include:
