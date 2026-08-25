@@ -95,9 +95,10 @@ contract RateProviderBalancerExposureTest is Test, ChainValues {
         // unavailable RPC cannot quietly drop that chain's providers from the run.
         uint256 uncovered;
         for (uint256 i; i < requiredChains.length; ++i) {
-            if (chainCovered[keccak256(bytes(requiredChains[i]))]) continue;
+            string memory required = requiredChains[i];
+            if (chainCovered[keccak256(bytes(required))]) continue;
             uncovered++;
-            console.log(string.concat("UNCHECKED chain with configured rate providers: ", requiredChains[i]));
+            console.log(string.concat("UNCHECKED chain with configured rate providers: ", required));
         }
         assertEq(uncovered, 0, "a chain with configured rate providers went unchecked (RPC unavailable?)");
         assertEq(
