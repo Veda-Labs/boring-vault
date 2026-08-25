@@ -62,7 +62,13 @@ contract RateProviderBalancerExposureTest is Test, ChainValues {
     uint256 internal unclassifiedChains;
     uint256 internal skippedNoRpc;
     uint256 internal skippedUnreadable;
-    bool internal mainnetCovered;
+
+    /// @dev Chains that have at least one non-zero rate provider configured, and so must actually
+    ///      be reached. A chain whose assets are all pegged to base has nothing to check, and its
+    ///      RPC being unavailable is harmless.
+    string[] internal requiredChains;
+    mapping(bytes32 => bool) internal chainRequired;
+    mapping(bytes32 => bool) internal chainCovered;
 
     function testNoConfiguredRateProviderIsBalancerPool() external {
         Vm.DirEntry[] memory entries = vm.readDir(CONFIG_ROOT, 2);
@@ -82,10 +88,18 @@ contract RateProviderBalancerExposureTest is Test, ChainValues {
         console.log(string.concat("skipped, no RPC:      ", vm.toString(skippedNoRpc)));
         console.log(string.concat("skipped, unreadable:  ", vm.toString(skippedUnreadable)));
         console.log(string.concat("unclassified chains:  ", vm.toString(unclassifiedChains)));
+        console.log(string.concat("chains needing cover: ", vm.toString(requiredChains.length)));
 
-        // A pass with nothing probed is indistinguishable from a pass with nothing wrong, so
-        // require that the chain carrying most of our configured providers was actually reached.
-        assertTrue(mainnetCovered, "no mainnet coverage: is MAINNET_RPC_URL set?");
+        // A pass with nothing probed is indistinguishable from a pass with nothing wrong. Every
+        // chain that actually has a rate provider configured must have been reached, so an
+        // unavailable RPC cannot quietly drop that chain's providers from the run.
+        uint256 uncovered;
+        for (uint256 i; i < requiredChains.length; ++i) {
+            if (chainCovered[keccak256(bytes(requiredChains[i]))]) continue;
+            uncovered++;
+            console.log(string.concat("UNCHECKED chain with configured rate providers: ", requiredChains[i]));
+        }
+        assertEq(uncovered, 0, "a chain with configured rate providers went unchecked (RPC unavailable?)");
         assertEq(
             unclassifiedChains,
             0,
@@ -128,14 +142,19 @@ contract RateProviderBalancerExposureTest is Test, ChainValues {
             return;
         }
 
+        // Decode before forking: parsing needs no fork, and knowing whether this config has any
+        // rate provider at all is what makes a missing RPC a failure rather than a harmless skip.
+        AccountantAsset[] memory assets = abi.decode(vm.parseJson(json, ".accountantAssets"), (AccountantAsset[]));
+        if (_hasRateProvider(assets)) _markRequired(chain);
+
         if (!_selectFork(chain)) {
             skippedNoRpc++;
             console.log(string.concat("SKIP no RPC for chain: ", chain, " (", path, ")"));
             return;
         }
+        chainCovered[keccak256(bytes(chain))] = true;
 
         filesChecked++;
-        AccountantAsset[] memory assets = abi.decode(vm.parseJson(json, ".accountantAssets"), (AccountantAsset[]));
         for (uint256 i; i < assets.length; ++i) {
             address provider = assets[i].rateProvider;
             if (provider == address(0)) continue; // pegged to base, no rate read
@@ -220,11 +239,24 @@ contract RateProviderBalancerExposureTest is Test, ChainValues {
         try vm.createSelectFork(chain) returns (uint256 forkId) {
             forkIdPlusOne[key] = forkId + 1;
             chainsCovered++;
-            if (key == keccak256(bytes(mainnet))) mainnetCovered = true;
             return true;
         } catch {
             return false;
         }
+    }
+
+    function _hasRateProvider(AccountantAsset[] memory assets) internal pure returns (bool) {
+        for (uint256 i; i < assets.length; ++i) {
+            if (assets[i].rateProvider != address(0)) return true;
+        }
+        return false;
+    }
+
+    function _markRequired(string memory chain) internal {
+        bytes32 key = keccak256(bytes(chain));
+        if (chainRequired[key]) return;
+        chainRequired[key] = true;
+        requiredChains.push(chain);
     }
 
     function _endsWithJson(string memory path) internal pure returns (bool) {
