@@ -16,22 +16,56 @@ contract DirectPropAMMDecoderAndSanitizer {
 
     error DirectPropAMMDecoderAndSanitizer__InvalidCustomerId();
 
-    function swapExactInput(bool, uint256, uint256, address recipient, bytes32 customerId, bytes32, uint256, uint256, uint256, uint256)
-        external
-        pure
-        virtual
-        returns (bytes memory addressesFound)
-    {
+    // Parameters, in order:
+    // - baseToQuote: swap direction; true sells base for quote, false sells quote for base.
+    // - amountIn: exact amount of the input token to sell.
+    // - minAmountOut: minimum acceptable amount of the output token (slippage floor).
+    // - recipient: address credited with the output token; sanitized and bound to the Merkle leaf.
+    // - customerId: must equal `CUSTOMER_ID`; validated below.
+    // - tradeId: caller-supplied trade identifier, unchecked here.
+    // - deadline: unix timestamp after which the swap reverts, unchecked here.
+    // - expectedOraclePrice: oracle price the caller expects at execution time, unchecked here.
+    // - oraclePriceToleranceBps: allowed deviation from expectedOraclePrice, in bps, unchecked here.
+    // - minimumOracleUpdatedAt: oldest acceptable oracle update timestamp, unchecked here.
+    function swapExactInput(
+        bool /* baseToQuote */,
+        uint256 /* amountIn */,
+        uint256 /* minAmountOut */,
+        address recipient,
+        bytes32 customerId,
+        bytes32 /* tradeId */,
+        uint256 /* deadline */,
+        uint256 /* expectedOraclePrice */,
+        uint256 /* oraclePriceToleranceBps */,
+        uint256 /* minimumOracleUpdatedAt */
+    ) external pure virtual returns (bytes memory addressesFound) {
         _validateCustomerId(customerId);
         addressesFound = abi.encodePacked(recipient);
     }
 
-    function swapExactOutput(bool, uint256, uint256, address recipient, bytes32 customerId, bytes32, uint256, uint256, uint256, uint256)
-        external
-        pure
-        virtual
-        returns (bytes memory addressesFound)
-    {
+    // Parameters, in order:
+    // - baseToQuote: swap direction; true sells base for quote, false sells quote for base.
+    // - amountOut: exact amount of the output token to buy.
+    // - maxAmountIn: maximum acceptable amount of the input token (slippage ceiling).
+    // - recipient: address credited with the output token; sanitized and bound to the Merkle leaf.
+    // - customerId: must equal `CUSTOMER_ID`; validated below.
+    // - tradeId: caller-supplied trade identifier, unchecked here.
+    // - deadline: unix timestamp after which the swap reverts, unchecked here.
+    // - expectedOraclePrice: oracle price the caller expects at execution time, unchecked here.
+    // - oraclePriceToleranceBps: allowed deviation from expectedOraclePrice, in bps, unchecked here.
+    // - minimumOracleUpdatedAt: oldest acceptable oracle update timestamp, unchecked here.
+    function swapExactOutput(
+        bool /* baseToQuote */,
+        uint256 /* amountOut */,
+        uint256 /* maxAmountIn */,
+        address recipient,
+        bytes32 customerId,
+        bytes32 /* tradeId */,
+        uint256 /* deadline */,
+        uint256 /* expectedOraclePrice */,
+        uint256 /* oraclePriceToleranceBps */,
+        uint256 /* minimumOracleUpdatedAt */
+    ) external pure virtual returns (bytes memory addressesFound) {
         _validateCustomerId(customerId);
         addressesFound = abi.encodePacked(recipient);
     }
