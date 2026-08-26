@@ -40,6 +40,8 @@ contract CreateTempoPropAMMMerkleRootScript is Script, MerkleTreeHelper {
 
     function generateAdminStrategistMerkleRoot() public {
         require(boringVault != address(0), "set boringVault");
+        require(managerAddress != address(0), "set managerAddress");
+        require(accountantAddress != address(0), "set accountantAddress");
         require(rawDataDecoderAndSanitizer != address(0), "set rawDataDecoderAndSanitizer");
         require(pool != address(0), "set pool: no live Tempo pool implements the reviewed taker ABI");
 

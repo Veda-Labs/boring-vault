@@ -9,6 +9,9 @@ import {BoringVault} from "src/base/BoringVault.sol";
 import {IDirectPropAMM} from "src/interfaces/IDirectPropAMM.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
+import {TellerWithBuffer, TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithBuffer.sol";
+import {AccountantWithRateProviders} from "src/base/Roles/AccountantWithRateProviders.sol";
+import {IBufferHelper} from "src/interfaces/IBufferHelper.sol";
 
 interface IDirectPropAMMAdmin {
     function fund(address token, uint256 amount, bytes32 memo) external;
@@ -47,8 +50,9 @@ interface IDirectPropAMMBufferHelper {
  * @notice Tests `DirectPropAMMBufferHelper` against the real DirectPropAMM, with no pool mock.
  * @dev The pool and oracle are deployed on a Tempo fork from bytecode compiled out of the propAMM
  *      repository, and the tokens are the live TIP-20 predeploys. The helper only builds calldata, so
- *      each test asserts the batch it returns AND executes that batch through `BoringVault.manage`,
- *      which is exactly what `TellerWithBuffer` does with it.
+ *      most tests assert the batch it returns AND execute that batch through `BoringVault.manage`
+ *      directly. The "teller path" tests below instead go through a real `TellerWithBuffer`, covering
+ *      the allowlisting/selection and role wiring that calling `manage` directly skips.
  */
 contract TempoPropAMMBufferHelperTest is Test {
     ERC20 internal constant PRIME = ERC20(0x20C00000000000000000000058d0B8b2CFDb358c);
@@ -65,6 +69,9 @@ contract TempoPropAMMBufferHelperTest is Test {
     uint256 internal constant BPS = 10_000;
 
     uint8 internal constant MANAGER_ROLE = 20;
+    uint8 internal constant TELLER_MANAGER_ROLE = 21;
+    uint8 internal constant MINTER_ROLE = 7;
+    uint8 internal constant BURNER_ROLE = 8;
     bytes32 internal constant CUSTOMER_ID = keccak256("DIRECT_PROP_VEDA_BUFFER");
     uint16 internal constant SLIPPAGE_BPS = 10;
 
@@ -77,6 +84,10 @@ contract TempoPropAMMBufferHelperTest is Test {
     IDirectPropAMMBufferHelper internal helper;
     IDirectPropAMM internal pool;
     IPushPriceOracle internal oracle;
+
+    TellerWithBuffer internal teller;
+    AccountantWithRateProviders internal accountant;
+    address internal referrer = vm.addr(1337);
 
     function setUp() public {
         vm.createSelectFork("tempo", FORK_BLOCK);
@@ -116,6 +127,29 @@ contract TempoPropAMMBufferHelperTest is Test {
         IDirectPropAMMAdmin(address(pool)).unpause();
 
         helper = IDirectPropAMMBufferHelper(_deployHelper(address(pool), address(boringVault), CUSTOMER_ID, SLIPPAGE_BPS));
+
+        accountant = new AccountantWithRateProviders(
+            address(this), address(boringVault), address(this), 1e6, address(PATH_USD), 1.1e4, 0.9e4, 1, 0, 0
+        );
+        teller = new TellerWithBuffer(address(this), address(boringVault), address(accountant), address(0));
+        teller.setAuthority(rolesAuthority);
+        accountant.setAuthority(rolesAuthority);
+
+        rolesAuthority.setRoleCapability(MINTER_ROLE, address(boringVault), BoringVault.enter.selector, true);
+        rolesAuthority.setRoleCapability(BURNER_ROLE, address(boringVault), BoringVault.exit.selector, true);
+        rolesAuthority.setRoleCapability(
+            TELLER_MANAGER_ROLE, address(boringVault), bytes4(keccak256("manage(address[],bytes[],uint256[])")), true
+        );
+        rolesAuthority.setUserRole(address(teller), MINTER_ROLE, true);
+        rolesAuthority.setUserRole(address(teller), BURNER_ROLE, true);
+        rolesAuthority.setUserRole(address(teller), TELLER_MANAGER_ROLE, true);
+
+        teller.updateAssetData(PATH_USD, true, true, 0);
+        accountant.setRateProviderData(PATH_USD, true, address(0));
+
+        teller.allowBufferHelper(PATH_USD, IBufferHelper(address(helper)));
+        teller.setDepositBufferHelper(PATH_USD, IBufferHelper(address(helper)));
+        teller.setWithdrawBufferHelper(PATH_USD, IBufferHelper(address(helper)));
     }
 
     // ===================== construction =====================
@@ -242,6 +276,69 @@ contract TempoPropAMMBufferHelperTest is Test {
 
         (address spender,) = _decodeApprove(data[1]);
         assertEq(spender, address(pool));
+    }
+
+    // ===================== teller path =====================
+    // The tests above call `boringVault.manage` directly with the helper's own batch. These instead
+    // drive `TellerWithBuffer.deposit`/`withdraw`, so they cover helper allowlisting/selection and the
+    // teller-to-vault role wiring that calling `manage` directly bypasses.
+
+    function testTellerDepositRoutesThroughTheBufferHelper() external {
+        uint256 depositAmount = 1e6;
+        uint256 primeBefore = PRIME.balanceOf(address(boringVault));
+        uint256 expectedShares = depositAmount * 1e18 / accountant.getRateInQuoteSafe(PATH_USD);
+
+        PATH_USD.approve(address(boringVault), depositAmount);
+        uint256 shares = teller.deposit(PATH_USD, depositAmount, 0, referrer);
+
+        assertEq(shares, expectedShares, "shares did not match the accountant's rate");
+        assertEq(boringVault.balanceOf(address(this)), shares, "depositor did not receive the minted shares");
+        assertEq(PATH_USD.balanceOf(address(boringVault)), 0, "deposit hook should have swapped all of the quote");
+        assertGt(PRIME.balanceOf(address(boringVault)), primeBefore, "deposit hook should have bought base with the deposit");
+    }
+
+    function testTellerWithdrawRoutesThroughTheBufferHelper() external {
+        uint256 depositAmount = 1e6;
+        PATH_USD.approve(address(boringVault), depositAmount);
+        uint256 shares = teller.deposit(PATH_USD, depositAmount, 0, referrer);
+
+        uint256 primeBeforeWithdraw = PRIME.balanceOf(address(boringVault));
+        uint256 pathUserBefore = PATH_USD.balanceOf(address(this));
+        uint256 sharesToRedeem = shares / 2;
+
+        uint256 assetsOut = teller.withdraw(PATH_USD, sharesToRedeem, 0, address(this));
+
+        assertGt(assetsOut, 0, "withdraw should return a positive asset amount");
+        assertEq(boringVault.balanceOf(address(this)), shares - sharesToRedeem, "shares were not burned");
+        assertEq(PATH_USD.balanceOf(address(this)) - pathUserBefore, assetsOut, "user did not receive the computed asset amount");
+        assertEq(PATH_USD.balanceOf(address(boringVault)), 0, "withdraw hook should leave no quote dust in the vault");
+        assertLt(PRIME.balanceOf(address(boringVault)), primeBeforeWithdraw, "withdraw hook should have sold base to cover the shortfall");
+    }
+
+    /// @dev `setDepositBufferHelper`/`setWithdrawBufferHelper` accept only a helper the admin has
+    ///      separately allowlisted with `allowBufferHelper`; a helper that skipped that step is rejected.
+    function testTellerRejectsABufferHelperThatWasNotAllowlisted() external {
+        address notAllowlisted = _deployHelper(address(pool), address(boringVault), CUSTOMER_ID, SLIPPAGE_BPS);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                TellerWithBuffer.TellerWithBuffer__BufferHelperNotAllowed.selector, PATH_USD, IBufferHelper(notAllowlisted)
+            )
+        );
+        teller.setDepositBufferHelper(PATH_USD, IBufferHelper(notAllowlisted));
+    }
+
+    /// @dev `_afterDeposit` runs the helper's batch through `vault.manage`, so the teller itself must
+    ///      hold a vault role that can call `manage`. Without it the deposit fails closed instead of
+    ///      silently skipping the buffer step.
+    function testTellerDepositFailsClosedWithoutVaultManageAuthorization() external {
+        rolesAuthority.setUserRole(address(teller), TELLER_MANAGER_ROLE, false);
+
+        uint256 depositAmount = 1e6;
+        PATH_USD.approve(address(boringVault), depositAmount);
+
+        vm.expectRevert("UNAUTHORIZED");
+        teller.deposit(PATH_USD, depositAmount, 0, referrer);
     }
 
     // ===================== input validation =====================

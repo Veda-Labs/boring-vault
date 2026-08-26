@@ -11,6 +11,7 @@ import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {IComet} from "src/interfaces/IComet.sol";
+import {IDirectPropAMM} from "src/interfaces/IDirectPropAMM.sol";
 import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
@@ -4064,12 +4065,17 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
     /// @notice Adds standing approval leaves for both pair tokens and the pool's two taker swap leaves.
     /// @dev The approval mapping deduplicates tokens shared by repeated calls. The pool target and vault
     ///      recipient are pinned by the resulting leaves; all non-address swap arguments remain dynamic.
+    ///      `baseToken`/`quoteToken` are checked against the pool's own `baseToken()`/`quoteToken()` so a
+    ///      stale or transposed caller address can't silently approve the wrong token.
     function _addDirectPropAMMLeafs(
         ManageLeaf[] memory leafs,
         address pool,
         address baseToken,
         address quoteToken
     ) internal {
+        require(IDirectPropAMM(pool).baseToken() == baseToken, "baseToken does not match pool");
+        require(IDirectPropAMM(pool).quoteToken() == quoteToken, "quoteToken does not match pool");
+
         address boringVault = getAddress(sourceChain, "boringVault");
         address decoder = getAddress(sourceChain, "rawDataDecoderAndSanitizer");
 
