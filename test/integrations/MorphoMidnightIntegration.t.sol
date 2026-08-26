@@ -320,7 +320,7 @@ contract MorphoMidnightTakeForkTest is Test, MerkleTreeHelper {
 
         // Lend-side leaves: approve(USDC)=0, take (buy=false)=1, withdraw=2, updatePosition=3 (even, no pad).
         ManageLeaf[] memory leafs = new ManageLeaf[](4);
-        _addMorphoMidnightSupplyLeafs(leafs, offer.market, offer.maker, offer.callback, offer.receiverIfMakerIsSeller, offer.ratifier);
+        _addMorphoMidnightSupplyLeafs(leafs, offer.market, offer.maker, offer.callback, offer.receiverIfMakerIsSeller, offer.ratifier, true);
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
