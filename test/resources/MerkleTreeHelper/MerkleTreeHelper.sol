@@ -8104,37 +8104,40 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         address maker,
         address makerCallback,
         address makerReceiver,
-        address ratifier
+        address ratifier,
+        bool addTake
     ) internal {
         // A zero makerReceiver can never match a real sell offer (the maker's proceeds would go to
-        // address(0)), so a leaf built with it is dead weight — fail loudly at build time.
-        require(makerReceiver != address(0), "Midnight lend leaf: makerReceiver == address(0)");
+        // address(0)), so a take leaf built with it is dead weight — fail loudly at build time.
+        if (addTake) require(makerReceiver != address(0), "Midnight lend leaf: makerReceiver == address(0)");
 
         (, address idAddress) = _getMidnightMarketId(market);
         string memory marketName = _midnightMarketName(market);
 
         _addMidnightLoanTokenApprovalLeaf(leafs, market.loanToken);
 
-        // Take sell offers (vault is buyer / lender). Midnight requires receiverIfTakerIsSeller == 0 here.
-        unchecked {
-            leafIndex++;
+        if (addTake) {
+            // Take sell offers (vault is buyer / lender). Midnight requires receiverIfTakerIsSeller == 0 here.
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "morphoMidnight"),
+                false,
+                _midnightTakeSignature(),
+                new address[](8),
+                string.concat("Take (lend) offers from maker ", vm.toString(maker), " in ", marketName),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = idAddress;
+            leafs[leafIndex].argumentAddresses[1] = address(0); // offer.buy = false
+            leafs[leafIndex].argumentAddresses[2] = maker;
+            leafs[leafIndex].argumentAddresses[3] = makerCallback;
+            leafs[leafIndex].argumentAddresses[4] = makerReceiver;
+            leafs[leafIndex].argumentAddresses[5] = ratifier;
+            leafs[leafIndex].argumentAddresses[6] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[7] = address(0);
         }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "morphoMidnight"),
-            false,
-            _midnightTakeSignature(),
-            new address[](8),
-            string.concat("Take (lend) offers from maker ", vm.toString(maker), " in ", marketName),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = idAddress;
-        leafs[leafIndex].argumentAddresses[1] = address(0); // offer.buy = false
-        leafs[leafIndex].argumentAddresses[2] = maker;
-        leafs[leafIndex].argumentAddresses[3] = makerCallback;
-        leafs[leafIndex].argumentAddresses[4] = makerReceiver;
-        leafs[leafIndex].argumentAddresses[5] = ratifier;
-        leafs[leafIndex].argumentAddresses[6] = getAddress(sourceChain, "boringVault");
-        leafs[leafIndex].argumentAddresses[7] = address(0);
 
         // Withdraw redeemed credit units.
         unchecked {
