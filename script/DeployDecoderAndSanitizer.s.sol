@@ -181,7 +181,7 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
 
         creationCode = type(CCTPDecoderAndSanitizer).creationCode;
         constructorArgs = abi.encode(uint256(13));
-        deployer.deployContract("CCTP Decoder and Sanitizer V0.2", creationCode, constructorArgs, 0);
+        newDeployer.deployContract("CCTP Decoder and Sanitizer V0.2", creationCode, constructorArgs, 0);
         
         vm.stopBroadcast();
     }
