@@ -141,6 +141,7 @@ import {LiquidETHOptimismDecoderAndSanitizer} from "src/base/DecodersAndSanitize
 import {EtherFiDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/EtherFiDecoderAndSanitizer.sol";
 import {LiquidUSDSeiDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/LiquidUSDSeiDecoderAndSanitizer.sol";
 import {SentoraBTCMainnetDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/SentoraBTCMainnetDecoderAndSanitizer.sol";
+import {CCTPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCTPDecoderAndSanitizer.sol";
 
 import "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
@@ -169,8 +170,8 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
     function setUp() external {
         //uint256 privateKey = vm.envUint("BORING_DEVELOPER");
 
-        vm.createSelectFork("swell");
-        setSourceChainName("swell");
+        vm.createSelectFork("ink");
+        setSourceChainName("ink");
     }
 
     function run() external {
@@ -178,12 +179,9 @@ contract DeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddres
         bytes memory constructorArgs;
         vm.startBroadcast();
 
-        creationCode = type(EtherFiDecoderAndSanitizer).creationCode;
-        constructorArgs = abi.encode(
-            address(1),
-            address(1)
-        );
-        deployer.deployContract("EtherFi Decoder and Sanitizer V0.67", creationCode, constructorArgs, 0);
+        creationCode = type(CCTPDecoderAndSanitizer).creationCode;
+        constructorArgs = abi.encode(uint256(13));
+        deployer.deployContract("CCTP Decoder and Sanitizer V0.2", creationCode, constructorArgs, 0);
         
         vm.stopBroadcast();
     }
