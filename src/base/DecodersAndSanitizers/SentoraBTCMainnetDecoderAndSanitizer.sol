@@ -16,6 +16,5 @@ contract SentoraBTCMainnetDecoderAndSanitizer is
     UniswapV3DecoderAndSanitizer
 {
     constructor(address _uniswapV3NonFungiblePositionManager)
-    UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
-    {}
+    UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager) CCTPDecoderAndSanitizer(5) {}
 }

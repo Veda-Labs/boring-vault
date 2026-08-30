@@ -20,6 +20,5 @@ contract SentayUSDCMainnetDecoderAndSanitizer is
     CCTPDecoderAndSanitizer
 {
     constructor(address _odosRouter)
-        OdosDecoderAndSanitizer(_odosRouter)
-    {}
+        OdosDecoderAndSanitizer(_odosRouter) CCTPDecoderAndSanitizer(5) {}
 }

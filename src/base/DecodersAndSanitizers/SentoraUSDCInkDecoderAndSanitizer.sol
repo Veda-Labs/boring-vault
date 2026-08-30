@@ -15,4 +15,6 @@ contract SentoraUSDCInkDecoderAndSanitizer is
     OFTDecoderAndSanitizer,
     CCTPDecoderAndSanitizer,
     AaveV3DecoderAndSanitizer
-{}
+{
+    constructor() CCTPDecoderAndSanitizer(5) {}
+}

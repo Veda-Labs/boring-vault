@@ -35,5 +35,5 @@ contract BoostedUSDCDecoderAndSanitizer is
     MerklDecoderAndSanitizer,
     SGHODecoderAndSanitizer
 {
-   constructor(address _odosRouter) OdosDecoderAndSanitizer(_odosRouter){} 
+   constructor(address _odosRouter) OdosDecoderAndSanitizer(_odosRouter) CCTPDecoderAndSanitizer(5) {} 
 }
