@@ -27,4 +27,6 @@ contract LiquidMonadUSDDecoderAndSanitizer is
     NativeWrapperDecoderAndSanitizer,
     OFTDecoderAndSanitizer,
     CCTPDecoderAndSanitizer
-{}
+{
+    constructor() CCTPDecoderAndSanitizer(5) {}
+}

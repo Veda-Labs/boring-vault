@@ -94,6 +94,8 @@ contract ChainValues {
     uint32 public constant cctpPlumeDomainId = 22;
     uint32 public constant cctpOptimismDomainId = 2;
     uint32 public constant cctpMonadDomainId = 15;
+    // Must match CCTPDecoderAndSanitizer.CCTP_SOLANA_DOMAIN, which selects the Solana leaf packing.
+    uint32 public constant cctpSolanaDomainId = 5;
 
     error ChainValues__ZeroAddress(string chainName, string valueName);
     error ChainValues__ZeroBytes32(string chainName, string valueName);
@@ -1698,7 +1700,6 @@ contract ChainValues {
         // EtherFi
         values[optimism]["etherFiL2SyncPool"] = 0xC9475e18E2C5C26EA6ADCD55fabE07920beA887e.toBytes32();
 
-
         // EtherFi Debt Manager
         values[optimism]["etherFiDebtManager"] = 0x0078C5a459132e279056B2371fE8A8eC973A9553.toBytes32();
     }
@@ -2938,7 +2939,7 @@ contract ChainValues {
         values[unichain]["morphoGauntletWETH"] = 0x830898200F0E8Be8Dc1C9A836f4AB29ECEdf76eb.toBytes32();
 
         // Euler
-        
+
         // Fluid
         values[unichain]["fluidFactory"] = address(1).toBytes32();
     }
@@ -3498,8 +3499,7 @@ contract ChainValues {
         values[monad]["uniV4Quoter"] = 0xa222Dd357A9076d1091Ed6Aa2e16C9742dD26891.toBytes32();
         values[monad]["uniV4StateView"] = 0x77395F3b2E73aE90843717371294fa97cC419D64.toBytes32();
         values[monad]["uniV4UniversalRouter_2_1_1"] = 0xFdf682F51FE81Aa4898F0AE2163d8A55c127fbC7.toBytes32();
-        values[monad]["uniV4_MON_WETH_poolId"] =
-            bytes32(0x3783b51e33900eb366a9e8473c76cda441e7170d2e5d96927f30c16a7add93aa);
+        values[monad]["uniV4_MON_WETH_poolId"] = bytes32(0x3783b51e33900eb366a9e8473c76cda441e7170d2e5d96927f30c16a7add93aa);
 
         // CCTP V2
         values[monad]["usdcTokenMessengerV2"] = 0x28b5a0e9C621a5BadaA536219b3a228C8168cf5d.toBytes32();
@@ -3518,8 +3518,7 @@ contract ChainValues {
         // Morpho
         values[monad]["morphoBlue"] = 0xD5D960E8C380B724a48AC59E2DfF1b2CB4a1eAee.toBytes32();
         values[monad]["steakhousePrimeETHVault"] = 0xbeef04b01e0275D4ac2e2986256BB14E3Ff6ef42.toBytes32();
-        values[monad]["morphoBlue_wstETH_WETH_marketId"] =
-            bytes32(0x8bdb7d2c5024d349772884afb3c5c409bc8de58ed63d79618bf48fb57b595060);
+        values[monad]["morphoBlue_wstETH_WETH_marketId"] = bytes32(0x8bdb7d2c5024d349772884afb3c5c409bc8de58ed63d79618bf48fb57b595060);
 
         values[monad]["upshiftEarnAUSDVault"] = 0x36eDbF0C834591BFdfCaC0Ef9605528c75c406aA.toBytes32();
 
