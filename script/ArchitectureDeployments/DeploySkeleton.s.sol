@@ -20,6 +20,7 @@ import {LayerZeroTeller} from "src/base/Roles/CrossChain/Bridges/LayerZero/Layer
 import {LayerZeroTellerWithRateLimiting} from
     "src/base/Roles/CrossChain/Bridges/LayerZero/LayerZeroTellerWithRateLimiting.sol";
 import {TellerWithYieldStreaming} from "src/base/Roles/TellerWithYieldStreaming.sol";
+import {TellerWithBuffer} from "src/base/Roles/TellerWithBuffer.sol";
 import {AccountantWithRateProviders, IRateProvider} from "src/base/Roles/AccountantWithRateProviders.sol";
 import {AccountantWithFixedRate} from "src/base/Roles/AccountantWithFixedRate.sol";
 import {AccountantWithYieldStreaming} from "src/base/Roles/AccountantWithYieldStreaming.sol";
@@ -194,7 +195,8 @@ contract DeploySkeletonScript is Script, ChainValues {
         TellerWithCcip,
         TellerWithLayerZero,
         TellerWithLayerZeroRateLimiting,
-        TellerWithYieldStreaming
+        TellerWithYieldStreaming,
+        TellerWithBuffer
     }
 
     TellerKind internal tellerKind;
@@ -815,6 +817,22 @@ contract DeploySkeletonScript is Script, ChainValues {
                 _log(string.concat("Accountant address: ", vm.toString(address(accountant))), 4);
                 _log(string.concat("Native wrapper address: ", vm.toString(nativeWrapperAddress)), 4);
             }
+            bool tellerWithBuffer =
+                vm.parseJsonBool(rawJson, ".tellerConfiguration.tellerParameters.kind.tellerWithBuffer");
+            if (tellerWithBuffer) {
+                if (tellerKindSet) {
+                    _log("Teller kind already set", 1);
+                }
+                creationCode = type(TellerWithBuffer).creationCode;
+                tellerKind = TellerKind.TellerWithBuffer;
+                constructorArgs =
+                    abi.encode(deploymentOwner, address(boringVault), address(accountant), nativeWrapperAddress);
+                tellerKindSet = true;
+                _log("Teller with Buffer deployment TX added", 3);
+                _log(string.concat("Boring vault address: ", vm.toString(address(boringVault))), 4);
+                _log(string.concat("Accountant address: ", vm.toString(address(accountant))), 4);
+                _log(string.concat("Native wrapper address: ", vm.toString(nativeWrapperAddress)), 4);
+            }
 
             _addDeployTx(tellerDeploymentName, creationCode, constructorArgs, 0);
         } else {
@@ -839,10 +857,23 @@ contract DeploySkeletonScript is Script, ChainValues {
                 creationCode = type(BoringOnChainQueue).creationCode;
                 _log("Boring on chain queue deployment TX added", 3);
             } else if (boringQueueWithTracking) {
-                constructorArgs =
-                    abi.encode(deploymentOwner, address(0), address(boringVault), address(accountant), false);
+                // Track-withdraws-on-chain is a config flag (default false for backward compatibility).
+                // Set it true so the queue is born with tracking ON, before any request or engine binding.
+                bool trackWithdrawsOnChain = vm.keyExists(
+                    rawJson, ".boringQueueConfiguration.queueParameters.trackWithdrawsOnChain"
+                ) ? vm.parseJsonBool(rawJson, ".boringQueueConfiguration.queueParameters.trackWithdrawsOnChain") : false;
+                constructorArgs = abi.encode(
+                    deploymentOwner, address(0), address(boringVault), address(accountant), trackWithdrawsOnChain
+                );
                 creationCode = type(BoringOnChainQueueWithTracking).creationCode;
-                _log("Boring on chain queue with tracking deployment TX added", 3);
+                _log(
+                    string.concat(
+                        "Boring on chain queue with tracking deployment TX added (tracking=",
+                        trackWithdrawsOnChain ? "true" : "false",
+                        ")"
+                    ),
+                    3
+                );
             }
             _log(string.concat("Boring vault address: ", vm.toString(address(boringVault))), 4);
             _log(string.concat("Accountant address: ", vm.toString(address(accountant))), 4);
@@ -1054,6 +1085,9 @@ contract DeploySkeletonScript is Script, ChainValues {
                 }
                 else if (tellerKind == TellerKind.TellerWithYieldStreaming) {
                     vm.serializeAddress(coreContracts, "TellerWithYieldStreaming", address(teller));
+                }
+                else if (tellerKind == TellerKind.TellerWithBuffer) {
+                    vm.serializeAddress(coreContracts, "TellerWithBuffer", address(teller));
                 }
                 if(address(aaveV3BufferHelper)!=address(0)) {
                     vm.serializeAddress(coreContracts, "AaveV3BufferHelper", address(aaveV3BufferHelper));
