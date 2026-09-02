@@ -80,17 +80,10 @@ jobs:
         id: build
 
       - name: Run Forge tests
-        # Berachain, Corn and Scroll vaults are being deprecated (ETHFI-35),
-        # so their integration suites are skipped in CI.
+        # No --skip flags: the skip set lives in [profile.nightly] in foundry.toml
+        # (single source of truth, kept in sync with [profile.ci] — see test.yml).
         run: |
-          forge test -vv \
-            --skip SymbioticVaultIntegration --skip CreateTimelockTx \
-            --skip GoldiVaultIntegration --skip BGTRewardVaultIntegration \
-            --skip KodiakIslandIntegration --skip KodiakSwappingIntegration \
-            --skip InfraredIntegration --skip HoneyIntegration \
-            --skip DolomiteFinanceIntegration --skip BerachainPOLIntegration \
-            --skip BeraborrowIntegration --skip BeraETHIntegration \
-            --skip ScrollBridgeIntegration
+          forge test -vv
         id: test
 
       # Scheduled runs notify no one by default, so ping Slack on failure.
