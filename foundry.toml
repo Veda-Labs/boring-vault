@@ -50,17 +50,6 @@ skip = [
     "script/**",
     "test/CreateTimelockTx*",
     "test/integrations/SymbioticVaultIntegration*",
-    "test/integrations/GoldiVaultIntegration*",
-    "test/integrations/BGTRewardVaultIntegration*",
-    "test/integrations/KodiakIslandIntegration*",
-    "test/integrations/KodiakSwappingIntegration*",
-    "test/integrations/InfraredIntegration*",
-    "test/integrations/HoneyIntegration*",
-    "test/integrations/DolomiteFinanceIntegration*",
-    "test/integrations/BerachainPOLIntegration*",
-    "test/integrations/BeraborrowIntegration*",
-    "test/integrations/BeraETHIntegration*",
-    "test/integrations/ScrollBridgeIntegration*",
     "test/integrations/MPortalMonadIntegration*",
 ]
 
@@ -82,17 +71,6 @@ skip = [
     "script/**",
     "test/CreateTimelockTx*",
     "test/integrations/SymbioticVaultIntegration*",
-    "test/integrations/GoldiVaultIntegration*",
-    "test/integrations/BGTRewardVaultIntegration*",
-    "test/integrations/KodiakIslandIntegration*",
-    "test/integrations/KodiakSwappingIntegration*",
-    "test/integrations/InfraredIntegration*",
-    "test/integrations/HoneyIntegration*",
-    "test/integrations/DolomiteFinanceIntegration*",
-    "test/integrations/BerachainPOLIntegration*",
-    "test/integrations/BeraborrowIntegration*",
-    "test/integrations/BeraETHIntegration*",
-    "test/integrations/ScrollBridgeIntegration*",
     "test/integrations/MPortalMonadIntegration*",
 ]
 
@@ -116,17 +94,12 @@ arbitrum = "${ARBITRUM_RPC_URL}"
 optimism = "${OPTIMISM_RPC_URL}"
 base = "${BASE_RPC_URL}"
 zircuit = "${ZIRCUIT_RPC_URL}"
-scroll = "${SCROLL_RPC_URL}"
 linea = "${LINEA_RPC_URL}"
 sonicMainnet = "${SONIC_MAINNET_RPC_URL}"
 sepolia = "${SEPOLIA_RPC_URL}"
 sonicTestnet = "${SONIC_TESTNET_RPC_URL}"
-corn = "${CORN_MAIZENET_RPC_URL}"
 swell = "${SWELL_CHAIN_RPC_URL}"
 bob = "${BOB_RPC_URL}"
-berachainTestnet = "${BERA_TESTNET_RPC_URL}"
-berachain = "${BERA_CHAIN_RPC_URL}"
-bartio = "${BARTIO_RPC_URL}"
 holesky = "${HOLESKY_RPC_URL}"
 unichain = "${UNICHAIN_RPC_URL}"
 hyperEVM = "${HYPER_EVM_RPC_URL}"
@@ -146,7 +119,6 @@ tempo = "https://rpc.tempo.xyz"  # mainnet 4217 — official RPC; gateway can't 
 
 [etherscan]
 #bob = { key = "${BOBSCAN_KEY}", chain = 60808, url = "https://explorer.gobob.xyz/api?"}
-#corn = { key = "${CORNSCAN_KEY}", chain = 21000000, url = "https://api.routescan.io/v2/network/mainnet/evm/21000000/etherscan" }
 #arbitrum = { key = "${ARBISCAN_KEY}" }
 mainnet = { key = "${ETHERSCAN_KEY}", chain = 1, url = "https://api.etherscan.io/v2/api?chainid=1" }
 #polygon = { key = "${POLYGONSCAN_KEY}" }
@@ -154,14 +126,11 @@ mainnet = { key = "${ETHERSCAN_KEY}", chain = 1, url = "https://api.etherscan.io
 #avalanche = { key = "${SNOWTRACE_KEY}" }
 #optimism = { key = "${OPTIMISMSCAN_KEY}" }
 base = { key = "${BASESCAN_KEY}", chain = 8453, url = " https://api.etherscan.io/v2/api?chainid=8453" }
-#scroll = { key = "${SCROLLSCAN_KEY}", chain = 534352, url = "https://api.etherscan.io/v2/api?chainid=534352"  }
 sonicMainnet = { key = "${ETHERSCAN_KEY}", chain = 146, url = "https://api.etherscan.io/v2/api?chainid=146" }
 #swell = { key = "${SWELLSCAN_KEY}", chain = 1923, url = "https://explorer.swellnetwork.io:443/api/" }
 #sonicMainnet = { key = "${SONICSCAN_KEY}", chain = 146, url = "https://api.sonicscan.org/api" }
 #swell = { key = "${SWELLSCAN_KEY}", chain = 1923, url = "https://explorer.swellnetwork.io:443/api/" }
-#berachainTestnet = { key = "${BERASCAN_TESTNET_KEY}", chain = 80000, url = "https://api.routescan.io/v2/network/testnet/evm/80000/etherscan" }
 # sepolia = { key = "${ETHERSCAN_KEY}" }
-#berachain = { key = "${BERASCAN_KEY}", chain = 80094, url = "https://api.berascan.com/api" }
 #bob = { key = "${BOBSCAN_KEY}", chain = 60808, url = "https://explorer.gobob.xyz/api?"}
 #unichain = { key = "${UNISCAN_KEY}", chain = 130, url = "https://api.uniscan.xyz/api" }
 #flare = {key = "${FLARESCAN_KEY}", chain = 14, url = "https://api.routescan.io/v2/network/mainnet/evm/14/etherscan" }
