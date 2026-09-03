@@ -92,6 +92,13 @@ jobs:
             foundry-${{ runner.os }}-${{ hashFiles('foundry.toml') }}-
             foundry-${{ runner.os }}-
 
+      # [profile.ci] and [profile.nightly] must skip the same set (test.yml runs ci,
+      # nightly-fuzz.yml runs nightly, and neither passes --skip). Fail loudly if they drift.
+      - name: Check ci/nightly skip lists are in sync
+        run: |
+          diff <(forge config --json | jq '(.skip // []) | sort') \
+               <(FOUNDRY_PROFILE=nightly forge config --json | jq '(.skip // []) | sort')
+
       - name: Run Forge build
         run: |
           forge --version
@@ -110,17 +117,10 @@ jobs:
           key: ${{ steps.forge-cache.outputs.cache-primary-key }}
 
       - name: Run Forge tests
-        # Berachain, Corn and Scroll vaults are being deprecated (ETHFI-35),
-        # so their integration suites are skipped in CI.
+        # No --skip flags: the skip set lives in [profile.ci] in foundry.toml
+        # (single source of truth), so build and test compile the exact same set.
         run: |
-          forge test -vv \
-            --skip SymbioticVaultIntegration --skip CreateTimelockTx \
-            --skip GoldiVaultIntegration --skip BGTRewardVaultIntegration \
-            --skip KodiakIslandIntegration --skip KodiakSwappingIntegration \
-            --skip InfraredIntegration --skip HoneyIntegration \
-            --skip DolomiteFinanceIntegration --skip BerachainPOLIntegration \
-            --skip BeraborrowIntegration --skip BeraETHIntegration \
-            --skip ScrollBridgeIntegration
+          forge test -vv
         id: test
 
       # Tempo tests need Foundry >= 1.7.0 (T7 precompiles; see foundry.toml). The

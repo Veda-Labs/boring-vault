@@ -38,8 +38,31 @@ seed = "0x0000000000000000000000000000000000000000000000000000000000000002"
 
 # CI profile: skip building script/ (pre-existing veda-90 arity errors, tracked in #65)
 # so `forge test` under FOUNDRY_PROFILE=ci doesn't compile them. Nothing in test/ needs script/.
+# CI skip set: single source of truth for what CI compiles/runs — test.yml and
+# nightly-fuzz.yml pass no --skip flags, so `forge build` and `forge test` always
+# agree and the two profiles stay in lockstep (see the sync check in test.yml).
+# script/ is not needed by CI. The integration suites are the deprecated
+# Berachain/Corn/Scroll vaults (ETHFI-35) plus CreateTimelockTx. Monad is a
+# separate network family that cannot fork under the shared ethereum EVM
+# (needs FOUNDRY_PROFILE=monad); it runs on its own, not in the shared run.
 [profile.ci]
-skip = ["script/**"]
+skip = [
+    "script/**",
+    "test/CreateTimelockTx*",
+    "test/integrations/SymbioticVaultIntegration*",
+    "test/integrations/GoldiVaultIntegration*",
+    "test/integrations/BGTRewardVaultIntegration*",
+    "test/integrations/KodiakIslandIntegration*",
+    "test/integrations/KodiakSwappingIntegration*",
+    "test/integrations/InfraredIntegration*",
+    "test/integrations/HoneyIntegration*",
+    "test/integrations/DolomiteFinanceIntegration*",
+    "test/integrations/BerachainPOLIntegration*",
+    "test/integrations/BeraborrowIntegration*",
+    "test/integrations/BeraETHIntegration*",
+    "test/integrations/ScrollBridgeIntegration*",
+    "test/integrations/MPortalMonadIntegration*",
+]
 
 # CI profile: caps fuzz/invariant so the test job finishes fast (test.yml sets
 # FOUNDRY_PROFILE=ci). Without this, `--profile ci` is a no-op and fuzz runs 8000.
@@ -52,9 +75,26 @@ runs = 32
 depth = 100
 fail_on_revert = false
 
-# Nightly profile: same script/ skip as [profile.ci] (nightly-fuzz.yml sets FOUNDRY_PROFILE=nightly).
+# Same skip set as [profile.ci] — keep the two lists in sync (nightly-fuzz.yml
+# also passes no --skip flags; test.yml has a check that fails if they diverge).
 [profile.nightly]
-skip = ["script/**"]
+skip = [
+    "script/**",
+    "test/CreateTimelockTx*",
+    "test/integrations/SymbioticVaultIntegration*",
+    "test/integrations/GoldiVaultIntegration*",
+    "test/integrations/BGTRewardVaultIntegration*",
+    "test/integrations/KodiakIslandIntegration*",
+    "test/integrations/KodiakSwappingIntegration*",
+    "test/integrations/InfraredIntegration*",
+    "test/integrations/HoneyIntegration*",
+    "test/integrations/DolomiteFinanceIntegration*",
+    "test/integrations/BerachainPOLIntegration*",
+    "test/integrations/BeraborrowIntegration*",
+    "test/integrations/BeraETHIntegration*",
+    "test/integrations/ScrollBridgeIntegration*",
+    "test/integrations/MPortalMonadIntegration*",
+]
 
 # Nightly profile: deep fuzz/invariant run for the scheduled nightly-fuzz.yml
 # (FOUNDRY_PROFILE=nightly). Higher intensity than CI.
