@@ -30,6 +30,6 @@ contract RoyUSDCSonicDecoderAndSanitizer is
         OdosDecoderAndSanitizer(_odosRouter)
         TellerDecoderAndSanitizer()
         BoringChefDecoderAndSanitizer()
-        CCTPDecoderAndSanitizer()
+        CCTPDecoderAndSanitizer(5)
     {}
 }

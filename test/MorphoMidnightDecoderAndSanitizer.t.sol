@@ -323,7 +323,7 @@ contract MorphoMidnightDecoderAndSanitizerTest is Test, MerkleTreeHelper {
     function testLeafHelpersMatchDecoderOutput() external {
         DecoderCustomTypes.MidnightMarket memory market = _fixtureMarket();
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
-        _addMorphoMidnightSupplyLeafs(leafs, market, maker, makerCallback, makerReceiver, ratifier);
+        _addMorphoMidnightSupplyLeafs(leafs, market, maker, makerCallback, makerReceiver, ratifier, true);
         _addMorphoMidnightSellCreditLeafs(leafs, market, maker, makerCallback, ratifier);
         _addMorphoMidnightCollateralLeafs(leafs, market, 0);
         _addMorphoMidnightRepayLeafs(leafs, market);
@@ -394,15 +394,26 @@ contract MorphoMidnightDecoderAndSanitizerTest is Test, MerkleTreeHelper {
         address maker_,
         address makerCallback_,
         address makerReceiver_,
-        address ratifier_
+        address ratifier_,
+        bool addTake_
     ) external {
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
-        _addMorphoMidnightSupplyLeafs(leafs, market, maker_, makerCallback_, makerReceiver_, ratifier_);
+        _addMorphoMidnightSupplyLeafs(leafs, market, maker_, makerCallback_, makerReceiver_, ratifier_, addTake_);
     }
 
     function testSupplyLeafRejectsZeroMakerReceiver() external {
         vm.expectRevert("Midnight lend leaf: makerReceiver == address(0)");
-        this.exposed_addMorphoMidnightSupplyLeafs(_fixtureMarket(), maker, makerCallback, address(0), ratifier);
+        this.exposed_addMorphoMidnightSupplyLeafs(_fixtureMarket(), maker, makerCallback, address(0), ratifier, true);
+    }
+
+    function testSupplyLeafCanOmitTake() external {
+        ManageLeaf[] memory leafs = new ManageLeaf[](3);
+        _addMorphoMidnightSupplyLeafs(leafs, _fixtureMarket(), maker, makerCallback, address(0), ratifier, false);
+
+        assertEq(leafIndex, 2, "expected approval, withdraw, and updatePosition leaves");
+        assertEq(leafs[0].signature, "approve(address,uint256)");
+        assertEq(leafs[1].signature, withdrawSignature);
+        assertEq(leafs[2].signature, updatePositionSignature);
     }
 
     function testLoanEqualsCollateralApprovalDedup() external {
@@ -421,7 +432,7 @@ contract MorphoMidnightDecoderAndSanitizerTest is Test, MerkleTreeHelper {
         });
 
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
-        _addMorphoMidnightSupplyLeafs(leafs, market, maker, makerCallback, makerReceiver, ratifier);
+        _addMorphoMidnightSupplyLeafs(leafs, market, maker, makerCallback, makerReceiver, ratifier, true);
         _addMorphoMidnightCollateralLeafs(leafs, market, 0);
 
         // supply: approve(0) take-lend(1) withdraw(2) updatePosition(3); collateral: [approve deduped]
