@@ -27,6 +27,9 @@ PLASMA_RPC_URL="https://plasma-mainnet.g.alchemy.com/v2/{{ op://Shared/Alchemy A
 BOB_RPC_URL="https://bob-mainnet.g.alchemy.com/v2/{{ op://Shared/Alchemy API Key/notesPlain }}"
 HYPER_EVM_RPC_URL="https://hyperliquid-mainnet.g.alchemy.com/v2/{{ op://Shared/Alchemy API Key/notesPlain }}"
 
+# ── Solana (same Alchemy key; used by vault-risk SVM assessments via curl JSON-RPC) ──
+SOLANA_RPC_URL="https://solana-mainnet.g.alchemy.com/v2/{{ op://Shared/Alchemy API Key/notesPlain }}"
+
 # ── Goldsky (only source serving Monad archive at the tests' pinned block) ───────
 MONAD_RPC_URL="https://edge.goldsky.com/standard/evm/143?secret={{ op://Shared/Goldsky API Key/notesPlain }}"
 
