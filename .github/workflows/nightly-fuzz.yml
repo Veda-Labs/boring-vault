@@ -40,7 +40,6 @@ jobs:
       SCROLL_RPC_URL: ${{ secrets.SCROLL_RPC_URL }}
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
       SONIC_MAINNET_RPC_URL: ${{ secrets.SONIC_MAINNET_RPC_URL }}
-      TAC_RPC_URL: ${{ secrets.TAC_RPC_URL }}
       MONAD_RPC_URL: ${{ secrets.MONAD_RPC_URL }}
     steps:
       - uses: actions/checkout@v4
@@ -51,7 +50,13 @@ jobs:
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: stable
+          # Pinned, not `stable`. The swapper-adapter tests bake captured router
+          # calldata whose dstReceiver is the test swapper's CREATE address, which
+          # is Foundry-version-sensitive. `stable` (now v1.8.x) deploys it at a
+          # different address, so every baked quote reverts Adapter__ReceiverMismatch.
+          # v1.7.1 matches the version the calldata was captured under (and the
+          # Tempo step in test.yml). Bump only alongside regenerating that calldata.
+          version: v1.7.1
 
       # This job always builds cold (no compile cache), and full compiles peak
       # >11 GB in a single solc pipeline — swap keeps the 16 GB runner alive.
@@ -79,17 +84,10 @@ jobs:
         id: build
 
       - name: Run Forge tests
-        # Berachain, Corn and Scroll vaults are being deprecated (ETHFI-35),
-        # so their integration suites are skipped in CI.
+        # No --skip flags: the skip set lives in [profile.nightly] in foundry.toml
+        # (single source of truth, kept in sync with [profile.ci] — see test.yml).
         run: |
-          forge test -vv \
-            --skip SymbioticVaultIntegration --skip CreateTimelockTx \
-            --skip GoldiVaultIntegration --skip BGTRewardVaultIntegration \
-            --skip KodiakIslandIntegration --skip KodiakSwappingIntegration \
-            --skip InfraredIntegration --skip HoneyIntegration \
-            --skip DolomiteFinanceIntegration --skip BerachainPOLIntegration \
-            --skip BeraborrowIntegration --skip BeraETHIntegration \
-            --skip ScrollBridgeIntegration
+          forge test -vv
         id: test
 
       # Scheduled runs notify no one by default, so ping Slack on failure.
