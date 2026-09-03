@@ -103,12 +103,10 @@ bob = "${BOB_RPC_URL}"
 holesky = "${HOLESKY_RPC_URL}"
 unichain = "${UNICHAIN_RPC_URL}"
 hyperEVM = "${HYPER_EVM_RPC_URL}"
-tacTestnet = "${TAC_TESTNET_RPC_URL}"
 flare = "${FLARE_RPC_URL}"
 ink = "${INK_RPC_URL}"
 plume = "${PLUME_RPC_URL}"
 katana = "${KATANA_RPC_URL}"
-tac = "${TAC_RPC_URL}"
 plasma = "${PLASMA_RPC_URL}"
 inkSepolia= "${INK_SEPOLIA_RPC_URL}"
 xlayer="${XLAYER_RPC_URL}"
@@ -137,7 +135,6 @@ sonicMainnet = { key = "${ETHERSCAN_KEY}", chain = 146, url = "https://api.ether
 #hyperEVM = { key = "${HYPER_EVM_KEY}", chain = 999, url = "https://api.etherscan.io/v2/api?chainid=999" }
 #plume = { key = "${PLUMESCAN_KEY}", chain = 98866, url = "https://explorer-plume-mainnet-1.t.conduit.xyz/api/"}
 #katana = { key = "${KATANASCAN_KEY}", chain = 747474, url = "https://api.etherscan.io/v2/api?chainid=747474" }
-#tac = { key = "${TACSCAN_KEY}", chain = 239, url = "https://explorer.tac.build/api" }
 ink = { key = "${INKSCAN_KEY}", chain = 57073, url = "https://explorer.inkonchain.com/api" }
 #linea = { key = "${LINEASCAN_KEY}", chain = 59144, url = "https://api.etherscan.io/v2/api?chainid=59144" }
 plasma = { key = "${ETHERSCAN_KEY}", chain = 9745, url = "https://api.etherscan.io/v2/api?chainid=9745" }
