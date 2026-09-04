@@ -117,13 +117,15 @@ jobs:
           forge test -vv
         id: test
 
-      # Use nightly Foundry for Tempo tests because stable heavily lags network upgrades
-      # (stable's embedded Tempo precompiles are pre-T5; this nightly is T7-aware).
-      # We can't pin an exact nightly version because they are periodically deleted.
-      - name: Install Foundry (nightly, for Tempo precompiles)
+      # Tempo tests need Foundry >= 1.7.0 (T7 precompiles; see foundry.toml). The
+      # rolling `stable` is only v1.5.1 (below that floor), and `version: nightly`
+      # follows a rolling tag that keeps resolving to GC'd nightly releases → HTTP
+      # 404. v1.7.1 is a permanent VERSION release (never garbage-collected), so it
+      # meets the floor and never disappears. Bump when Tempo needs a newer T-rev.
+      - name: Install Foundry (v1.7.1, for Tempo precompiles)
         uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: nightly
+          version: v1.7.1
 
       # Tempo tests run against the native Tempo precompiles (network = "tempo", Foundry >= 1.7.0).
       # The profiles partition the test set: default excludes test/**Tempo*, tempo runs only those.
