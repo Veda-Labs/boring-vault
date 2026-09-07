@@ -52,7 +52,13 @@ jobs:
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: stable
+          # Pinned, not `stable`. The swapper-adapter tests bake captured router
+          # calldata whose dstReceiver is the test swapper's CREATE address, which
+          # is Foundry-version-sensitive. `stable` (now v1.8.x) deploys it at a
+          # different address, so every baked quote reverts Adapter__ReceiverMismatch.
+          # v1.7.1 matches the version the calldata was captured under (and the
+          # Tempo step below). Bump only alongside regenerating that calldata.
+          version: v1.7.1
 
       # [profile.ci] and [profile.nightly] in foundry.toml must skip the same
       # sources so PR CI and nightly-fuzz test the same code — fail fast if the
