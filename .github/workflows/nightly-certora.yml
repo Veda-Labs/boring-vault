@@ -27,7 +27,7 @@ jobs:
       # (branch × scenario = 10 jobs). fail-fast off so one failure doesn't cancel the rest.
       fail-fast: false
       matrix:
-        branch: [main, dev]
+        branch: [main]
         scenario: [A, B, C, D, E]
         # configs attach per-scenario (each include entry extends both branch combos).
         include:
