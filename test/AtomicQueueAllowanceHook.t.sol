@@ -77,6 +77,7 @@ contract MockAtomicQueue {
 contract AtomicQueueAllowanceHookTest is Test {
     AtomicQueueAllowanceHook internal hook;
     MockAtomicQueue internal queue;
+    MockAtomicQueue internal queue2;
     MockLegacyBeforeTransferHook internal legacyHook;
     MockVault internal vault;
 
@@ -86,6 +87,7 @@ contract AtomicQueueAllowanceHookTest is Test {
 
     function setUp() external {
         queue = new MockAtomicQueue();
+        queue2 = new MockAtomicQueue();
         legacyHook = new MockLegacyBeforeTransferHook();
         vault = new MockVault();
         hook = new AtomicQueueAllowanceHook(
@@ -98,6 +100,19 @@ contract AtomicQueueAllowanceHookTest is Test {
         assertEq(bytes4(keccak256("beforeTransfer(address)")), bytes4(0xe83931af));
         assertEq(bytes4(keccak256("beforeTransfer(address,address,address)")), bytes4(0xabd626b0));
     }
+    function testCannotExceedMaximumBlockedSpenders() external {
+        uint256 maxSpenders = hook.MAX_BLOCKED_SPENDERS();
+        for (uint256 i = 1; i < maxSpenders; ++i) {
+            hook.addBlockedSpender(vm.addr(i));
+        }
+        assertEq(hook.getBlockedSpenders().length, maxSpenders);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(AtomicQueueAllowanceHook.AtomicQueueAllowanceHook__TooManyBlockedSpenders.selector)
+        );
+        hook.addBlockedSpender(vm.addr(maxSpenders));
+    }
+
     function testLegacyOneArgumentSelectorStillDelegates() external {
         legacyHook.setShouldRevert(true);
 
@@ -112,7 +127,9 @@ contract AtomicQueueAllowanceHookTest is Test {
         vault.approve(address(queue), BALANCE);
 
         vm.expectRevert(
-            abi.encodeWithSelector(AtomicQueueAllowanceHook.AtomicQueueAllowanceHook__ApprovalToBlockedSpender.selector, USER)
+            abi.encodeWithSelector(
+                AtomicQueueAllowanceHook.AtomicQueueAllowanceHook__ApprovalToBlockedSpender.selector, USER, address(queue)
+            )
         );
         queue.pull(vault, USER, RECIPIENT, BALANCE);
 
@@ -120,6 +137,49 @@ contract AtomicQueueAllowanceHookTest is Test {
         assertEq(vault.balanceOf(USER), BALANCE);
         assertEq(vault.balanceOf(RECIPIENT), 0);
     }
+    function testMultipleBlockedSpendersCanBeAddedAndRemoved() external {
+        hook.addBlockedSpender(address(queue2));
+        assertTrue(hook.isBlockedSpender(address(queue)));
+        assertTrue(hook.isBlockedSpender(address(queue2)));
+        assertEq(hook.blockedSpenders(0), address(queue));
+        assertEq(hook.blockedSpenders(1), address(queue2));
+
+        vm.startPrank(USER);
+        vault.approve(address(queue), BALANCE);
+        vault.approve(address(queue2), BALANCE);
+        vm.stopPrank();
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                AtomicQueueAllowanceHook.AtomicQueueAllowanceHook__ApprovalToBlockedSpender.selector, USER, address(queue)
+            )
+        );
+        queue2.pull(vault, USER, RECIPIENT, BALANCE);
+
+        vm.prank(USER);
+        vault.approve(address(queue), 0);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                AtomicQueueAllowanceHook.AtomicQueueAllowanceHook__ApprovalToBlockedSpender.selector, USER, address(queue2)
+            )
+        );
+        queue2.pull(vault, USER, RECIPIENT, BALANCE);
+
+        hook.removeBlockedSpender(address(queue2));
+        queue2.pull(vault, USER, RECIPIENT, BALANCE);
+        assertFalse(hook.isBlockedSpender(address(queue2)));
+        assertEq(vault.balanceOf(RECIPIENT), BALANCE);
+
+        vm.prank(USER);
+        vault.approve(address(queue), BALANCE);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                AtomicQueueAllowanceHook.AtomicQueueAllowanceHook__ApprovalToBlockedSpender.selector, USER, address(queue)
+            )
+        );
+        queue.pull(vault, USER, RECIPIENT, 1);
+    }
+
 
     function testRevokingQueueApprovalRestoresTransfers() external {
         vm.startPrank(USER);
