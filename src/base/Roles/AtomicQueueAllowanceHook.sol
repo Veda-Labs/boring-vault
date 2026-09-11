@@ -12,13 +12,14 @@ interface IERC20Allowance {
 
 interface ILegacyBeforeTransferHook {
     function beforeTransfer(address from) external view;
+    function beforeTransfer(address from, address to, address operator) external view;
 }
 
 /**
  * @title AtomicQueueAllowanceHook
  * @notice Blocks transfers from accounts with a live approval to a blocked spender.
- * @dev This contract intentionally exposes only the legacy one-argument hook selector.
- *      The vault must call beforeTransfer(address), not the three-argument hook.
+ * @dev Supports both BoringVault beforeTransfer hook selectors. The one-argument
+ *      overload is required by legacy vault deployments.
  */
 contract AtomicQueueAllowanceHook is Auth {
     // ========================================= STATE =========================================
@@ -79,10 +80,22 @@ contract AtomicQueueAllowanceHook is Auth {
      *      The legacy teller remains responsible for denyFrom and share-lock enforcement.
      */
     function beforeTransfer(address from) external view {
+        _checkAllowance(from);
+        legacyHook.beforeTransfer(from);
+    }
+
+    /**
+     * @notice Revert while `from` has a nonzero approval to `blockedSpender`.
+     * @dev This overload supports BoringVault deployments that pass the recipient and operator.
+     */
+    function beforeTransfer(address from, address to, address operator) external view {
+        _checkAllowance(from);
+        legacyHook.beforeTransfer(from, to, operator);
+    }
+
+    function _checkAllowance(address from) internal view {
         if (vault.allowance(from, blockedSpender) != 0) {
             revert AtomicQueueAllowanceHook__ApprovalToBlockedSpender(from);
         }
-
-        legacyHook.beforeTransfer(from);
     }
 }

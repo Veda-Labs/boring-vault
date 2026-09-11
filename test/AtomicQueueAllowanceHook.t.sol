@@ -10,6 +10,7 @@ import {Authority} from "@solmate/auth/Auth.sol";
 
 interface IBeforeTransferHook {
     function beforeTransfer(address from) external view;
+    function beforeTransfer(address from, address to, address operator) external view;
 }
 
 contract MockLegacyBeforeTransferHook is ILegacyBeforeTransferHook {
@@ -22,6 +23,10 @@ contract MockLegacyBeforeTransferHook is ILegacyBeforeTransferHook {
     }
 
     function beforeTransfer(address) external view {
+        if (shouldRevert) revert MockLegacyBeforeTransferHook__TransferDenied();
+    }
+
+    function beforeTransfer(address, address, address) external view {
         if (shouldRevert) revert MockLegacyBeforeTransferHook__TransferDenied();
     }
 }
@@ -46,14 +51,14 @@ contract MockVault is IERC20Allowance {
     }
 
     function transfer(address to, uint256 amount) external returns (bool) {
-        hook.beforeTransfer(msg.sender);
+        hook.beforeTransfer(msg.sender, to, msg.sender);
         balanceOf[msg.sender] -= amount;
         balanceOf[to] += amount;
         return true;
     }
 
     function transferFrom(address from, address to, uint256 amount) external returns (bool) {
-        hook.beforeTransfer(from);
+        hook.beforeTransfer(from, to, msg.sender);
 
         uint256 allowed = allowance[from][msg.sender];
         if (allowed != type(uint256).max) allowance[from][msg.sender] = allowed - amount;
@@ -89,9 +94,17 @@ contract AtomicQueueAllowanceHookTest is Test {
         vault.setHook(IBeforeTransferHook(address(hook)));
         vault.mint(USER, BALANCE);
     }
-    function testUsesLegacyBeforeTransferSelector() external pure {
-        assertEq(AtomicQueueAllowanceHook.beforeTransfer.selector, bytes4(0xe83931af));
+    function testUsesBothBeforeTransferSelectors() external pure {
+        assertEq(bytes4(keccak256("beforeTransfer(address)")), bytes4(0xe83931af));
+        assertEq(bytes4(keccak256("beforeTransfer(address,address,address)")), bytes4(0xabd626b0));
     }
+    function testLegacyOneArgumentSelectorStillDelegates() external {
+        legacyHook.setShouldRevert(true);
+
+        vm.expectRevert(MockLegacyBeforeTransferHook.MockLegacyBeforeTransferHook__TransferDenied.selector);
+        hook.beforeTransfer(USER);
+    }
+
 
 
     function testQueuePullRevertsBeforeAllowanceAndBalanceChange() external {
@@ -120,7 +133,7 @@ contract AtomicQueueAllowanceHookTest is Test {
         assertEq(vault.balanceOf(RECIPIENT), BALANCE);
     }
 
-    function testLegacyHookStillEnforcesAfterAllowanceCheck() external {
+    function testThreeArgumentSelectorStillDelegates() external {
         legacyHook.setShouldRevert(true);
 
         vm.expectRevert(MockLegacyBeforeTransferHook.MockLegacyBeforeTransferHook__TransferDenied.selector);
