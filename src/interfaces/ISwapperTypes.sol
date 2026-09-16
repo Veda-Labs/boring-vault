@@ -13,6 +13,7 @@ import {BoringVault} from "src/base/BoringVault.sol";
 ///         contracts (FeeRegistry, AdapterRegistry, PriceValidator) bind to the
 ///         stable ISwapper view surface instead and never see these types.
 interface ISwapperTypes {
+
     struct TokenRoute {
         ERC20 tokenIn;
         ERC20 tokenOut;
