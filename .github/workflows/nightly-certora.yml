@@ -122,7 +122,7 @@ jobs:
           # fast (no wasted re-proofs).
           MAX_ATTEMPTS=3
           RETRY_SLEEP=60
-          TRANSIENT_RE='Could not find job results|request failed|An error occurred'
+          TRANSIENT_RE='Could not find job results|request failed'
 
           # Runs one certoraRun, streaming output live while capturing it to match on.
           # Returns certoraRun's exit code; retries in place on transient cloud errors.
