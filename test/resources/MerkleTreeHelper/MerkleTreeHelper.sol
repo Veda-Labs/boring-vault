@@ -17059,10 +17059,12 @@ function _addTellerLeafsWithReferral(
         bytes32 manageRoot,
         bytes32[][] memory manageTree
     ) internal {
-        if (vm.exists(filePath)) {
-            // Need to delete it
-            vm.removeFile(filePath);
-        }
+        // Truncate-or-create in one atomic call instead of exists()+removeFile().
+        // forge runs test contracts in parallel and 140+ call sites share this one
+        // default path (./leafs/TemporaryLeafs.json), so an exists()→removeFile()
+        // sequence races: another test deletes the file between the two calls and
+        // removeFile throws "No such file or directory". writeFile has no such TOCTOU.
+        vm.writeFile(filePath, "");
         vm.writeLine(filePath, "{ \"metadata\": ");
         string[] memory composition = new string[](5);
         composition[0] = "Bytes20(DECODER_AND_SANITIZER_ADDRESS)";
