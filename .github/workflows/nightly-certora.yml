@@ -2,8 +2,11 @@ name: nightly-certora
 
 on:
   schedule:
-    # 23:00 UTC daily — staggered an hour after nightly-fuzz (22:00).
-    - cron: "0 23 * * *"
+    # 02:00 UTC daily — after nightly-fuzz (22:00) and offset from the public
+    # boring-vault repo's Certora run (23:00): both repos submitting the full
+    # scenario matrix to the prover in the same minute doubles the queue load at
+    # the moment its cloud is most likely to lose job results.
+    - cron: "0 2 * * *"
   workflow_dispatch:
 
 env:
