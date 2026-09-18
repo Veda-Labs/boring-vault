@@ -33,4 +33,6 @@ contract BalancedUSDCDecoderAndSanitizer is
     MerklDecoderAndSanitizer,
     SGHODecoderAndSanitizer
 {
+    constructor() CCTPDecoderAndSanitizer(5) {}
+
 }

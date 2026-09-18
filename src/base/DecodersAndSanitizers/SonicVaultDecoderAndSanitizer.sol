@@ -26,5 +26,5 @@ contract SonicVaultDecoderAndSanitizer is
     NativeWrapperDecoderAndSanitizer,
     CCTPDecoderAndSanitizer
 {
-    constructor(address _odosRouter) OdosDecoderAndSanitizer(_odosRouter){} 
+    constructor(address _odosRouter) OdosDecoderAndSanitizer(_odosRouter) CCTPDecoderAndSanitizer(5) {} 
 }

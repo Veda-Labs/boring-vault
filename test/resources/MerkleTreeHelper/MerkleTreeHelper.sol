@@ -8171,37 +8171,40 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         address maker,
         address makerCallback,
         address makerReceiver,
-        address ratifier
+        address ratifier,
+        bool addTake
     ) internal {
         // A zero makerReceiver can never match a real sell offer (the maker's proceeds would go to
-        // address(0)), so a leaf built with it is dead weight — fail loudly at build time.
-        require(makerReceiver != address(0), "Midnight lend leaf: makerReceiver == address(0)");
+        // address(0)), so a take leaf built with it is dead weight — fail loudly at build time.
+        if (addTake) require(makerReceiver != address(0), "Midnight lend leaf: makerReceiver == address(0)");
 
         (, address idAddress) = _getMidnightMarketId(market);
         string memory marketName = _midnightMarketName(market);
 
         _addMidnightLoanTokenApprovalLeaf(leafs, market.loanToken);
 
-        // Take sell offers (vault is buyer / lender). Midnight requires receiverIfTakerIsSeller == 0 here.
-        unchecked {
-            leafIndex++;
+        if (addTake) {
+            // Take sell offers (vault is buyer / lender). Midnight requires receiverIfTakerIsSeller == 0 here.
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                getAddress(sourceChain, "morphoMidnight"),
+                false,
+                _midnightTakeSignature(),
+                new address[](8),
+                string.concat("Take (lend) offers from maker ", vm.toString(maker), " in ", marketName),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = idAddress;
+            leafs[leafIndex].argumentAddresses[1] = address(0); // offer.buy = false
+            leafs[leafIndex].argumentAddresses[2] = maker;
+            leafs[leafIndex].argumentAddresses[3] = makerCallback;
+            leafs[leafIndex].argumentAddresses[4] = makerReceiver;
+            leafs[leafIndex].argumentAddresses[5] = ratifier;
+            leafs[leafIndex].argumentAddresses[6] = getAddress(sourceChain, "boringVault");
+            leafs[leafIndex].argumentAddresses[7] = address(0);
         }
-        leafs[leafIndex] = ManageLeaf(
-            getAddress(sourceChain, "morphoMidnight"),
-            false,
-            _midnightTakeSignature(),
-            new address[](8),
-            string.concat("Take (lend) offers from maker ", vm.toString(maker), " in ", marketName),
-            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
-        );
-        leafs[leafIndex].argumentAddresses[0] = idAddress;
-        leafs[leafIndex].argumentAddresses[1] = address(0); // offer.buy = false
-        leafs[leafIndex].argumentAddresses[2] = maker;
-        leafs[leafIndex].argumentAddresses[3] = makerCallback;
-        leafs[leafIndex].argumentAddresses[4] = makerReceiver;
-        leafs[leafIndex].argumentAddresses[5] = ratifier;
-        leafs[leafIndex].argumentAddresses[6] = getAddress(sourceChain, "boringVault");
-        leafs[leafIndex].argumentAddresses[7] = address(0);
 
         // Withdraw redeemed credit units.
         unchecked {
@@ -18157,8 +18160,12 @@ function _addTellerLeafsWithReferral(
     function _addCCTPBridgeLeafs(ManageLeaf[] memory leafs, uint32 toChain) internal {
         //approve USDC
         //bridge USDC depositForBurn
-        //receiveMessage 
-        
+        //receiveMessage
+        // This helper pins the vault's own EVM address as mintRecipient and destinationCaller. That is
+        // meaningless on Solana and the decoder packs Solana leaves differently, so fail at generation
+        // time instead of emitting a leaf that can never verify.
+        require(toChain != cctpSolanaDomainId, "CCTP: use _addCCTPBridgeToSolanaLeafs for Solana");
+
         unchecked {
             leafIndex++;
         }
@@ -18197,6 +18204,59 @@ function _addTellerLeafsWithReferral(
             "receiveMessage(bytes,bytes)",
             new address[](0),
             string.concat("Receive USDC from ", vm.toString(toChain)),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+    }
+
+    /// @notice Adds leafs to bridge USDC to Solana (CCTP domain 5) using CCTP V2.
+    /// @param solanaMintRecipient The 32 byte USDC TOKEN ACCOUNT the minted USDC is credited to,
+    ///        committed to the leaf split across 2 address slots. NEVER pass a wallet or PDA owner
+    ///        address. Verify the token account exists on Solana at root generation time.
+    /// @dev destinationCaller is pinned to bytes32(0), permissionless receive. A nonzero caller must
+    ///      sign Solana's receive_message instruction and would strand the transfer.
+    function _addCCTPBridgeToSolanaLeafs(ManageLeaf[] memory leafs, bytes32 solanaMintRecipient) internal {
+        require(solanaMintRecipient != bytes32(0), "solanaMintRecipient cannot be zero");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "USDC"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve USDC to be spent by USDC TokenMessengerV2"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "usdcTokenMessengerV2");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "usdcTokenMessengerV2"),
+            false,
+            "depositForBurn(uint256,uint32,bytes32,address,bytes32,uint256,uint32)",
+            new address[](6),
+            string.concat("Bridge USDC to Solana token account ", vm.toString(solanaMintRecipient)),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = address(uint160(cctpSolanaDomainId));
+        leafs[leafIndex].argumentAddresses[1] = address(bytes20(bytes16(solanaMintRecipient)));
+        leafs[leafIndex].argumentAddresses[2] = address(bytes20(bytes16(solanaMintRecipient << 128)));
+        leafs[leafIndex].argumentAddresses[3] = getAddress(sourceChain, "USDC");
+        leafs[leafIndex].argumentAddresses[4] = address(0); // destinationCaller high half, bytes32(0)
+        leafs[leafIndex].argumentAddresses[5] = address(0); // destinationCaller low half, permissionless receive
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "usdcMessageTransmitterV2"),
+            false,
+            "receiveMessage(bytes,bytes)",
+            new address[](0),
+            string.concat("Receive USDC from Solana"),
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
     }
@@ -18788,7 +18848,12 @@ function _addTellerLeafsWithReferral(
     bool addLeafIndex = false;
 
     function _generateTestLeafs(ManageLeaf[] memory leafs, bytes32[][] memory manageTree) internal {
-        string memory filePath = "./leafs/TemporaryLeafs.json";
+        _generateTestLeafs("./leafs/TemporaryLeafs.json", leafs, manageTree);
+    }
+
+    function _generateTestLeafs(string memory filePath, ManageLeaf[] memory leafs, bytes32[][] memory manageTree)
+        internal
+    {
         addLeafIndex = true;
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
         addLeafIndex = false;
@@ -18801,10 +18866,12 @@ function _addTellerLeafsWithReferral(
         bytes32 manageRoot,
         bytes32[][] memory manageTree
     ) internal {
-        if (vm.exists(filePath)) {
-            // Need to delete it
-            vm.removeFile(filePath);
-        }
+        // Truncate-or-create in one atomic call instead of exists()+removeFile().
+        // forge runs test contracts in parallel and 140+ call sites share this one
+        // default path (./leafs/TemporaryLeafs.json), so an exists()→removeFile()
+        // sequence races: another test deletes the file between the two calls and
+        // removeFile throws "No such file or directory". writeFile has no such TOCTOU.
+        vm.writeFile(filePath, "");
         vm.writeLine(filePath, "{ \"metadata\": ");
         string[] memory composition = new string[](5);
         composition[0] = "Bytes20(DECODER_AND_SANITIZER_ADDRESS)";

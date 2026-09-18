@@ -40,8 +40,6 @@ jobs:
       SCROLL_RPC_URL: ${{ secrets.SCROLL_RPC_URL }}
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
       SONIC_MAINNET_RPC_URL: ${{ secrets.SONIC_MAINNET_RPC_URL }}
-      SWELL_CHAIN_RPC_URL: ${{ secrets.SWELL_CHAIN_RPC_URL }}
-      TAC_RPC_URL: ${{ secrets.TAC_RPC_URL }}
       MONAD_RPC_URL: ${{ secrets.MONAD_RPC_URL }}
     steps:
       - uses: actions/checkout@v4
@@ -51,7 +49,13 @@ jobs:
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: stable
+          # Pinned, not `stable`. The swapper-adapter tests bake captured router
+          # calldata whose dstReceiver is the test swapper's CREATE address, which
+          # is Foundry-version-sensitive. `stable` (now v1.8.x) deploys it at a
+          # different address, so every baked quote reverts Adapter__ReceiverMismatch.
+          # v1.7.1 matches the version the calldata was captured under (and the
+          # Tempo step below). Bump only alongside regenerating that calldata.
+          version: v1.7.1
 
       # Full recompiles peak >11 GB in a single solc pipeline; the 16 GB runner
       # OOMs and the VM is killed mid-build ("runner received a shutdown
@@ -93,6 +97,13 @@ jobs:
             foundry-${{ runner.os }}-${{ hashFiles('foundry.toml') }}-
             foundry-${{ runner.os }}-
 
+      # [profile.ci] and [profile.nightly] must skip the same set (test.yml runs ci,
+      # nightly-fuzz.yml runs nightly, and neither passes --skip). Fail loudly if they drift.
+      - name: Check ci/nightly skip lists are in sync
+        run: |
+          diff <(forge config --json | jq '(.skip // []) | sort') \
+               <(FOUNDRY_PROFILE=nightly forge config --json | jq '(.skip // []) | sort')
+
       - name: Run Forge build
         run: |
           forge --version
@@ -111,17 +122,10 @@ jobs:
           key: ${{ steps.forge-cache.outputs.cache-primary-key }}
 
       - name: Run Forge tests
-        # Berachain, Corn and Scroll vaults are being deprecated (ETHFI-35),
-        # so their integration suites are skipped in CI.
+        # No --skip flags: the skip set lives in [profile.ci] in foundry.toml
+        # (single source of truth), so build and test compile the exact same set.
         run: |
-          forge test -vv \
-            --skip SymbioticVaultIntegration --skip CreateTimelockTx \
-            --skip GoldiVaultIntegration --skip BGTRewardVaultIntegration \
-            --skip KodiakIslandIntegration --skip KodiakSwappingIntegration \
-            --skip InfraredIntegration --skip HoneyIntegration \
-            --skip DolomiteFinanceIntegration --skip BerachainPOLIntegration \
-            --skip BeraborrowIntegration --skip BeraETHIntegration \
-            --skip ScrollBridgeIntegration
+          forge test -vv
         id: test
 
       # Tempo tests need Foundry >= 1.7.0 (T7 precompiles; see foundry.toml). The

@@ -38,7 +38,7 @@ contract KHypeHyperEVMDecoderAndSanitizer is
 {
 
     constructor(address _uniswapV3NonFungiblePositionManager) 
-        UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager){}
+        UniswapV3DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager) CCTPDecoderAndSanitizer(5) {}
 
     function deposit(uint256, address receiver) external pure virtual override(ERC4626DecoderAndSanitizer, CurveDecoderAndSanitizer) returns (bytes memory addressesFound) {
         addressesFound = abi.encodePacked(receiver);
