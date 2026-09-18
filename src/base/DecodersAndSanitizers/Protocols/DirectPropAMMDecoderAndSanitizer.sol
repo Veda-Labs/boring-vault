@@ -2,6 +2,7 @@
 // Copyright © 2025 Veda Tech Labs
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0
+// Last audited: boring-vault-fixes@0816dda2622b051d1a417d9a9a093fe6cbebbd49 — file:audit/0xmacro-veda-103.pdf
 pragma solidity 0.8.21;
 
 /// @notice Sanitizes the two DirectPropAMM taker entry points.
