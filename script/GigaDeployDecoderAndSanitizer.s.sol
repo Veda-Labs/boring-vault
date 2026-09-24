@@ -312,7 +312,7 @@ contract GigaDeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAd
         // Deploy CCIPDecoderAndSanitizer
         creationCode = type(CCIPDecoderAndSanitizer).creationCode;
         constructorArgs = hex"";
-        _contract = deployContract("CCIP Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        _contract = deployContract("CCIP Decoder and Sanitizer V0.2", creationCode, constructorArgs, 0);
         // console.log("CCIPDecoderAndSanitizer", _contract);
 
         // Deploy CompoundV3DecoderAndSanitizer

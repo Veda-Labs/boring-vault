@@ -8,8 +8,16 @@ pragma solidity 0.8.21;
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
 contract CCIPDecoderAndSanitizer {
+    /// @notice Version of the CCIP decoding logic. Namespaced (not `version()`) so the per-vault decoders that
+    ///         inherit this contract gain no generic selector a merkle leaf could route a target call through.
+    string public constant CCIP_DECODER_VERSION = "V0.2";
+
     bytes4 internal constant EVM_EXTRA_ARGS_V1_TAG = 0x97a657c9;
+    bytes4 internal constant GENERIC_EXTRA_ARGS_V2_TAG = 0x181dcf10;
     bytes4 internal constant SVM_EXTRA_ARGS_V1_TAG = 0x1f3b3aba;
+
+    /// @dev Length of `GENERIC_EXTRA_ARGS_V2_TAG ++ abi.encode(GenericExtraArgsV2)`: a 4 byte tag + 2 static words.
+    uint256 internal constant GENERIC_EXTRA_ARGS_V2_LENGTH = 68;
 
     error CCIPDecoderAndSanitizer__NonZeroDataLength();
     error CCIPDecoderAndSanitizer__NonZeroGasLimit();
@@ -19,6 +27,7 @@ contract CCIPDecoderAndSanitizer {
     error CCIPDecoderAndSanitizer__NonZeroWritableBitmap();
     error CCIPDecoderAndSanitizer__OutOfOrderExecutionRequired();
     error CCIPDecoderAndSanitizer__InvalidSVMReceiver();
+    error CCIPDecoderAndSanitizer__InvalidExtraArgsLength();
 
     //============================== CCIP ===============================
 
@@ -42,6 +51,26 @@ contract CCIPDecoderAndSanitizer {
             if (extraArgs.gasLimit != 0) revert CCIPDecoderAndSanitizer__NonZeroGasLimit();
 
             // Extract sensitive arguments.
+            sensitiveArguments =
+                abi.encodePacked(address(uint160(destinationChainSelector)), abi.decode(message.receiver, (address)));
+        } else if (tag == GENERIC_EXTRA_ARGS_V2_TAG) {
+            // extraArgs is `tag ++ abi.encode(GenericExtraArgsV2)` (Client._argsToBytes in chainlink-ccip).
+            // Decode the struct from the bytes after the tag, exactly as the CCIP onramp / fee quoter does.
+            // The exact length check rejects truncated or padded encodings, so the decoder and CCIP can only
+            // ever parse the same two words.
+            if (message.extraArgs.length != GENERIC_EXTRA_ARGS_V2_LENGTH) {
+                revert CCIPDecoderAndSanitizer__InvalidExtraArgsLength();
+            }
+            DecoderCustomTypes.GenericExtraArgsV2 memory extraArgs =
+                abi.decode(message.extraArgs[4:], (DecoderCustomTypes.GenericExtraArgsV2));
+
+            // Same token-only policy as V1: a zero gas limit (with empty data) means the destination offramp
+            // never calls the receiver. Out-of-order execution is pinned on: CCIP v2.0+ lanes force it anyway,
+            // and on v1.5/v1.6 lanes ordered execution only couples this vault's messages to each other.
+            if (extraArgs.gasLimit != 0) revert CCIPDecoderAndSanitizer__NonZeroGasLimit();
+            if (!extraArgs.allowOutOfOrderExecution) revert CCIPDecoderAndSanitizer__OutOfOrderExecutionRequired();
+
+            // Extract sensitive arguments, identical to the V1 branch so EVM leaves authorize both tags.
             sensitiveArguments =
                 abi.encodePacked(address(uint160(destinationChainSelector)), abi.decode(message.receiver, (address)));
         } else if (tag == SVM_EXTRA_ARGS_V1_TAG) {

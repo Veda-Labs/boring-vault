@@ -256,7 +256,7 @@ contract DeployDecodersAndSanitizersWithNoConstructorArgsScript is
         // // Deploy CCIPDecoderAndSanitizer
         // creationCode = type(CCIPDecoderAndSanitizer).creationCode;
         // constructorArgs = hex"";
-        // deployContract("CCIP Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // deployContract("CCIP Decoder and Sanitizer V0.2", creationCode, constructorArgs, 0);
 
         // // Deploy CompoundV3DecoderAndSanitizer
         // creationCode = type(CompoundV3DecoderAndSanitizer).creationCode;
