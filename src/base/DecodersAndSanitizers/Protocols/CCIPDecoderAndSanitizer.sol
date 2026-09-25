@@ -10,6 +10,7 @@ import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 contract CCIPDecoderAndSanitizer {
     /// @notice Version of the CCIP decoding logic. Namespaced (not `version()`) so the per-vault decoders that
     ///         inherit this contract gain no generic selector a merkle leaf could route a target call through.
+    ///         Not a sanitizer: never reference it in a leaf.
     string public constant CCIP_DECODER_VERSION = "V0.2";
 
     bytes4 internal constant EVM_EXTRA_ARGS_V1_TAG = 0x97a657c9;
@@ -56,8 +57,8 @@ contract CCIPDecoderAndSanitizer {
         } else if (tag == GENERIC_EXTRA_ARGS_V2_TAG) {
             // extraArgs is `tag ++ abi.encode(GenericExtraArgsV2)` (Client._argsToBytes in chainlink-ccip).
             // Decode the struct from the bytes after the tag, exactly as the CCIP onramp / fee quoter does.
-            // The exact length check rejects truncated or padded encodings, so the decoder and CCIP can only
-            // ever parse the same two words.
+            // Only the canonical encoding is accepted (no trailing bytes), so each authorized send has exactly
+            // one calldata form.
             if (message.extraArgs.length != GENERIC_EXTRA_ARGS_V2_LENGTH) {
                 revert CCIPDecoderAndSanitizer__InvalidExtraArgsLength();
             }
@@ -66,7 +67,8 @@ contract CCIPDecoderAndSanitizer {
 
             // Same token-only policy as V1: a zero gas limit (with empty data) means the destination offramp
             // never calls the receiver. Out-of-order execution is pinned on: CCIP v2.0+ lanes force it anyway,
-            // and on v1.5/v1.6 lanes ordered execution only couples this vault's messages to each other.
+            // and on v1.5/v1.6 lanes ordered execution only couples this vault's messages to each other. On those
+            // lanes a V1 send stays ordered and a V2 send is unordered; nothing else about the message differs.
             if (extraArgs.gasLimit != 0) revert CCIPDecoderAndSanitizer__NonZeroGasLimit();
             if (!extraArgs.allowOutOfOrderExecution) revert CCIPDecoderAndSanitizer__OutOfOrderExecutionRequired();
 
