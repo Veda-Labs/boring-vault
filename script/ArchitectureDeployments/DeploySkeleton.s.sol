@@ -125,7 +125,7 @@ contract DeploySkeletonScript is Script, ChainValues {
     }
 
     // You might want to adjust this depending on what all you're deploying and on what chain
-    uint256 constant DESIRED_NUMBER_OF_DEPLOYMENT_TXS = 3;
+    uint256 constant DESIRED_NUMBER_OF_DEPLOYMENT_TXS = 5;
 
     // Contracts to deploy
     ArcticArchitectureLens public lens;
@@ -392,13 +392,6 @@ contract DeploySkeletonScript is Script, ChainValues {
 
         // Get Deployer address from configuration file.
         deployer = Deployer(_handleAddressOrName(".deploymentParameters.deployerContractAddressOrName"));
-
-        if (useHardwareWallet) {
-            // Foundry derives the sender from the Ledger via --ledger --mnemonic-derivation-paths.
-            vm.startBroadcast();
-        } else {
-            vm.startBroadcast(privateKey);
-        }
 
         _deployRolesAuthority();
         _deployLens();
@@ -1017,7 +1010,12 @@ contract DeploySkeletonScript is Script, ChainValues {
             lastIndexDeployed += txsInBundle;
         }
 
-        vm.startBroadcast();
+        if (useHardwareWallet) {
+            // Foundry derives the sender from the Ledger via --ledger --mnemonic-derivation-paths.
+            vm.startBroadcast();
+        } else {
+            vm.startBroadcast(privateKey);
+        }
         if (desiredNumberOfDeploymentTxs == txsLength) {
             console.log("Desired # of txs >= # of bundles, calling deployer directly rather than using bundler");
             for (uint256 i; i < txsLength; i++) {
