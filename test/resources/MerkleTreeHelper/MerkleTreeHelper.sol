@@ -3118,6 +3118,104 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
     } 
 
+    // ========================================= Ondo =========================================
+    function _addOndoUSDYInstantManagerLeafs(ManageLeaf[] memory leafs, ERC20[] memory tokens) internal {
+        address manager = getAddress(sourceChain, "usdyInstantManager");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "USDY"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve USDY Instant Manager to spend USDY",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = manager;
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "rUSDY"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve USDY Instant Manager to spend rUSDY",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = manager;
+
+        for (uint256 i; i < tokens.length; i++) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                address(tokens[i]),
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve USDY Instant Manager to spend ", tokens[i].symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = manager;
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                manager,
+                false,
+                "subscribe(address,uint256,uint256)",
+                new address[](1),
+                string.concat("Mint USDY with ", tokens[i].symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(tokens[i]);
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                manager,
+                false,
+                "subscribeRebasingUSDY(address,uint256,uint256)",
+                new address[](1),
+                string.concat("Mint rUSDY with ", tokens[i].symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(tokens[i]);
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                manager,
+                false,
+                "redeem(uint256,address,uint256)",
+                new address[](1),
+                string.concat("Redeem USDY for ", tokens[i].symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(tokens[i]);
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                manager,
+                false,
+                "redeemRebasingUSDY(uint256,address,uint256)",
+                new address[](1),
+                string.concat("Redeem rUSDY for ", tokens[i].symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(tokens[i]);
+        }
+    }
+
     function _addMidasVaultLeafs(ManageLeaf[] memory leafs, ERC20[] memory depositAssets, ERC20[] memory redeemAssets, address mToken, address depositAdapter, address redemptionVault)
         internal
     {
