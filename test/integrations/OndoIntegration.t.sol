@@ -142,15 +142,21 @@ contract OndoIntegrationTest is BaseTestIntegration {
         );
     }
 
-    function testSubscribeWithUnapprovedTokenFails() external {
+    function testUnapprovedTokenFails() external {
         _setUpMainnet();
-        _registerVault();
 
         address usdt = getAddress(sourceChain, "USDT");
-        bytes memory data = abi.encodeWithSignature("subscribe(address,uint256,uint256)", usdt, 10_000e6, 0);
+        _assertRejected(3, abi.encodeWithSignature("subscribe(address,uint256,uint256)", usdt, 10_000e6, 0));
+        _assertRejected(
+            4, abi.encodeWithSignature("subscribeRebasingUSDY(address,uint256,uint256)", usdt, 10_000e6, 0)
+        );
+        _assertRejected(5, abi.encodeWithSignature("redeem(uint256,address,uint256)", 1e18, usdt, 0));
+        _assertRejected(6, abi.encodeWithSignature("redeemRebasingUSDY(uint256,address,uint256)", 1e18, usdt, 0));
+    }
 
+    function _assertRejected(uint256 leaf, bytes memory data) internal {
         Tx memory tx_ = _getTxArrays(1);
-        tx_.manageLeafs[0] = leafs[3];
+        tx_.manageLeafs[0] = leafs[leaf];
         bytes32[][] memory proofs = _getProofsUsingTree(tx_.manageLeafs, manageTree);
         tx_.targets[0] = getAddress(sourceChain, "usdyInstantManager");
         tx_.targetData[0] = data;
