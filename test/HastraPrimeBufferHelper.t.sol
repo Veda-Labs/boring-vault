@@ -84,14 +84,10 @@ contract HastraPrimeBufferHelperTest is Test, MerkleTreeHelper {
         rolesAuthority.setUserRole(address(teller), TELLER_MANAGER_ROLE, true);
 
         teller.updateAssetData(USDC, true, true, 0);
-        teller.updateAssetData(ERC20(address(wylds)), true, false, 0);
-        accountant.setRateProviderData(ERC20(address(wylds)), true, address(0));
 
         teller.allowBufferHelper(USDC, IBufferHelper(address(bufferHelper)));
         teller.setDepositBufferHelper(USDC, IBufferHelper(address(bufferHelper)));
         teller.setWithdrawBufferHelper(USDC, IBufferHelper(address(bufferHelper)));
-        teller.allowBufferHelper(ERC20(address(wylds)), IBufferHelper(address(bufferHelper)));
-        teller.setDepositBufferHelper(ERC20(address(wylds)), IBufferHelper(address(bufferHelper)));
     }
 
     function testDepositUSDC(uint256 amount) external {
@@ -122,23 +118,6 @@ contract HastraPrimeBufferHelperTest is Test, MerkleTreeHelper {
         assertEq(boringVault.balanceOf(address(this)), amount);
         assertEq(USDC.balanceOf(address(boringVault)), 0);
         assertEq(ERC20(address(prime)).balanceOf(address(boringVault)), expectedPrime);
-    }
-
-    function testDepositWYLDS(uint256 amount) external {
-        amount = bound(amount, 1e6, 1_000_000e6);
-
-        deal(address(USDC), address(this), amount);
-        USDC.safeApprove(address(wylds), amount);
-        uint256 wyldsAmount = wylds.deposit(amount, address(this));
-        uint256 expectedPrime = prime.previewDeposit(wyldsAmount);
-
-        ERC20(address(wylds)).safeApprove(address(boringVault), wyldsAmount);
-        teller.deposit(ERC20(address(wylds)), wyldsAmount, 0, referrer);
-
-        assertEq(boringVault.balanceOf(address(this)), wyldsAmount);
-        assertEq(ERC20(address(wylds)).balanceOf(address(boringVault)), 0);
-        assertEq(ERC20(address(prime)).balanceOf(address(boringVault)), expectedPrime);
-        assertEq(ERC20(address(wylds)).allowance(address(boringVault), address(prime)), 0);
     }
 
     function testWithdrawServedFromIdle() external {
@@ -215,6 +194,13 @@ contract HastraPrimeBufferHelperTest is Test, MerkleTreeHelper {
             abi.encodeWithSelector(HastraPrimeBufferHelper.HastraPrimeBufferHelper__UnsupportedAsset.selector, dai)
         );
         bufferHelper.getDepositManageCall(dai, 1e18);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                HastraPrimeBufferHelper.HastraPrimeBufferHelper__UnsupportedAsset.selector, address(wylds)
+            )
+        );
+        bufferHelper.getDepositManageCall(address(wylds), 1e6);
     }
 
     function testDepositRevertsWhenNavStale() external {

@@ -9,7 +9,7 @@ import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 
 /**
  * @title HastraPrimeBufferHelper
- * @notice Deposits USDC or wYLDS into PRIME. Withdrawals are served from idle balance.
+ * @notice Deposits USDC into PRIME via wYLDS. Withdrawals are served from idle balance.
  */
 contract HastraPrimeBufferHelper is IBufferHelper {
     error HastraPrimeBufferHelper__ZeroAddress();
@@ -35,32 +35,23 @@ contract HastraPrimeBufferHelper is IBufferHelper {
         view
         returns (address[] memory targets, bytes[] memory data, uint256[] memory values)
     {
+        if (asset != USDC) revert HastraPrimeBufferHelper__UnsupportedAsset(asset);
+
         address wylds = address(WYLDS);
         address prime = address(PRIME);
+        uint256 wyldsAmount = WYLDS.previewDeposit(amount);
 
-        if (asset == USDC) {
-            uint256 wyldsAmount = WYLDS.previewDeposit(amount);
-            targets = new address[](4);
-            data = new bytes[](4);
-            targets[0] = USDC;
-            data[0] = abi.encodeWithSignature("approve(address,uint256)", wylds, amount);
-            targets[1] = wylds;
-            data[1] = abi.encodeWithSignature("deposit(uint256,address)", amount, VAULT);
-            targets[2] = wylds;
-            data[2] = abi.encodeWithSignature("approve(address,uint256)", prime, wyldsAmount);
-            targets[3] = prime;
-            data[3] = abi.encodeWithSignature("deposit(uint256,address)", wyldsAmount, VAULT);
-        } else if (asset == wylds) {
-            targets = new address[](2);
-            data = new bytes[](2);
-            targets[0] = wylds;
-            data[0] = abi.encodeWithSignature("approve(address,uint256)", prime, amount);
-            targets[1] = prime;
-            data[1] = abi.encodeWithSignature("deposit(uint256,address)", amount, VAULT);
-        } else {
-            revert HastraPrimeBufferHelper__UnsupportedAsset(asset);
-        }
-        values = new uint256[](targets.length);
+        targets = new address[](4);
+        data = new bytes[](4);
+        values = new uint256[](4);
+        targets[0] = USDC;
+        data[0] = abi.encodeWithSignature("approve(address,uint256)", wylds, amount);
+        targets[1] = wylds;
+        data[1] = abi.encodeWithSignature("deposit(uint256,address)", amount, VAULT);
+        targets[2] = wylds;
+        data[2] = abi.encodeWithSignature("approve(address,uint256)", prime, wyldsAmount);
+        targets[3] = prime;
+        data[3] = abi.encodeWithSignature("deposit(uint256,address)", wyldsAmount, VAULT);
     }
 
     function getWithdrawManageCall(address, uint256)
