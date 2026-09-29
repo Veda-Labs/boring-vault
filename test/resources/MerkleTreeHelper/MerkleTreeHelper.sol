@@ -19342,6 +19342,40 @@ function _addTellerLeafsWithReferral(
         leafs[leafIndex].argumentAddresses[8] = bridgeAdapter;
     }
 
+    // Adds approve + sendToken leaves for bridging over the Wormhole bridge adapter:
+    //   sendToken(uint256,address,uint32,bytes32,bytes32,bytes32,address,bytes)
+    // bridgeAdapterArgs is a Wormhole Executor signed quote. The Executor pays the whole msg.value to the
+    // quote's payee without checking the signature, so the quoter (slot 9) and payee (slot 10) are pinned.
+    function _addMPortalWormholeLeafs(
+        ManageLeaf[] memory leafs,
+        address mportalProxy,
+        ERC20 token,
+        uint32 destinationChainId,
+        bytes32 destinationToken,
+        bytes32 recipient,
+        bytes32 refundAddress
+    ) internal {
+        _addMPortalApproveLeaf(leafs, mportalProxy, token);
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            mportalProxy,
+            true,
+            "sendToken(uint256,address,uint32,bytes32,bytes32,bytes32,address,bytes)",
+            new address[](11),
+            string.concat("Bridge ", token.symbol(), " via MPortal (Wormhole)"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        _populateMPortalSendTokenSlots(
+            leafs[leafIndex].argumentAddresses, address(token), destinationChainId, destinationToken, recipient, refundAddress
+        );
+        leafs[leafIndex].argumentAddresses[8] = getAddress(sourceChain, "mportalWormholeAdapter");
+        leafs[leafIndex].argumentAddresses[9] = getAddress(sourceChain, "wormholeExecutorQuoter");
+        leafs[leafIndex].argumentAddresses[10] = getAddress(sourceChain, "wormholeExecutorPayee");
+    }
+
     function _addMPortalApproveLeaf(ManageLeaf[] memory leafs, address mportalProxy, ERC20 token) private {
         unchecked {
             leafIndex++;

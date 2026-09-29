@@ -5,9 +5,18 @@
 pragma solidity 0.8.21;
 
 // Current proxy https://etherscan.io/address/0xd925c84b55e4e44a53749ff5f2a5a13f63d128fd#code
-// Current implementation https://etherscan.io/address/0xdfc64dbf0e3fcca6871aa2f61f848dbb7843c2e6#code
+// Current implementation (mainnet) https://etherscan.io/address/0xf1c63a35b68a5513b97e05fa2e111d7cc55beaee#code
+// Current implementation (Monad) 0x6c0815281be10c9b929f6de50983fa0c61148da6
+// WormholeBridgeAdapter (mainnet + Monad) 0xaCffEC28C4eEe21C889a4e6C0704c540Ed9D4fDd
 contract MPortalDecoderAndSanitizer {
     error MPortalDecoderAndSanitizer__NonEmptyBridgeAdapterArgs();
+    error MPortalDecoderAndSanitizer__InvalidSignedQuote();
+
+    // Wormhole Executor signed quote (EQ01), passed as bridgeAdapterArgs to the WormholeBridgeAdapter:
+    //   [0..4) "EQ01" | [4..24) quoter | [24..56) bytes32 payee | [56..58) srcChain | [58..60) dstChain
+    //   [60..68) expiry | [68..100) baseFee, dstGasPrice, srcPrice, dstPrice | [100..165) signature
+    bytes4 internal constant WORMHOLE_SIGNED_QUOTE_PREFIX = 0x45513031; // "EQ01"
+    uint256 internal constant WORMHOLE_SIGNED_QUOTE_LENGTH = 165;
 
     // Send token using default bridge adapter
     function sendToken(
@@ -47,9 +56,6 @@ contract MPortalDecoderAndSanitizer {
         address bridgeAdapter,
         bytes calldata bridgeAdapterArgs
     ) external pure returns (bytes memory addressesFound) {
-        if (bridgeAdapterArgs.length > 0) {
-            revert MPortalDecoderAndSanitizer__NonEmptyBridgeAdapterArgs();
-        }
         addressesFound = abi.encodePacked(
             sourceToken,
             address(uint160(destinationChainId)),
@@ -61,5 +67,24 @@ contract MPortalDecoderAndSanitizer {
             address(bytes20(bytes16(refundAddress << 128))),
             bridgeAdapter
         );
+
+        // Empty args: adapters that take no args (e.g. Hyperlane). Non-empty args are only accepted as a
+        // Wormhole Executor signed quote. The Executor does not verify the quote signature onchain and pays
+        // the whole msg.value to the quote's payee, so the payee (and the quoter) must be pinned in the leaf.
+        if (bridgeAdapterArgs.length > 0) {
+            addressesFound = abi.encodePacked(addressesFound, _decodeWormholeSignedQuote(bridgeAdapterArgs));
+        }
+    }
+
+    // Returns the quoter and payee of an EQ01 signed quote. srcChain, dstChain and expiry are enforced by the
+    // Executor; fees, prices and the signature are not used onchain.
+    function _decodeWormholeSignedQuote(bytes calldata signedQuote) internal pure returns (bytes memory) {
+        if (
+            signedQuote.length != WORMHOLE_SIGNED_QUOTE_LENGTH || bytes4(signedQuote[0:4]) != WORMHOLE_SIGNED_QUOTE_PREFIX
+                || bytes12(signedQuote[24:36]) != bytes12(0)
+        ) {
+            revert MPortalDecoderAndSanitizer__InvalidSignedQuote();
+        }
+        return abi.encodePacked(address(bytes20(signedQuote[4:24])), address(bytes20(signedQuote[36:56])));
     }
 }
