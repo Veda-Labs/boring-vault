@@ -75,6 +75,7 @@ import {MorphoBlueDecoderAndSanitizerSingleton} from
     "src/base/DecodersAndSanitizers/MorphoBlueDecoderAndSanitizerSingleton.sol";
 import {MorphoMidnightDecoderAndSanitizerSingleton} from
     "src/base/DecodersAndSanitizers/MorphoMidnightDecoderAndSanitizerSingleton.sol";
+import {TempoDirectPropAMMDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TempoDirectPropAMMDecoderAndSanitizer.sol";
 import {MorphoRewardsMerkleClaimerDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/MorphoRewardsMerkleClaimerDecoderAndSanitizer.sol";
 import {MorphoRewardsWrapperDecoderAndSanitizer} from
@@ -189,6 +190,11 @@ contract DeployDecodersAndSanitizersWithNoConstructorArgsScript is
         creationCode = type(MorphoMidnightDecoderAndSanitizerSingleton).creationCode;
         constructorArgs = hex"";
         deployContract("Morpho Midnight Decoder and Sanitizer Singleton V0.0", creationCode, constructorArgs, 0);
+
+        // // Deploy TempoDirectPropAMMDecoderAndSanitizer
+        // creationCode = type(TempoDirectPropAMMDecoderAndSanitizer).creationCode;
+        // constructorArgs = hex"";
+        // deployContract("Tempo Direct Prop AMM Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         // creationCode = type(LiquidUSDSeiDecoderAndSanitizer).creationCode;
         // constructorArgs = hex"";
