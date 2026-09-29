@@ -13,8 +13,8 @@ import {NativeWrapperDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol";
 import {UniswapV4DecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/UniswapV4DecoderAndSanitizer.sol";
-import {WormholeDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/WormholeDecoderAndSanitizer.sol";
+import {WormholeNTTDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/WormholeNTTDecoderAndSanitizer.sol";
 import {CCIPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCIPDecoderAndSanitizer.sol";
 
 /**
@@ -35,7 +35,7 @@ contract LiquidMonadETHDecoderAndSanitizer is
     MerklDecoderAndSanitizer,
     NativeWrapperDecoderAndSanitizer,
     UniswapV4DecoderAndSanitizer,
-    WormholeDecoderAndSanitizer,
+    WormholeNTTDecoderAndSanitizer,
     CCIPDecoderAndSanitizer,
     BaseDecoderAndSanitizer
 {
