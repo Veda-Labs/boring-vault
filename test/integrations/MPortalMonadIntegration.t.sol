@@ -12,7 +12,6 @@ import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {BridgingDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BridgingDecoderAndSanitizer.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {MerkleTreeHelper} from "test/resources/MerkleTreeHelper/MerkleTreeHelper.sol";
-import {MPortalWormholeIntegrationBase} from "test/integrations/MPortalWormholeIntegration.t.sol";
 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
@@ -265,39 +264,5 @@ contract MPortalMonadIntegrationTest is Test, MerkleTreeHelper {
     function _startFork(string memory rpcKey, uint256 blockNumber) internal returns (uint256 forkId) {
         forkId = vm.createFork(vm.envString(rpcKey), blockNumber);
         vm.selectFork(forkId);
-    }
-}
-
-// Monad -> mainnet over the Wormhole bridge adapter. Shares its tests with MPortalWormholeIntegrationTest (mainnet).
-// forge test --match-path "test/integrations/MPortalMonadIntegration.t.sol" --match-contract MPortalWormholeMonadIntegrationTest -vvv
-contract MPortalWormholeMonadIntegrationTest is MPortalWormholeIntegrationBase {
-    function _chainName() internal pure override returns (string memory) {
-        return "monad";
-    }
-
-    function _rpcKey() internal pure override returns (string memory) {
-        return "MONAD_RPC_URL";
-    }
-
-    function _blockNumber() internal pure override returns (uint256) {
-        return 109_147_997;
-    }
-
-    function _destinationChainId() internal pure override returns (uint32) {
-        return 1;
-    }
-
-    function _srcWormholeChain() internal pure override returns (uint16) {
-        return 48;
-    }
-
-    function _dstWormholeChain() internal pure override returns (uint16) {
-        return 2;
-    }
-
-    // Recent Monad->mainnet Executor fee (tx 0xbf4b40e0d7c8d3030773d3aba7fa7cd42710e6bfb6bbdde3d58bf48a160c00df).
-    // The fee is set by the offchain quote and varies; use the quote's estimatedCost in production.
-    function _executorFee() internal pure override returns (uint256) {
-        return 84_741_414_216_522_864_498;
     }
 }

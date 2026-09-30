@@ -54,6 +54,8 @@ abstract contract MPortalWormholeIntegrationBase is Test, MerkleTreeHelper {
     function _dstWormholeChain() internal pure virtual returns (uint16);
     // Executor fee in native token, in line with real M0 quotes on this route.
     function _executorFee() internal pure virtual returns (uint256);
+    // bridgeAdapterArgs of a real M0 Wormhole mUSD transfer from this chain, byte for byte.
+    function _realQuote() internal pure virtual returns (bytes memory);
 
     function setUp() external {
         setSourceChainName(_chainName());
@@ -118,18 +120,9 @@ abstract contract MPortalWormholeIntegrationBase is Test, MerkleTreeHelper {
         _assertWormholeLogs(logs, fee);
     }
 
-    // Real bridgeAdapterArgs from an M0 Wormhole transfer decode to the pinned quoter and payee.
+    // Unmodified bridgeAdapterArgs from a real M0 Wormhole transfer on this chain decode to the pinned quoter and payee.
     function testMPortalWormholeDecodesRealQuote() external view {
-        bytes memory realQuote = abi.encodePacked(
-            bytes4(0x45513031),
-            address(0xa54008017941EcE968623a0Dd8Ee907E2b133596),
-            bytes32(uint256(uint160(0x6a8BFC410A3Cc7306d52872F116AFb12F1cec6C6))),
-            uint16(2),
-            uint16(48),
-            uint64(0x69e13dad),
-            QUOTE_FEES_AND_PRICES,
-            QUOTE_SIGNATURE
-        );
+        bytes memory realQuote = _realQuote();
         assertEq(realQuote.length, 165);
         bytes memory found = MPortalDecoderAndSanitizer(rawDataDecoderAndSanitizer)
             .sendToken(
@@ -236,6 +229,40 @@ abstract contract MPortalWormholeIntegrationBase is Test, MerkleTreeHelper {
         manager.manageVaultWithMerkleVerification(proofs, _decoders(), targets, data, values);
     }
 
+    // Quote chains are not in the leaf; the Executor checks them against the chain it runs on and the
+    // Wormhole chain the adapter maps the M Portal destination to.
+    function testMPortalWormholeQuoteDstMismatchRevertsInExecutor() external {
+        _setWormholeRoot();
+        uint16 otherChain = 30; // Base
+        bytes memory quote = _quote(
+            getAddress(sourceChain, "wormholeExecutorQuoter"),
+            getAddress(sourceChain, "wormholeExecutorPayee"),
+            _srcWormholeChain(),
+            otherChain,
+            uint64(block.timestamp + 1 hours)
+        );
+        (bytes32[][] memory proofs, address[] memory targets, bytes[] memory data, uint256[] memory values) =
+            _buildManageCall(getAddress(sourceChain, "mportalWormholeAdapter"), quote, _executorFee());
+        vm.expectRevert(abi.encodeWithSignature("QuoteDstChainMismatch(uint16,uint16)", otherChain, _dstWormholeChain()));
+        manager.manageVaultWithMerkleVerification(proofs, _decoders(), targets, data, values);
+    }
+
+    function testMPortalWormholeQuoteSrcMismatchRevertsInExecutor() external {
+        _setWormholeRoot();
+        uint16 otherChain = 30; // Base
+        bytes memory quote = _quote(
+            getAddress(sourceChain, "wormholeExecutorQuoter"),
+            getAddress(sourceChain, "wormholeExecutorPayee"),
+            otherChain,
+            _dstWormholeChain(),
+            uint64(block.timestamp + 1 hours)
+        );
+        (bytes32[][] memory proofs, address[] memory targets, bytes[] memory data, uint256[] memory values) =
+            _buildManageCall(getAddress(sourceChain, "mportalWormholeAdapter"), quote, _executorFee());
+        vm.expectRevert(abi.encodeWithSignature("QuoteSrcChainMismatch(uint16,uint16)", otherChain, _srcWormholeChain()));
+        manager.manageVaultWithMerkleVerification(proofs, _decoders(), targets, data, values);
+    }
+
     // ========================================= HELPERS =========================================
 
     // Root is either the Wormhole leaves or, when set, the args-free custom-adapter leaves pinned to the Wormhole adapter.
@@ -270,16 +297,12 @@ abstract contract MPortalWormholeIntegrationBase is Test, MerkleTreeHelper {
     }
 
     function _quote(address quoter, address payee, uint64 expiry) internal pure returns (bytes memory) {
-        return abi.encodePacked(
-            bytes4(0x45513031),
-            quoter,
-            bytes32(uint256(uint160(payee))),
-            _srcWormholeChain(),
-            _dstWormholeChain(),
-            expiry,
-            QUOTE_FEES_AND_PRICES,
-            QUOTE_SIGNATURE
-        );
+        return _quote(quoter, payee, _srcWormholeChain(), _dstWormholeChain(), expiry);
+    }
+
+    function _quote(address quoter, address payee, uint16 srcChain, uint16 dstChain, uint64 expiry) internal pure returns (bytes memory) {
+        return
+            abi.encodePacked(bytes4(0x45513031), quoter, bytes32(uint256(uint160(payee))), srcChain, dstChain, expiry, QUOTE_FEES_AND_PRICES, QUOTE_SIGNATURE);
     }
 
     function _sendTokenCalldata(bytes32 recipient, address adapter, bytes memory args) internal view returns (bytes memory) {
@@ -410,5 +433,10 @@ contract MPortalWormholeIntegrationTest is MPortalWormholeIntegrationBase {
     // Real mainnet->Monad mUSD fee (tx 0xb0e04cd23315bf75be92bc662a8c9584c529d0fd7dbbd3e9f6d4f2f8f3c364a4).
     function _executorFee() internal pure override returns (uint256) {
         return 25_047_987_801_402;
+    }
+
+    // Mainnet->Monad mUSD tx 0xb0e04cd23315bf75be92bc662a8c9584c529d0fd7dbbd3e9f6d4f2f8f3c364a4.
+    function _realQuote() internal pure override returns (bytes memory) {
+        return hex"45513031a54008017941ece968623a0dd8ee907e2b1335960000000000000000000000006a8bfc410a3cc7306d52872f116afb12f1cec6c6000200300000000069e13dad000000000003464500000017bfac7c0000001530d075e20000000000145b3c2c95f5c8aba630f0f0b12524fa6658cce2cb524961798036ac9a8b201c5681e3a008cc216e16b6dc0dec6ad19ef73b96ea122b4ced9fd6de97a75e98024f3de0121c";
     }
 }
