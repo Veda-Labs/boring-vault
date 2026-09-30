@@ -6,7 +6,6 @@ import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
 // Wormhole MultiTokenNtt executor router ("MultiTokenNttWithExecutor-0.0.1").
 // Mainnet 0x03dB430D830601DB368991eE55DAa9A708df7912, Monad 0xFEA937F7124E19124671f1685671d3f04a9Af4E4.
-// Replaces WormholeDecoderAndSanitizer, which pinned neither the signed-quote payee nor feeArgs.dbps.
 contract WormholeNTTDecoderAndSanitizer {
     error WormholeNTTDecoderAndSanitizer__UnknownRelayInstruction(uint8 instructionType);
     error WormholeNTTDecoderAndSanitizer__InvalidSignedQuote();
@@ -86,9 +85,7 @@ contract WormholeNTTDecoderAndSanitizer {
         if (feeArgs.dbps != 0) revert WormholeNTTDecoderAndSanitizer__NonZeroReferrerFee();
     }
 
-    // Returns the quoter and payee of an EQ01 signed quote. The Executor does not verify the quote signature
-    // onchain and pays all of executorArgs.value to the payee, so the payee must be pinned. srcChain, dstChain
-    // and expiry are enforced by the Executor; fees, prices and the signature are not used onchain.
+    // Returns the quoter and payee of an EQ01 signed quote. srcChain, dstChain and expiry are checked by the Executor.
     function _decodeSignedQuoteAddresses(bytes calldata signedQuote) internal pure returns (bytes memory) {
         if (
             signedQuote.length != WORMHOLE_SIGNED_QUOTE_LENGTH || bytes4(signedQuote[0:4]) != WORMHOLE_SIGNED_QUOTE_PREFIX
@@ -102,7 +99,7 @@ contract WormholeNTTDecoderAndSanitizer {
     // RelayInstructions = unbounded array of (uint8 type + body). Layouts per type (Wormhole executor TS SDK):
     //   1 GasInstruction:        uint128 gasLimit | uint128 msgValue                                        (no addresses)
     //   2 GasDropOffInstruction: see WormholeGasDropOffInstruction                                          (destination wallet)
-    // Unknown types revert to fail safe — an unknown opcode may hide additional addresses.
+    // Unknown instruction types revert.
     function _decodeRelayInstructionAddresses(bytes calldata instructions) internal pure returns (bytes memory addrs) {
         uint256 offset = 0;
         uint256 len = instructions.length;

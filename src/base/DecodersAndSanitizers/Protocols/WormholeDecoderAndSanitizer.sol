@@ -4,8 +4,6 @@ pragma solidity 0.8.21;
 
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 
-// DEPRECATED: does not pin the signed-quote payee or feeArgs.dbps, so a strategist can send executorArgs.value
-// to any address and up to 65.535% of the bridged amount to feeArgs.payee. Use WormholeNTTDecoderAndSanitizer.
 contract WormholeDecoderAndSanitizer {
 
     error WormholeDecoderAndSanitizer__UnknownRelayInstruction(uint8 instructionType);

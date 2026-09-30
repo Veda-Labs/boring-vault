@@ -295,8 +295,9 @@ contract MPortalWormholeMonadIntegrationTest is MPortalWormholeIntegrationBase {
         return 2;
     }
 
-    // Real Monad->mainnet mUSD fee (tx 0x15b76782e85be6661a7e82787a60b9f45634c24e6fa638f9a87dd831f6e5e854).
+    // Recent Monad->mainnet Executor fee (tx 0xbf4b40e0d7c8d3030773d3aba7fa7cd42710e6bfb6bbdde3d58bf48a160c00df).
+    // The fee is set by the offchain quote and varies; use the quote's estimatedCost in production.
     function _executorFee() internal pure override returns (uint256) {
-        return 38_290_841_540_478_245_242;
+        return 84_741_414_216_522_864_498;
     }
 }

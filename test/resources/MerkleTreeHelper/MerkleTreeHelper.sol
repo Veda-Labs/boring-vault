@@ -19347,8 +19347,7 @@ function _addTellerLeafsWithReferral(
 
     // Adds approve + sendToken leaves for bridging over the Wormhole bridge adapter:
     //   sendToken(uint256,address,uint32,bytes32,bytes32,bytes32,address,bytes)
-    // bridgeAdapterArgs is a Wormhole Executor signed quote. The Executor pays the whole msg.value to the
-    // quote's payee without checking the signature, so the quoter (slot 9) and payee (slot 10) are pinned.
+    // bridgeAdapterArgs is a Wormhole Executor signed quote; its quoter (slot 9) and payee (slot 10) are pinned.
     function _addMPortalWormholeLeafs(
         ManageLeaf[] memory leafs,
         address mportalProxy,

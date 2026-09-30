@@ -15,8 +15,8 @@ contract MPortalDecoderAndSanitizer {
     // Wormhole Executor signed quote (EQ01), passed as bridgeAdapterArgs to the WormholeBridgeAdapter:
     //   [0..4) "EQ01" | [4..24) quoter | [24..56) bytes32 payee | [56..58) srcChain | [58..60) dstChain
     //   [60..68) expiry | [68..100) baseFee, dstGasPrice, srcPrice, dstPrice | [100..165) signature
-    bytes4 internal constant WORMHOLE_SIGNED_QUOTE_PREFIX = 0x45513031; // "EQ01"
-    uint256 internal constant WORMHOLE_SIGNED_QUOTE_LENGTH = 165;
+    bytes4 internal constant MPORTAL_WORMHOLE_QUOTE_PREFIX = 0x45513031; // "EQ01"
+    uint256 internal constant MPORTAL_WORMHOLE_QUOTE_LENGTH = 165;
 
     // Send token using default bridge adapter
     function sendToken(
@@ -69,18 +69,16 @@ contract MPortalDecoderAndSanitizer {
         );
 
         // Empty args: adapters that take no args (e.g. Hyperlane). Non-empty args are only accepted as a
-        // Wormhole Executor signed quote. The Executor does not verify the quote signature onchain and pays
-        // the whole msg.value to the quote's payee, so the payee (and the quoter) must be pinned in the leaf.
+        // Wormhole Executor signed quote, whose quoter and payee are added to the leaf.
         if (bridgeAdapterArgs.length > 0) {
             addressesFound = abi.encodePacked(addressesFound, _decodeWormholeSignedQuote(bridgeAdapterArgs));
         }
     }
 
-    // Returns the quoter and payee of an EQ01 signed quote. srcChain, dstChain and expiry are enforced by the
-    // Executor; fees, prices and the signature are not used onchain.
+    // Returns the quoter and payee of an EQ01 signed quote. srcChain, dstChain and expiry are checked by the Executor.
     function _decodeWormholeSignedQuote(bytes calldata signedQuote) internal pure returns (bytes memory) {
         if (
-            signedQuote.length != WORMHOLE_SIGNED_QUOTE_LENGTH || bytes4(signedQuote[0:4]) != WORMHOLE_SIGNED_QUOTE_PREFIX
+            signedQuote.length != MPORTAL_WORMHOLE_QUOTE_LENGTH || bytes4(signedQuote[0:4]) != MPORTAL_WORMHOLE_QUOTE_PREFIX
                 || bytes12(signedQuote[24:36]) != bytes12(0)
         ) {
             revert MPortalDecoderAndSanitizer__InvalidSignedQuote();

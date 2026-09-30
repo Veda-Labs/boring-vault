@@ -16,9 +16,8 @@ import {Test, Vm} from "@forge-std/Test.sol";
 
 // Bridges mUSD between mainnet and Monad through M Portal V2 using the Wormhole bridge adapter
 // (sendToken 8-arg overload, bridgeAdapterArgs = Wormhole Executor signed quote).
-// The Executor does not verify the quote signature onchain, so tests build quotes locally with the
-// fee/price fields and signature copied from a real M0 quote (mainnet tx
-// 0xb0e04cd23315bf75be92bc662a8c9584c529d0fd7dbbd3e9f6d4f2f8f3c364a4).
+// Tests build quotes locally with the fee/price fields and signature copied from a real M0 quote
+// (mainnet tx 0xb0e04cd23315bf75be92bc662a8c9584c529d0fd7dbbd3e9f6d4f2f8f3c364a4).
 abstract contract MPortalWormholeIntegrationBase is Test, MerkleTreeHelper {
     ManagerWithMerkleVerification public manager;
     BoringVault public boringVault;
@@ -37,7 +36,7 @@ abstract contract MPortalWormholeIntegrationBase is Test, MerkleTreeHelper {
     bytes32 internal constant LOG_MESSAGE_PUBLISHED_TOPIC = keccak256("LogMessagePublished(address,uint64,uint32,bytes,uint8)");
     bytes32 internal constant REQUEST_FOR_EXECUTION_TOPIC = keccak256("RequestForExecution(address,uint256,uint16,bytes32,address,bytes,bytes,bytes)");
 
-    // baseFee | dstGasPrice | srcPrice | dstPrice and the signature of a real M0 quote. Not checked onchain.
+    // baseFee | dstGasPrice | srcPrice | dstPrice and the signature of a real M0 quote.
     bytes32 internal constant QUOTE_FEES_AND_PRICES = 0x000000000003464500000017bfac7c0000001530d075e20000000000145b3c2c;
     bytes internal constant QUOTE_SIGNATURE =
         hex"95f5c8aba630f0f0b12524fa6658cce2cb524961798036ac9a8b201c5681e3a008cc216e16b6dc0dec6ad19ef73b96ea122b4ced9fd6de97a75e98024f3de0121c";
@@ -151,8 +150,7 @@ abstract contract MPortalWormholeIntegrationBase is Test, MerkleTreeHelper {
 
     // ========================================= MERKLE PINNING =========================================
 
-    // The key check: a quote naming another payee passes the Executor onchain, so the leaf must reject it.
-    function testMPortalWormholeRevertsForgedPayee() external {
+    function testMPortalWormholeRevertsWrongPayee() external {
         _setWormholeRoot();
         bytes memory quote = _quote(getAddress(sourceChain, "wormholeExecutorQuoter"), address(0xdEaD), uint64(block.timestamp + 1 hours));
         _expectProofFailure(getAddress(sourceChain, "mportalWormholeAdapter"), quote);

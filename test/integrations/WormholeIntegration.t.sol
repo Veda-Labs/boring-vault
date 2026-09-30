@@ -17,7 +17,8 @@ contract WormholeIntegrationTest is BaseTestIntegration {
     address internal multiTokenExecutor;
     address internal multiTokenNtt;
 
-    // Parameters mirror a real bridge tx from EOA 0xDb83...B0A2, with the EOA replaced by the boring vault.
+    // Parameters mirror mainnet tx 0x0b3c3ca717bfe9f9c5eac241a6f1f84751c6f1649e9cacf0cc629f9a74f48d05 (block 25124512) from
+    // EOA 0xDb8345450b0E4d28514A1C18EE1110C417b5B0A2, with the EOA replaced by the boring vault.
     uint256 internal constant BRIDGE_AMOUNT = 10_000_000_000_000_000; // 0.01 WETH
     uint256 internal constant EXECUTOR_FEE = 31_140_016_176_718; // executorArgs.value, paid to the quote payee
     uint256 internal constant TOTAL_NATIVE_FEE = 48_982_242_254_460; // executor fee + NTT delivery price
@@ -69,16 +70,14 @@ contract WormholeIntegrationTest is BaseTestIntegration {
         assertEq(quotePayee.balance, payeeBefore + EXECUTOR_FEE, "Executor pays executorArgs.value to the quote payee");
     }
 
-    // ========================================= QUOTE PAYEE =========================================
+    // ========================================= SIGNED QUOTE =========================================
 
-    // The Executor does not verify the quote signature, so without the payee pin this call would send
-    // executorArgs.value to the forged payee.
-    function testRevertsForgedQuotePayee() external {
+    function testRevertsWrongQuotePayee() external {
         bytes memory data = _transferCalldata(_withPayee(SIGNED_QUOTE, address(0xdEaD)), _feeArgs(0));
         _expectProofFailure(false, data, TOTAL_NATIVE_FEE);
     }
 
-    function testRevertsForgedQuotePayeeETH() external {
+    function testRevertsWrongQuotePayeeETH() external {
         bytes memory data = _transferETHCalldata(_withPayee(SIGNED_QUOTE, address(0xdEaD)), _feeArgs(0));
         _expectProofFailure(true, data, BRIDGE_AMOUNT + TOTAL_NATIVE_FEE);
     }
