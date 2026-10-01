@@ -18,7 +18,7 @@ docs/
 
 *.DS_Store
 broadcast/*
-#leafs/TemporaryLeafs.json
+leafs/TemporaryLeafs.json
 dependencies/*
 
 CLAUDE.md
