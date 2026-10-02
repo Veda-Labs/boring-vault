@@ -53,8 +53,8 @@ jobs:
           # calldata whose dstReceiver is the test swapper's CREATE address, which
           # is Foundry-version-sensitive. `stable` (now v1.8.x) deploys it at a
           # different address, so every baked quote reverts Adapter__ReceiverMismatch.
-          # v1.7.1 matches the version the calldata was captured under (and the
-          # Tempo step below). Bump only alongside regenerating that calldata.
+          # v1.7.1 matches the version the calldata was captured under. Bump only
+          # alongside regenerating that calldata. (The Tempo step below pins its own.)
           version: v1.7.1
 
       # Full recompiles peak >11 GB in a single solc pipeline; the 16 GB runner
@@ -128,15 +128,16 @@ jobs:
           forge test -vv
         id: test
 
-      # Tempo tests need Foundry >= 1.7.0 (T7 precompiles; see foundry.toml). The
-      # rolling `stable` is only v1.5.1 (below that floor), and `version: nightly`
-      # follows a rolling tag that keeps resolving to GC'd nightly releases → HTTP
-      # 404. v1.7.1 is a permanent VERSION release (never garbage-collected), so it
-      # meets the floor and never disappears. Bump when Tempo needs a newer T-rev.
-      - name: Install Foundry (v1.7.1, for Tempo precompiles)
+      # Tempo tests run forge's EMBEDDED Tempo precompiles, so the forge version must
+      # track the chain's T-rev. v1.7.1's are stale for the PropAMM suites' fork block
+      # (36_425_642): TIP-20 transfers the live node allows revert PolicyForbids()
+      # (0x54cfe659) in setUp(). v1.8.3 matches the chain. Pinned to a permanent
+      # VERSION release (not `stable`/`nightly`, which move or get GC'd). This pin is
+      # independent of the main step's v1.7.1 above. Bump when Tempo needs a newer T-rev.
+      - name: Install Foundry (v1.8.3, for Tempo precompiles)
         uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: v1.7.1
+          version: v1.8.3
 
       # Tempo tests run against the native Tempo precompiles (network = "tempo", Foundry >= 1.7.0).
       # The profiles partition the test set: default excludes test/**Tempo*, tempo runs only those.
