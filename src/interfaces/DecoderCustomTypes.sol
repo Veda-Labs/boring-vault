@@ -386,6 +386,17 @@ contract DecoderCustomTypes {
         uint256 gasLimit;
     }
 
+    // Extra args V2 for EVM destinations. Encoded as GENERIC_EXTRA_ARGS_V2_TAG ++ abi.encode(GenericExtraArgsV2)
+    // (68 bytes), matching Client._argsToBytes in chainlink-ccip (GENERIC_EXTRA_ARGS_V2_TAG == 0x181dcf10 ==
+    // bytes4(keccak256("CCIP EVMExtraArgsV2"))). The vendored @ccip submodule names this struct EVMExtraArgsV2;
+    // chainlink-ccip v1.6+ renamed it GenericExtraArgsV2 with the same tag and layout. The field order and types
+    // below MUST match exactly, for the same reason as SVMExtraArgsV1 below. An edit here is caught by
+    // CCIPExtraArgsV2Test.testGenericExtraArgsV2MatchesCanonicalCcipLayout.
+    struct GenericExtraArgsV2 {
+        uint256 gasLimit;
+        bool allowOutOfOrderExecution;
+    }
+
     // Extra args for SVM (Solana) destinations. Encoded as SVM_EXTRA_ARGS_V1_TAG ++ abi.encode(SVMExtraArgsV1),
     // matching Client._svmArgsToBytes in chainlink-ccip v1.6 (SVM_EXTRA_ARGS_V1_TAG == 0x1f3b3aba ==
     // bytes4(keccak256("CCIP SVMExtraArgsV1"))). The vendored @ccip submodule predates SVM support and does
