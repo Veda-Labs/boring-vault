@@ -34,12 +34,16 @@ SOLANA_RPC_URL="https://solana-mainnet.g.alchemy.com/v2/{{ op://Shared/Alchemy A
 MONAD_RPC_URL="https://edge.goldsky.com/standard/evm/143?secret={{ op://Shared/Goldsky API Key/notesPlain }}"
 
 # ── Public keyless archive endpoints (no API key) ───────────────────────────────
-SWELL_CHAIN_RPC_URL="https://rpc.ankr.com/swell"
 DERIVE_RPC_URL="https://rpc.derive.xyz"
 TAC_RPC_URL="https://rpc.tac.build"
 KATANA_RPC_URL="https://rpc.katana.network"
 PLUME_RPC_URL="https://rpc.plume.org"
-FLARE_RPC_URL="https://flare-api.flare.network/ext/C/rpc"
+# Flare's own `flare-api.flare.network/ext/C/rpc` is a load-balanced pool that (since
+# 2026-09) routes to non-archive nodes: `missing trie node` at the tests' pinned blocks
+# (rFLRIntegration @41610420, CompoundV2Integration @40871926) — flaky setUp() in
+# nightly-fuzz. Ankr serves full archive there; `https://flare.rpc.thirdweb.com` also
+# does (~7x slower) if Ankr ever rate-limits.
+FLARE_RPC_URL="https://rpc.ankr.com/flare"
 
 # Tempo has no env var: it's a hardcoded [rpc_endpoints] entry in foundry.toml
 # (used only under FOUNDRY_PROFILE=tempo). Nothing to set here.

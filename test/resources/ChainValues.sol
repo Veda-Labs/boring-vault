@@ -3190,13 +3190,17 @@ contract ChainValues {
 
     function _addAvalancheValues() private {
         values[avalanche]["deployerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
-        values[avalanche]["txBundlerAddress"] = 0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d.toBytes32();
+        values[avalanche]["txBundlerAddress"] = 0x633ccAFEF3F42F87a457c44ffF826a5b6fc99706.toBytes32();
         values[avalanche]["vault"] = address(1).toBytes32();
 
         // ERC20s
         values[avalanche]["USDC"] = 0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E.toBytes32();
         values[avalanche]["USDC.e"] = 0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664.toBytes32();
         values[avalanche]["WETH"] = 0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB.toBytes32();
+        values[avalanche]["WAVAX"] = 0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7.toBytes32();
+
+        // Balancer
+        values[avalanche]["balancerVault"] = 0xBA12222222228d8Ba445958a75a0704d566BF2C8.toBytes32();
 
         // Avalanche Bridge
         values[avalanche]["usdcTokenRouter"] = 0xD835dbD135AD8a27214ecdEE79E7a41337865648.toBytes32();
@@ -3456,6 +3460,8 @@ contract ChainValues {
         values[tempo]["txBundlerAddress"] = 0x91e2458037709CafC7206D26Bd9c6DdE8b0A8A12.toBytes32();
         values[tempo]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
         values[tempo]["pathUSD"] = 0x20C0000000000000000000000000000000000000.toBytes32();
+        values[tempo]["PRIME"] = 0x20C00000000000000000000058d0B8b2CFDb358c.toBytes32();
+        values[tempo]["USDCE"] = 0x20C000000000000000000000b9537d11c60E8b50.toBytes32();
         // senpathUSD ERC4626 (Morpho) vault — its asset() is pathUSD.
         values[tempo]["senpathUSD"] = 0x9a044AE05E5e6290DcF56afd69548565e957a626.toBytes32();
         // Merkl Distributor — canonical address (EIP-1967 proxy live on Tempo).
