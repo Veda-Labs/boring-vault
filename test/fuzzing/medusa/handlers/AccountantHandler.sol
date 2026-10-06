@@ -498,6 +498,9 @@ contract AccountantHandler is CommonBase, StdCheats, StdUtils {
      * @notice Update payout address
      */
     function updatePayoutAddressRP(address newPayout) external {
+        // Invariant 1 assumes payoutAddress != accountant (fees would be stranded there).
+        if (newPayout == address(accountantRP)) return;
+
         _beforeCall(AccountantWithRateProviders.updatePayoutAddress.selector);
         
         vm.prank(owner);
