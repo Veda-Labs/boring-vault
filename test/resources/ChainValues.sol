@@ -3465,6 +3465,8 @@ contract ChainValues {
         values[tempo]["txBundlerAddress"] = 0x91e2458037709CafC7206D26Bd9c6DdE8b0A8A12.toBytes32();
         values[tempo]["dev1Address"] = 0xf8553c8552f906C19286F21711721E206EE4909E.toBytes32();
         values[tempo]["pathUSD"] = 0x20C0000000000000000000000000000000000000.toBytes32();
+        values[tempo]["PRIME"] = 0x20C00000000000000000000058d0B8b2CFDb358c.toBytes32();
+        values[tempo]["USDCE"] = 0x20C000000000000000000000b9537d11c60E8b50.toBytes32();
         // senpathUSD ERC4626 (Morpho) vault — its asset() is pathUSD.
         values[tempo]["senpathUSD"] = 0x9a044AE05E5e6290DcF56afd69548565e957a626.toBytes32();
         // Merkl Distributor — canonical address (EIP-1967 proxy live on Tempo).

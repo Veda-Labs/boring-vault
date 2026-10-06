@@ -11,6 +11,7 @@ import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {IComet} from "src/interfaces/IComet.sol";
+import {IDirectPropAMM} from "src/interfaces/IDirectPropAMM.sol";
 import {TellerWithMultiAssetSupport} from "src/base/Roles/TellerWithMultiAssetSupport.sol";
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
@@ -4156,6 +4157,72 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
     }
 
+
+    // ========================================= DirectPropAMM =========================================
+
+    /// @notice Adds standing approval leaves for both pair tokens and the pool's two taker swap leaves.
+    /// @dev The approval mapping deduplicates tokens shared by repeated calls. The pool target and vault
+    ///      recipient are pinned by the resulting leaves; all non-address swap arguments remain dynamic.
+    ///      `baseToken`/`quoteToken` are checked against the pool's own `baseToken()`/`quoteToken()` so a
+    ///      stale or transposed caller address can't silently approve the wrong token.
+    function _addDirectPropAMMLeafs(
+        ManageLeaf[] memory leafs,
+        address pool,
+        address baseToken,
+        address quoteToken
+    ) internal {
+        require(IDirectPropAMM(pool).baseToken() == baseToken, "baseToken does not match pool");
+        require(IDirectPropAMM(pool).quoteToken() == quoteToken, "quoteToken does not match pool");
+
+        address boringVault = getAddress(sourceChain, "boringVault");
+        address decoder = getAddress(sourceChain, "rawDataDecoderAndSanitizer");
+
+        address[2] memory tokens = [baseToken, quoteToken];
+        for (uint256 i; i < tokens.length; ++i) {
+            address token = tokens[i];
+            if (!ownerToTokenToSpenderToApprovalInTree[boringVault][token][pool]) {
+                unchecked {
+                    leafIndex++;
+                }
+                leafs[leafIndex] = ManageLeaf(
+                    token,
+                    false,
+                    "approve(address,uint256)",
+                    new address[](1),
+                    string.concat("Approve DirectPropAMM to spend ", ERC20(token).symbol()),
+                    decoder
+                );
+                leafs[leafIndex].argumentAddresses[0] = pool;
+                ownerToTokenToSpenderToApprovalInTree[boringVault][token][pool] = true;
+            }
+        }
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            pool,
+            false,
+            "swapExactInput(bool,uint256,uint256,address,bytes32,bytes32,uint256,uint256,uint256,uint256)",
+            new address[](1),
+            "Swap exact input through DirectPropAMM",
+            decoder
+        );
+        leafs[leafIndex].argumentAddresses[0] = boringVault;
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            pool,
+            false,
+            "swapExactOutput(bool,uint256,uint256,address,bytes32,bytes32,uint256,uint256,uint256,uint256)",
+            new address[](1),
+            "Swap exact output through DirectPropAMM",
+            decoder
+        );
+        leafs[leafIndex].argumentAddresses[0] = boringVault;
+    }
 
     // ========================================= Uniswap V2 =========================================
 
