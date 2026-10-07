@@ -259,10 +259,13 @@ contract DeployDecodersAndSanitizersWithNoConstructorArgsScript is
         // constructorArgs = hex"";
         // deployContract("BTCN Minter Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy CCIPDecoderAndSanitizer
-        // creationCode = type(CCIPDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployContract("CCIP Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // // CCIPDecoderAndSanitizer: deploy "CCIP Decoder and Sanitizer V0.2" ONLY through newDeployer
+        // // 0xe80F045fc6F551229f98FA21E0Db35784A590e05 (the Deployer merkle-core derives from), never through
+        // // `deployer` below: the legacy Deployer's V0.2 slot already holds an unrelated V1-only contract on Plasma,
+        // // and deployContract would silently return it.
+        // Deployer(0xe80F045fc6F551229f98FA21E0Db35784A590e05).deployContract(
+        //     "CCIP Decoder and Sanitizer V0.2", type(CCIPDecoderAndSanitizer).creationCode, hex"", 0
+        // );
 
         // // Deploy CompoundV3DecoderAndSanitizer
         // creationCode = type(CompoundV3DecoderAndSanitizer).creationCode;

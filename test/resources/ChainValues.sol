@@ -1678,6 +1678,11 @@ contract ChainValues {
         values[mainnet]["mfOneDepositVault"] = 0x41438435c20B1C2f1fcA702d387889F346A0C3DE.toBytes32();
         values[mainnet]["mfOneRedemptionVault"] = 0x44b0440e35c596e858cEA433D0d82F5a985fD19C.toBytes32();
 
+        // Ondo
+        values[mainnet]["USDY"] = 0x96F6eF951840721AdBF46Ac996b59E0235CB985C.toBytes32();
+        values[mainnet]["rUSDY"] = 0xaf37c1167910ebC994e266949387d2c7C326b879.toBytes32();
+        values[mainnet]["usdyInstantManager"] = 0xa42613C243b67BF6194Ac327795b926B4b491f15.toBytes32();
+
         // Ethena
         values[mainnet]["ethenaMinterV2"] = 0xe3490297a08d6fC8Da46Edb7B6142E4F461b62D3.toBytes32();
 
