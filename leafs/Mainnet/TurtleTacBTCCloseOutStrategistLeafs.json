@@ -1,0 +1,53 @@
+{
+  "metadata": {
+    "AccountantAddress": "0xe4858a89d5602Ad30de2018C408d33d101F53d53",
+    "BoringVaultAddress": "0x6Bf340dB729d82af1F6443A0Ea0d79647b1c3DDf",
+    "DecoderAndSanitizerAddress": "0x42842201E199E6328ADBB98e7C2CbE77561FAC88",
+    "DigestComposition": [
+      "Bytes20(DECODER_AND_SANITIZER_ADDRESS)",
+      "Bytes20(TARGET_ADDRESS)",
+      "Bytes1(CAN_SEND_VALUE)",
+      "Bytes4(TARGET_FUNCTION_SELECTOR)",
+      "Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"
+    ],
+    "LeafCount": 2,
+    "ManageRoot": "0xba718d9f085e3a67a6558f3abfdf374130159aeebe01917f074a408e4198b3df",
+    "ManagerAddress": "0x85A8821a579736e7E5e98296D34C50B77122BB5e",
+    "TreeCapacity": 2
+  },
+  "leafs": [
+    {
+      "AddressArguments": ["0x1111111254EEB25477B68fb85Ed929f73A960582"],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x42842201E199E6328ADBB98e7C2CbE77561FAC88",
+      "Description": "Approve 1Inch router to spend cbBTC",
+      "FunctionSelector": "0x095ea7b3",
+      "FunctionSignature": "approve(address,uint256)",
+      "LeafDigest": "0xabc7475f68f9f1fd1708cd0e8d2c38132414f9118731ad83dccb52057dc73d3e",
+      "PackedArgumentAddresses": "0x1111111254eeb25477b68fb85ed929f73a960582",
+      "TargetAddress": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf"
+    },
+    {
+      "AddressArguments": [
+        "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+        "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+        "0x6Bf340dB729d82af1F6443A0Ea0d79647b1c3DDf"
+      ],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x42842201E199E6328ADBB98e7C2CbE77561FAC88",
+      "Description": "Swap cbBTC for WBTC using 1inch router",
+      "FunctionSelector": "0x12aa3caf",
+      "FunctionSignature": "swap(address,(address,address,address,address,uint256,uint256,uint256),bytes,bytes)",
+      "LeafDigest": "0x22db41c353e9a5314b8f70cc95a08d4b736c584795275c0939a02db2780cf4bc",
+      "PackedArgumentAddresses": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf2260fac5e5542a773aa44fbcfedf7c193bc2c5996bf340db729d82af1f6443a0ea0d79647b1c3ddf",
+      "TargetAddress": "0x1111111254EEB25477B68fb85Ed929f73A960582"
+    }
+  ],
+  "MerkleTree": {
+    "0": ["0xba718d9f085e3a67a6558f3abfdf374130159aeebe01917f074a408e4198b3df"],
+    "1": [
+      "0xabc7475f68f9f1fd1708cd0e8d2c38132414f9118731ad83dccb52057dc73d3e",
+      "0x22db41c353e9a5314b8f70cc95a08d4b736c584795275c0939a02db2780cf4bc"
+    ]
+  }
+}

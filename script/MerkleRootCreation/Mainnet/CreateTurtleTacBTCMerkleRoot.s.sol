@@ -97,4 +97,46 @@ contract CreateTurtleTacBTCMerkleRoot is Script, MerkleTreeHelper {
 
     }
 
+    /**
+     * @notice Deprecation close-out root: only lets the strategist swap cbBTC into WBTC (the exit asset) via 1inch.
+     *  forge script script/MerkleRootCreation/Mainnet/CreateTurtleTacBTCMerkleRoot.s.sol --sig "generateCloseOutMerkleRoot()" --rpc-url $MAINNET_RPC_URL
+     */
+    function generateCloseOutMerkleRoot() public {
+        setSourceChainName(mainnet);
+        setAddress(false, mainnet, "boringVault", boringVault);
+        setAddress(false, mainnet, "managerAddress", managerAddress);
+        setAddress(false, mainnet, "accountantAddress", accountantAddress);
+        setAddress(false, mainnet, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+
+        ManageLeaf[] memory leafs = new ManageLeaf[](2);
+        address router = getAddress(sourceChain, "aggregationRouterV5");
+        address cbBTC = getAddress(sourceChain, "cbBTC");
+        address wbtc = getAddress(sourceChain, "WBTC");
+
+        leafs[0] = ManageLeaf(
+            cbBTC, false, "approve(address,uint256)", new address[](1), "Approve 1Inch router to spend cbBTC", oneInchOwnedDecoderAndSanitizer
+        );
+        leafs[0].argumentAddresses[0] = router;
+
+        leafs[1] = ManageLeaf(
+            router,
+            false,
+            "swap(address,(address,address,address,address,uint256,uint256,uint256),bytes,bytes)",
+            new address[](3),
+            "Swap cbBTC for WBTC using 1inch router",
+            oneInchOwnedDecoderAndSanitizer
+        );
+        leafs[1].argumentAddresses[0] = cbBTC;
+        leafs[1].argumentAddresses[1] = wbtc;
+        leafs[1].argumentAddresses[2] = boringVault;
+
+        _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
+
+        bytes32[][] memory manageTree = _generateMerkleTree(leafs);
+
+        string memory filePath = "./leafs/Mainnet/TurtleTacBTCCloseOutStrategistLeafs.json";
+
+        _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
+    }
+
 }
