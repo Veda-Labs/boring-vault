@@ -2,7 +2,7 @@
 // Copyright © 2025 Veda Tech Labs
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0
-// Last audited: boring-vault@c54949f556cbc9a5e752ef1d6e8c09d64f4975b7 — https://macroaudits.com/library/audits/sevenSeas-47
+// Last audited: boring-vault-fixes@5c103db17ed0cd8820e3894b69609041aef8dcff — file:audit/0xmacro-veda-106.pdf
 pragma solidity 0.8.21;
 
 contract DecoderCustomTypes {
@@ -384,6 +384,17 @@ contract DecoderCustomTypes {
 
     struct EVMExtraArgsV1 {
         uint256 gasLimit;
+    }
+
+    // Extra args V2 for EVM destinations. Encoded as GENERIC_EXTRA_ARGS_V2_TAG ++ abi.encode(GenericExtraArgsV2)
+    // (68 bytes), matching Client._argsToBytes in chainlink-ccip (GENERIC_EXTRA_ARGS_V2_TAG == 0x181dcf10 ==
+    // bytes4(keccak256("CCIP EVMExtraArgsV2"))). The vendored @ccip submodule names this struct EVMExtraArgsV2;
+    // chainlink-ccip v1.6+ renamed it GenericExtraArgsV2 with the same tag and layout. The field order and types
+    // below MUST match exactly, for the same reason as SVMExtraArgsV1 below. An edit here is caught by
+    // CCIPExtraArgsV2Test.testGenericExtraArgsV2MatchesCanonicalCcipLayout.
+    struct GenericExtraArgsV2 {
+        uint256 gasLimit;
+        bool allowOutOfOrderExecution;
     }
 
     // Extra args for SVM (Solana) destinations. Encoded as SVM_EXTRA_ARGS_V1_TAG ++ abi.encode(SVMExtraArgsV1),

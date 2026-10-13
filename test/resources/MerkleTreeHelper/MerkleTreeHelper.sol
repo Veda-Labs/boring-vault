@@ -3119,6 +3119,104 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
         );
     } 
 
+    // ========================================= Ondo =========================================
+    function _addOndoUSDYInstantManagerLeafs(ManageLeaf[] memory leafs, ERC20[] memory tokens) internal {
+        address manager = getAddress(sourceChain, "usdyInstantManager");
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "USDY"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve USDY Instant Manager to spend USDY",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = manager;
+
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            getAddress(sourceChain, "rUSDY"),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            "Approve USDY Instant Manager to spend rUSDY",
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = manager;
+
+        for (uint256 i; i < tokens.length; i++) {
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                address(tokens[i]),
+                false,
+                "approve(address,uint256)",
+                new address[](1),
+                string.concat("Approve USDY Instant Manager to spend ", tokens[i].symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = manager;
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                manager,
+                false,
+                "subscribe(address,uint256,uint256)",
+                new address[](1),
+                string.concat("Mint USDY with ", tokens[i].symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(tokens[i]);
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                manager,
+                false,
+                "subscribeRebasingUSDY(address,uint256,uint256)",
+                new address[](1),
+                string.concat("Mint rUSDY with ", tokens[i].symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(tokens[i]);
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                manager,
+                false,
+                "redeem(uint256,address,uint256)",
+                new address[](1),
+                string.concat("Redeem USDY for ", tokens[i].symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(tokens[i]);
+
+            unchecked {
+                leafIndex++;
+            }
+            leafs[leafIndex] = ManageLeaf(
+                manager,
+                false,
+                "redeemRebasingUSDY(uint256,address,uint256)",
+                new address[](1),
+                string.concat("Redeem rUSDY for ", tokens[i].symbol()),
+                getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+            );
+            leafs[leafIndex].argumentAddresses[0] = address(tokens[i]);
+        }
+    }
+
     function _addMidasVaultLeafs(ManageLeaf[] memory leafs, ERC20[] memory depositAssets, ERC20[] memory redeemAssets, address mToken, address depositAdapter, address redemptionVault)
         internal
     {
@@ -8446,6 +8544,197 @@ contract MerkleTreeHelper is CommonBase, ChainValues, Test {
             getAddress(sourceChain, "rawDataDecoderAndSanitizer")
         );
         leafs[leafIndex].argumentAddresses[0] = getAddress(sourceChain, "boringVault");
+    }
+
+    // ========================================= Hastra PRIME =========================================
+
+    /**
+     * @notice Adds leafs to mint Hastra PRIME from USDC and to redeem it back to USDC, covering the
+     *         intermediate wYLDS step in both directions.
+     * @dev Served by HastraPrimeFullDecoderAndSanitizer. Every receiver/owner argument is pinned to the
+     *      BoringVault. Adds 10 leafs, or fewer if either approval is already in the tree.
+     * @dev Approve exact amounts in the same manage call as the deposit/mint. wYLDS.completeRedeem pulls
+     *      USDC from its redeemVault with transferFrom, so a standing USDC allowance to wYLDS would be
+     *      spendable if Hastra's admin ever pointed redeemVault at the BoringVault.
+     */
+    function _addHastraPrimeLeafs(ManageLeaf[] memory leafs) internal {
+        _addHastraPrimeMintLeafs(leafs);
+        _addHastraPrimeRedeemLeafs(leafs);
+    }
+
+    /**
+     * @notice Mint direction only: USDC -> wYLDS -> PRIME.
+     * @dev wYLDS.deposit/mint pull USDC 1:1. PRIME.deposit/mint pull wYLDS at the oracle NAV.
+     * @dev Gives no way out on its own; pair it with _addHastraPrimeRedeemLeafs.
+     */
+    function _addHastraPrimeMintLeafs(ManageLeaf[] memory leafs) internal {
+        (address boringVault_, ERC20 usdc, ERC4626 wylds, ERC4626 prime) = _getHastraPrimeStack();
+        string memory usdcSymbol = usdc.symbol();
+        string memory wyldsSymbol = wylds.symbol();
+        string memory primeSymbol = prime.symbol();
+
+        _addHastraPrimeApprovalLeaf(leafs, boringVault_, usdc, address(wylds));
+
+        // wYLDS deposit(uint256 assets, address receiver)
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            address(wylds),
+            false,
+            "deposit(uint256,address)",
+            new address[](1),
+            string.concat("Deposit ", usdcSymbol, " into Hastra ", wyldsSymbol),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = boringVault_;
+
+        // wYLDS mint(uint256 shares, address receiver)
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            address(wylds),
+            false,
+            "mint(uint256,address)",
+            new address[](1),
+            string.concat("Mint Hastra ", wyldsSymbol, " with ", usdcSymbol),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = boringVault_;
+
+        _addHastraPrimeApprovalLeaf(leafs, boringVault_, ERC20(address(wylds)), address(prime));
+
+        // PRIME deposit(uint256 assets, address receiver)
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            address(prime),
+            false,
+            "deposit(uint256,address)",
+            new address[](1),
+            string.concat("Deposit ", wyldsSymbol, " into Hastra ", primeSymbol),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = boringVault_;
+
+        // PRIME mint(uint256 shares, address receiver)
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            address(prime),
+            false,
+            "mint(uint256,address)",
+            new address[](1),
+            string.concat("Mint Hastra ", primeSymbol, " with ", wyldsSymbol),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = boringVault_;
+    }
+
+    /**
+     * @notice Redeem direction only: PRIME -> wYLDS -> USDC. Enough to unwind a position without any
+     *         way back in.
+     * @dev PRIME.redeem/withdraw burn from the vault as owner, so no approval is needed. wYLDS has no
+     *      atomic exit: requestRedeem escrows the shares, then Hastra's redeem operator calls
+     *      completeRedeem(vault) to push USDC to the vault. cancelRedeem undoes a pending request.
+     */
+    function _addHastraPrimeRedeemLeafs(ManageLeaf[] memory leafs) internal {
+        (address boringVault_, ERC20 usdc, ERC4626 wylds, ERC4626 prime) = _getHastraPrimeStack();
+        string memory wyldsSymbol = wylds.symbol();
+        string memory primeSymbol = prime.symbol();
+
+        // PRIME redeem(uint256 shares, address receiver, address owner)
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            address(prime),
+            false,
+            "redeem(uint256,address,address)",
+            new address[](2),
+            string.concat("Redeem Hastra ", primeSymbol, " for ", wyldsSymbol),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = boringVault_;
+        leafs[leafIndex].argumentAddresses[1] = boringVault_;
+
+        // PRIME withdraw(uint256 assets, address receiver, address owner)
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            address(prime),
+            false,
+            "withdraw(uint256,address,address)",
+            new address[](2),
+            string.concat("Withdraw ", wyldsSymbol, " from Hastra ", primeSymbol),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = boringVault_;
+        leafs[leafIndex].argumentAddresses[1] = boringVault_;
+
+        // wYLDS requestRedeem(uint256 shares)
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            address(wylds),
+            false,
+            "requestRedeem(uint256)",
+            new address[](0),
+            string.concat("Request redemption of Hastra ", wyldsSymbol, " for ", usdc.symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+
+        // wYLDS cancelRedeem()
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            address(wylds),
+            false,
+            "cancelRedeem()",
+            new address[](0),
+            string.concat("Cancel pending Hastra ", wyldsSymbol, " redemption"),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+    }
+
+    function _getHastraPrimeStack()
+        internal
+        view
+        returns (address boringVault_, ERC20 usdc, ERC4626 wylds, ERC4626 prime)
+    {
+        boringVault_ = getAddress(sourceChain, "boringVault");
+        usdc = getERC20(sourceChain, "USDC");
+        wylds = ERC4626(getAddress(sourceChain, "wYLDS"));
+        prime = ERC4626(getAddress(sourceChain, "PRIME"));
+        require(
+            address(wylds.asset()) == address(usdc) && address(prime.asset()) == address(wylds),
+            "Hastra PRIME: unexpected asset chain"
+        );
+    }
+
+    function _addHastraPrimeApprovalLeaf(ManageLeaf[] memory leafs, address boringVault_, ERC20 token, address spender)
+        internal
+    {
+        if (ownerToTokenToSpenderToApprovalInTree[boringVault_][address(token)][spender]) return;
+        unchecked {
+            leafIndex++;
+        }
+        leafs[leafIndex] = ManageLeaf(
+            address(token),
+            false,
+            "approve(address,uint256)",
+            new address[](1),
+            string.concat("Approve Hastra ", ERC20(spender).symbol(), " to spend ", token.symbol()),
+            getAddress(sourceChain, "rawDataDecoderAndSanitizer")
+        );
+        leafs[leafIndex].argumentAddresses[0] = spender;
+        ownerToTokenToSpenderToApprovalInTree[boringVault_][address(token)][spender] = true;
     }
 
     // ========================================= ERC4626 =========================================

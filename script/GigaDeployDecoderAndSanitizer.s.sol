@@ -181,6 +181,8 @@ import "forge-std/StdJson.sol";
 contract GigaDeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAddresses, MerkleTreeHelper {
     uint256 public privateKey;
     Deployer public deployer = Deployer(0x5F2F11ad8656439d5C14d9B351f8b09cDaC2A02d);
+    /// @dev Deployer the Rust merkle-core derives singleton decoder addresses from (and that deployed CCIP V0.0).
+    Deployer public newDeployer = Deployer(0xe80F045fc6F551229f98FA21E0Db35784A590e05);
 
     uint256 constant DESIRED_NUMBER_OF_DEPLOYMENT_TXS = 5;
 
@@ -309,10 +311,10 @@ contract GigaDeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAd
         _contract = deployContract("Cap Decoder and Sanitizer V0.1", creationCode, constructorArgs, 0);
         // console.log("CapDecoderAndSanitizer", _contract);
 
-        // Deploy CCIPDecoderAndSanitizer
-        creationCode = type(CCIPDecoderAndSanitizer).creationCode;
-        constructorArgs = hex"";
-        _contract = deployContract("CCIP Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // CCIPDecoderAndSanitizer is NOT bundled: it lives on newDeployer (see verifyNewDeployerSingleton).
+        _contract = verifyNewDeployerSingleton(
+            "CCIP Decoder and Sanitizer V0.2", type(CCIPDecoderAndSanitizer).runtimeCode
+        );
         // console.log("CCIPDecoderAndSanitizer", _contract);
 
         // Deploy CompoundV3DecoderAndSanitizer
@@ -987,6 +989,45 @@ contract GigaDeployDecoderAndSanitizerScript is Script, ContractNames, MainnetAd
 
         _addTx(address(deployer), abi.encodeWithSelector(deployer.deployContract.selector, name, creationCode, constructorArgs, value), value);
         console.log(string.concat(unicode"✅", name, "deployment to"), _contract, ": TX added");
+    }
+
+    /// @notice For singletons that must live on newDeployer. The tx bundlers hold no role on newDeployer (except on
+    ///         Monad), so this never bundles a deploy. It verifies an existing deployment instead: code at the
+    ///         newDeployer address must match `expectedRuntimeCode` (CBOR metadata ignored) or the script reverts,
+    ///         so a stale or unrelated contract is never accepted. If nothing is deployed yet, it says so; deploy it
+    ///         through newDeployer.deployContract with a role-1 key (as script/DeployDecoderAndSanitizer.s.sol does).
+    function verifyNewDeployerSingleton(string memory name, bytes memory expectedRuntimeCode)
+        internal
+        view
+        returns (address _contract)
+    {
+        if (address(newDeployer).code.length == 0) {
+            console.log(string.concat(unicode"⚠️ ", name, " skipped: newDeployer is not deployed on this chain"));
+            return address(0);
+        }
+        _contract = newDeployer.getAddress(name);
+        if (_contract.code.length == 0) {
+            console.log(
+                string.concat(unicode"⚠️ ", name, " NOT deployed: deploy it through newDeployer at"), _contract
+            );
+            return _contract;
+        }
+        require(
+            keccak256(_stripCborMetadata(_contract.code)) == keccak256(_stripCborMetadata(expectedRuntimeCode)),
+            string.concat(name, ": code at the newDeployer address does not match this build")
+        );
+        console.log(name, "already deployed and verified at", _contract);
+    }
+
+    /// @dev Drops solc's trailing CBOR metadata (its length is the last 2 bytes), which changes with comments/paths.
+    function _stripCborMetadata(bytes memory code) internal pure returns (bytes memory stripped) {
+        if (code.length < 2) return code;
+        uint256 metadataLength = (uint256(uint8(code[code.length - 2])) << 8) | uint256(uint8(code[code.length - 1]));
+        if (metadataLength + 2 > code.length) return code;
+        stripped = new bytes(code.length - metadataLength - 2);
+        for (uint256 i; i < stripped.length; ++i) {
+            stripped[i] = code[i];
+        }
     }
 
     function _bundleTxs() internal {
