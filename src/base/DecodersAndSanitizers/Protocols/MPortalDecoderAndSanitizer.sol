@@ -2,6 +2,7 @@
 // Copyright © 2025 Veda Tech Labs
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0
+// Last audited: boring-vault-fixes@e62373a1bc5bd8d0c15a9ccdda3e39f0feedd38a — file:audit/0xmacro-veda-107.pdf
 pragma solidity 0.8.21;
 
 // Current proxy https://etherscan.io/address/0xd925c84b55e4e44a53749ff5f2a5a13f63d128fd#code
