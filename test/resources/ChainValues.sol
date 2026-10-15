@@ -1701,6 +1701,10 @@ contract ChainValues {
 
         // MPortal
         values[mainnet]["mportalProxy"] = 0xD925C84b55E4e44a53749fF5F2a5A13F63D128fd.toBytes32();
+        values[mainnet]["mportalWormholeAdapter"] = 0xaCffEC28C4eEe21C889a4e6C0704c540Ed9D4fDd.toBytes32();
+        values[mainnet]["mportalHyperlaneAdapter"] = 0xfCc1d596Ad6cAb0b5394eAa447d8626813180f32.toBytes32();
+        values[mainnet]["wormholeExecutor"] = 0x84EEe8dBa37C36947397E1E11251cA9A06Fc6F8a.toBytes32();
+        values[mainnet]["wormholeCoreBridge"] = 0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B.toBytes32();
 
         // EtherFi
         values[optimism]["etherFiL2SyncPool"] = 0xC9475e18E2C5C26EA6ADCD55fabE07920beA887e.toBytes32();
@@ -3495,6 +3499,10 @@ contract ChainValues {
         values[monad]["steakhouseUSDCVault"] = 0xBEEF0C61DA39F7EA2bFa7B0f9d6338A3a2DD2fF0.toBytes32();
         // MPortal — same deterministic proxy address as mainnet.
         values[monad]["mportalProxy"] = 0xD925C84b55E4e44a53749fF5F2a5A13F63D128fd.toBytes32();
+        values[monad]["mportalWormholeAdapter"] = 0xaCffEC28C4eEe21C889a4e6C0704c540Ed9D4fDd.toBytes32();
+        values[monad]["mportalHyperlaneAdapter"] = 0xfCc1d596Ad6cAb0b5394eAa447d8626813180f32.toBytes32();
+        values[monad]["wormholeExecutor"] = 0xC04dE634982cAdF2A677310b73630B7Ac56A3f65.toBytes32();
+        values[monad]["wormholeCoreBridge"] = 0x194B123c5E96B9b2E49763619985790Dc241CAC0.toBytes32();
 
         // UniV3
         values[monad]["uniswapV3NonFungiblePositionManager"] = 0x7197E214c0b767cFB76Fb734ab638E2c192F4E53.toBytes32();

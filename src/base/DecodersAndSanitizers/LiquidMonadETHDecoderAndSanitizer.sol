@@ -2,6 +2,7 @@
 // Copyright © 2025 Veda Tech Labs
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0
+// Last audited: boring-vault-fixes@e62373a1bc5bd8d0c15a9ccdda3e39f0feedd38a — file:audit/0xmacro-veda-107.pdf
 pragma solidity 0.8.21;
 
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
@@ -13,8 +14,8 @@ import {NativeWrapperDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/NativeWrapperDecoderAndSanitizer.sol";
 import {UniswapV4DecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/UniswapV4DecoderAndSanitizer.sol";
-import {WormholeDecoderAndSanitizer} from
-    "src/base/DecodersAndSanitizers/Protocols/WormholeDecoderAndSanitizer.sol";
+import {WormholeNTTDecoderAndSanitizer} from
+    "src/base/DecodersAndSanitizers/Protocols/WormholeNTTDecoderAndSanitizer.sol";
 import {CCIPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCIPDecoderAndSanitizer.sol";
 
 /**
@@ -35,7 +36,7 @@ contract LiquidMonadETHDecoderAndSanitizer is
     MerklDecoderAndSanitizer,
     NativeWrapperDecoderAndSanitizer,
     UniswapV4DecoderAndSanitizer,
-    WormholeDecoderAndSanitizer,
+    WormholeNTTDecoderAndSanitizer,
     CCIPDecoderAndSanitizer,
     BaseDecoderAndSanitizer
 {
