@@ -7,4 +7,6 @@ pragma solidity 0.8.21;
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 import {CCTPDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/CCTPDecoderAndSanitizer.sol";
 
-contract CCTPDecoderAndSanitizerSingleton is BaseDecoderAndSanitizer, CCTPDecoderAndSanitizer {}
+contract CCTPDecoderAndSanitizerSingleton is BaseDecoderAndSanitizer, CCTPDecoderAndSanitizer {
+    constructor(uint256 _cctpMaxFeeBps) CCTPDecoderAndSanitizer(_cctpMaxFeeBps) {}
+}

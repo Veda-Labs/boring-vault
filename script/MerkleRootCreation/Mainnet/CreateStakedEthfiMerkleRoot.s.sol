@@ -23,6 +23,7 @@ contract CreateStakedEthfiMerkleRootScript is Script, MerkleTreeHelper {
     address public managerAddress = 0x66aae0ee1f68c658401c7d8D6E417202A99545d7;
     address public accountantAddress = 0x05A1552c5e18F5A0BB9571b5F2D6a4765ebdA32b;
     address public rawDataDecoderAndSanitizer = 0x7ef36972929DCD9B33f5b0E4EAE8E3024e44254E;
+    address public etherFiDecoder = 0xFB6C4c23Dc59F380Ec62Cc6Ea40711d6D87aa88f;
 
     address public itbDecoderAndSanitizer = 0xcfa57ea1b1E138cf89050253CcF5d0836566C06D;
 
@@ -57,6 +58,8 @@ contract CreateStakedEthfiMerkleRootScript is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](128);
 
         // // ========================== Layerzero ==========================
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", etherFiDecoder);
+
         _addLayerZeroLeafs(
             leafs,
             getERC20(sourceChain, "ETHFI"),
@@ -64,6 +67,8 @@ contract CreateStakedEthfiMerkleRootScript is Script, MerkleTreeHelper {
             layerZeroOptimismEndpointId,
             getBytes32(sourceChain, "boringVault")
         );
+
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Symbiotic ==========================
         address[] memory defaultCollaterals = new address[](1);
@@ -112,8 +117,9 @@ contract CreateStakedEthfiMerkleRootScript is Script, MerkleTreeHelper {
         
         // ========================== Drone0 Leafs ==========================
 
-        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", etherFiDecoder);
+
         _addLeafsForEigenLayerLST(
             leafs,
             getAddress(sourceChain, "ETHFI"), 
@@ -125,6 +131,7 @@ contract CreateStakedEthfiMerkleRootScript is Script, MerkleTreeHelper {
             getAddress(sourceChain, "dev1Address") //claimerFor
         );  
 
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Drone Functions ==========================
         _createDroneLeafs(leafs, drone0, drone0StartIndex, leafIndex + 1);
@@ -136,6 +143,7 @@ contract CreateStakedEthfiMerkleRootScript is Script, MerkleTreeHelper {
         setAddress(true, sourceChain, "boringVault", drone1);
         
         // ========================== Drone1 Leafs ==========================
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", etherFiDecoder);
         
         _addLeafsForEigenLayerLST(
             leafs,
@@ -148,6 +156,8 @@ contract CreateStakedEthfiMerkleRootScript is Script, MerkleTreeHelper {
             getAddress(sourceChain, "dev1Address") //claimerFor
         );  
 
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+
         // ========================== Drone Functions ==========================
         _createDroneLeafs(leafs, drone1, drone1StartIndex, leafIndex + 1);
 
@@ -159,6 +169,7 @@ contract CreateStakedEthfiMerkleRootScript is Script, MerkleTreeHelper {
         
         // ========================== Drone2 Leafs ==========================
         
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", etherFiDecoder);
         _addLeafsForEigenLayerLST(
             leafs,
             getAddress(sourceChain, "ETHFI"), 
@@ -169,6 +180,7 @@ contract CreateStakedEthfiMerkleRootScript is Script, MerkleTreeHelper {
             getAddress(sourceChain, "eigenRewards"), //eigenRewards
             getAddress(sourceChain, "dev1Address") //claimerFor
         );  
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Drone Functions ==========================
         _createDroneLeafs(leafs, drone2, drone2StartIndex, leafIndex + 1);

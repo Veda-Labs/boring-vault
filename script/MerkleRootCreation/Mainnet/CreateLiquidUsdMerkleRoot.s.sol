@@ -20,6 +20,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
     //standard
     address public boringVault = 0x08c6F91e2B681FaF5e17227F2a44C307b3C1364C;
     address public rawDataDecoderAndSanitizer = 0x6C4F39e861bf3FE37c4988FcB652758B9cF43C67;
+    address public etherFiDecoder = 0xFB6C4c23Dc59F380Ec62Cc6Ea40711d6D87aa88f;
     address public managerAddress = 0x7b57Ad1A0AA89583130aCfAD024241170D24C13C;
     address public accountantAddress = 0xc315D6e14DDCDC7407784e2Caf815d131Bc1D3E7;
     address public drone = 0x3683fc2792F676BBAbc1B5555dE0DfAFee546e9a;
@@ -266,6 +267,8 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sentoraPYUSDMain")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sentoraRLUSDMain")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sentoraPRIMEMain")));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletUSDTPrime")));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "steakhousePrimeUSDC")));
 
         // ========================== Pendle ==========================
         _addPendleMarketLeafs(leafs, getAddress(sourceChain, "pendleUSDeMarket"), true);
@@ -922,7 +925,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         }
 
         // ========================== Layer Zero Bridging ==========================
-        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", etherFiDecoder);
         // Flare
         _addLayerZeroLeafs(
             leafs,
@@ -1060,19 +1063,35 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         _addrEULWrappingLeafs(leafs); //unwrap rEUL for EUL
 
         // ========================== Boring Vaults ==========================
-        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         {
             ERC20[] memory tellerAssets = new ERC20[](3);
             tellerAssets[0] = getERC20(sourceChain, "USDC");
             tellerAssets[1] = getERC20(sourceChain, "USDT");
             tellerAssets[2] = getERC20(sourceChain, "USDE");
             address ethenaRWATeller = 0xDEa662f24389eB7CaFA9b3B10021884FCe7314f0;
+            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", etherFiDecoder);
             _addTellerLeafs(leafs, ethenaRWATeller, tellerAssets, false, true); //no native, yes bulk
+            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
             address ethenaRWAQueue = 0x6863305D30D3D302E7a6208832C3F246346604E0;
             address ethenaRWA = 0x6fDcB0654B4814c2eC1E7e9dbC4cEBf1a2038a84;
             _addWithdrawQueueLeafs(leafs, ethenaRWAQueue, ethenaRWA, tellerAssets);
         }
+
+        // ========================== liquidMonadUSD Subvault ==========================
+        // TODO: subvault not ready yet — re-enable once deployed.
+        // {
+        //     ERC20[] memory tellerAssets = new ERC20[](1);
+        //     tellerAssets[0] = getERC20(sourceChain, "USDC");
+        //     address liquidMonadUSDTeller = 0xfF2082cff82B92551fdE9E784b276CA773d20E00;
+        //     setAddress(true, mainnet, "rawDataDecoderAndSanitizer", etherFiDecoder);
+        //     _addTellerLeafs(leafs, liquidMonadUSDTeller, tellerAssets, false, true); //no native, yes bulk
+        //     setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+        //
+        //     address liquidMonadUSDQueue = 0xa3e940aCac191353d4e2aB4F2bc09a85a5f0506E;
+        //     address liquidMonadUSD = 0x525D01dBb0004565C80bF60E269122759672dAD2;
+        //     _addWithdrawQueueLeafs(leafs, liquidMonadUSDQueue, liquidMonadUSD, tellerAssets);
+        // }
 
         // ========================== Drone Transfers ==========================
         //setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
@@ -1192,6 +1211,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Layer Zero ==========================
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", etherFiDecoder);
         bytes32 droneAsBytes32 = bytes32(uint256(uint160(drone)));
         _addLayerZeroLeafs(
             leafs,
@@ -1207,6 +1227,7 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
             layerZeroFlareEndpointId,
             droneAsBytes32
         );
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Ethena Withdraws ==========================
         _addEthenaSUSDeWithdrawLeafs(leafs);

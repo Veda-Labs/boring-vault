@@ -21,6 +21,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
     address public managerAddress = 0xf9f7969C357ce6dfd7973098Ea0D57173592bCCa;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
     address public pancakeSwapDataDecoderAndSanitizer = 0xfdC73Fc6B60e4959b71969165876213918A443Cd;
+    address public etherFiDecoder = 0xFB6C4c23Dc59F380Ec62Cc6Ea40711d6D87aa88f;
 
     function setUp() external {}
 
@@ -72,6 +73,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         );
 
         // ========================== LayerZero ==========================
+        setAddress(true, ink, "rawDataDecoderAndSanitizer", etherFiDecoder);
         {
             _addLayerZeroLeafs(
                 leafs,
@@ -81,6 +83,7 @@ contract CreateMultiChainLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
                 getBytes32(sourceChain, "boringVault")
             );
         }
+        setAddress(true, ink, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         // ========================== Velodrome ==========================
         {
             address[] memory token0 = new address[](1);

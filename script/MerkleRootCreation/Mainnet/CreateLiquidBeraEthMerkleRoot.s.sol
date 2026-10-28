@@ -21,6 +21,7 @@ contract CreateLiquidBeraEthMerkleRootScript is Script, MerkleTreeHelper {
     address public managerAddress = 0x62b283d4FeFB2a120e1120dba9f83bE6CA41bCD7;
     address public accountantAddress = 0x04B8136820598A4e50bEe21b8b6a23fE25Df9Bd8;
     address public rawDataDecoderAndSanitizer = 0xf2842b0a7e26B5A40132DCeC8118a24851e05048;
+    address public etherFiDecoder = 0xFB6C4c23Dc59F380Ec62Cc6Ea40711d6D87aa88f;
     address public liquidEthTeller = 0x9AA79C84b79816ab920bBcE20f8f74557B514734;
 
     function setUp() external {}
