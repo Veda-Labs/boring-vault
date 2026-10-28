@@ -20,7 +20,7 @@ contract CreateLiquidUSDOperationalMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0x08c6F91e2B681FaF5e17227F2a44C307b3C1364C;
-    address public rawDataDecoderAndSanitizer = 0x180e32788541663FbA09D022A439215d0243fd8d;
+    address public rawDataDecoderAndSanitizer = 0x7334c6fA101293A5fecB28Ee6a268750aee6B529;
     address public managerAddress = 0x7b57Ad1A0AA89583130aCfAD024241170D24C13C;
     address public accountantAddress = 0xc315D6e14DDCDC7407784e2Caf815d131Bc1D3E7;
 

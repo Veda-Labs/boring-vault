@@ -23,6 +23,7 @@ contract CreateLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
     address public rawDataDecoderAndSanitizer = 0xf6cF44791ee924597f8D1EFf98562435aFae29B8;
     address public managerAddress = 0x227975088C28DBBb4b421c6d96781a53578f19a8;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
+    address public etherFiDecoder = 0xFB6C4c23Dc59F380Ec62Cc6Ea40711d6D87aa88f;
 
     function setUp() external {}
 
@@ -47,8 +48,9 @@ contract CreateLiquidEthMerkleRootScript is Script, MerkleTreeHelper {
         _addNativeLeafs(leafs); 
 
         // ========================== LayerZero ==========================
+        setAddress(true, scroll, "rawDataDecoderAndSanitizer", etherFiDecoder);
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "WEETH"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));   
-
+        setAddress(true, scroll, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         // ========================== Scroll Native Bridge ==========================
         ERC20[] memory tokens = new ERC20[](1); 
         tokens[0] = getERC20(sourceChain, "WETH"); 

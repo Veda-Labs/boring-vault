@@ -21,7 +21,9 @@ contract CreateCapBTCvMerkleRootScript is Script, MerkleTreeHelper {
     address public boringVault = 0xE26c57F9C23F2F385BdB98886EC4E598f7F5a44c;
     address public managerAddress = 0x001ca40a376cF779AcdA318fa0Df504a95F0C4be;
     address public accountantAddress = 0x157aD71dB4696f0a53B8b82fc4F9Ba479c9aD21E;
-    address public rawDataDecoderAndSanitizer = 0x6E1fB5711C3A9a2b2f0c810Ff9541452eE0CEc3c;
+    address public rawDataDecoderAndSanitizer = 0x6f4fF7006CBBC0360102fBB558D53857fF36aDC9;
+
+    address public oneInchOwnedDecoderAndSanitizer = 0x42842201E199E6328ADBB98e7C2CbE77561FAC88;
 
     function setUp() external {}
 
@@ -53,6 +55,17 @@ contract CreateCapBTCvMerkleRootScript is Script, MerkleTreeHelper {
 
         // ========================== BTCb ==========================
         _addBTCbLeafs(leafs);
+
+        // ========================== 1inch ==========================
+        address[] memory assets = new address[](2);
+        SwapKind[] memory kind = new SwapKind[](2);
+        assets[0] = getAddress(sourceChain, "BTCb");
+        kind[0] = SwapKind.BuyAndSell;
+        assets[1] = getAddress(sourceChain, "USDC");
+        kind[1] = SwapKind.Sell;
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", oneInchOwnedDecoderAndSanitizer);
+        _addLeafsFor1InchOwnedGeneralSwapping(leafs, assets, kind);
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);

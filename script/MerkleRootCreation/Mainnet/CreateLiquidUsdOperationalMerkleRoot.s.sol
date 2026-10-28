@@ -124,14 +124,16 @@ contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper 
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", cctpDecoderAndSanitizer);
         _addCCTPBridgeLeafs(leafs, cctpOptimismDomainId);
 
-        // ========================== CAP ==========================
+        // ============================ Cap ============================
         {
-            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", capDecoderAndSanitizer);
-            address[] memory capDepositAssets = new address[](2);
-            capDepositAssets[0] = getAddress(sourceChain, "USDT");
-            capDepositAssets[1] = getAddress(sourceChain, "USDC");
-            _addCapWithdrawLeafs(leafs, capDepositAssets);
-            setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", capDecoderAndSanitizer);
+            address[] memory capDepositAssets = new address[](3);
+            capDepositAssets[0] = getAddress(sourceChain, "USDC");
+            capDepositAssets[1] = getAddress(sourceChain, "USDT");
+            capDepositAssets[2] = getAddress(sourceChain, "PYUSD");
+            _addCapLeafs(leafs, capDepositAssets);
+            setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         }
 
         // =================== Ether.fi Swapper (Odos) =====================
@@ -256,6 +258,10 @@ contract CreateLiquidUsdOperationalMerkleRootScript is Script, MerkleTreeHelper 
         {
             _addCurveGaugeClaimingLeafs(leafs, getAddress(sourceChain, "USDC_RLUSD_Curve_Gauge"));
         }
+
+        // ========================== MetaMorpho ==========================
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "gauntletUSDTPrime")));
+        _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "steakhousePrimeUSDC")));
 
 
         // ========================== Drones Setup ===============================

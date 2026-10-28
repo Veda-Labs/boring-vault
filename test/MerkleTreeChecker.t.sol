@@ -25,7 +25,7 @@ contract MerkleTreeCheckerTest is Test, MerkleTreeHelper {
         _startFork(rpcKey, blockNumber);
 
 
-        rawDataDecoderAndSanitizer = address(new LombardBtcDecoderAndSanitizer(address(0), address(0), address(0)));
+        rawDataDecoderAndSanitizer = address(new LombardBtcDecoderAndSanitizer(address(0), address(0), address(0), address(0)));
     }
 
     function testCheckingGoodTree() external {
@@ -63,7 +63,9 @@ contract MerkleTreeCheckerTest is Test, MerkleTreeHelper {
         address[] memory token1 = new address[](1);
         token1[0] = getAddress(sourceChain, "LBTC");
 
-        _addUniswapV3Leafs(leafs, token0, token1, false, false);
+        uint256[] memory fees = new uint256[](1);
+        fees[0] = 100;
+        _addUniswapV3Leafs(leafs, token0, token1, fees, false, false);
 
         // ========================== Fee Claiming ==========================
         /**

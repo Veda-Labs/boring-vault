@@ -24,6 +24,8 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
     address public accountantAddress = 0xc315D6e14DDCDC7407784e2Caf815d131Bc1D3E7;
     address public rawDataDecoderAndSanitizer = 0xf6cF44791ee924597f8D1EFf98562435aFae29B8;
 
+    address public etherFiDecoder = 0xFB6C4c23Dc59F380Ec62Cc6Ea40711d6D87aa88f;
+
     function setUp() external {}
 
     /**
@@ -44,7 +46,9 @@ contract CreateLiquidUsdMerkleRootScript is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](16);
 
         // ========================== LayerZero ==========================
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", etherFiDecoder);
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "USDC"), getAddress(sourceChain, "stargateUSDC"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault"));
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
                 // Fee Claiming 
         ERC20[] memory feeAssets = new ERC20[](2);

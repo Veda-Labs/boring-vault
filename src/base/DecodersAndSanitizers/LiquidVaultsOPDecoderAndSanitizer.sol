@@ -20,5 +20,7 @@ contract LiquidVaultsOPDecoderAndSanitizer is
     TellerDecoderAndSanitizer, 
     EtherFiDebtManagerDecoderAndSanitizer
 {
+    constructor() CCTPDecoderAndSanitizer(5) {}
+
    
 }

@@ -71,6 +71,11 @@ import {MantleStandardBridgeDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/MantleStandardBridgeDecoderAndSanitizer.sol";
 import {MerklDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MerklDecoderAndSanitizer.sol";
 import {MorphoBlueDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/MorphoBlueDecoderAndSanitizer.sol";
+import {MorphoBlueDecoderAndSanitizerSingleton} from
+    "src/base/DecodersAndSanitizers/MorphoBlueDecoderAndSanitizerSingleton.sol";
+import {MorphoMidnightDecoderAndSanitizerSingleton} from
+    "src/base/DecodersAndSanitizers/MorphoMidnightDecoderAndSanitizerSingleton.sol";
+import {TempoDirectPropAMMDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/TempoDirectPropAMMDecoderAndSanitizer.sol";
 import {MorphoRewardsMerkleClaimerDecoderAndSanitizer} from
     "src/base/DecodersAndSanitizers/Protocols/MorphoRewardsMerkleClaimerDecoderAndSanitizer.sol";
 import {MorphoRewardsWrapperDecoderAndSanitizer} from
@@ -169,8 +174,8 @@ contract DeployDecodersAndSanitizersWithNoConstructorArgsScript is
 
     function setUp() external {
         //privateKey = vm.envUint("BORING_DEVELOPER");
-        vm.createSelectFork("sei");
-        setSourceChainName("sei");
+        vm.createSelectFork("mainnet");
+        setSourceChainName("mainnet");
     }
 
     function run() external {
@@ -178,9 +183,22 @@ contract DeployDecodersAndSanitizersWithNoConstructorArgsScript is
         bytes memory constructorArgs;
         vm.startBroadcast();
 
-        creationCode = type(LiquidUSDSeiDecoderAndSanitizer).creationCode;
+        creationCode = type(MorphoBlueDecoderAndSanitizerSingleton).creationCode;
         constructorArgs = hex"";
-        deployContract("LiquidUSD Sei Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        deployContract("Morpho Blue Decoder and Sanitizer Singleton V0.0", creationCode, constructorArgs, 0);
+
+        creationCode = type(MorphoMidnightDecoderAndSanitizerSingleton).creationCode;
+        constructorArgs = hex"";
+        deployContract("Morpho Midnight Decoder and Sanitizer Singleton V0.0", creationCode, constructorArgs, 0);
+
+        // // Deploy TempoDirectPropAMMDecoderAndSanitizer
+        // creationCode = type(TempoDirectPropAMMDecoderAndSanitizer).creationCode;
+        // constructorArgs = hex"";
+        // deployContract("Tempo Direct Prop AMM Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+
+        // creationCode = type(LiquidUSDSeiDecoderAndSanitizer).creationCode;
+        // constructorArgs = hex"";
+        // deployContract("LiquidUSD Sei Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
         // creationCode = type(AaveV3DecoderAndSanitizer).creationCode;
         // constructorArgs = hex"";
@@ -241,10 +259,13 @@ contract DeployDecodersAndSanitizersWithNoConstructorArgsScript is
         // constructorArgs = hex"";
         // deployContract("BTCN Minter Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
 
-        // // Deploy CCIPDecoderAndSanitizer
-        // creationCode = type(CCIPDecoderAndSanitizer).creationCode;
-        // constructorArgs = hex"";
-        // deployContract("CCIP Decoder and Sanitizer V0.0", creationCode, constructorArgs, 0);
+        // // CCIPDecoderAndSanitizer: deploy "CCIP Decoder and Sanitizer V0.2" ONLY through newDeployer
+        // // 0xe80F045fc6F551229f98FA21E0Db35784A590e05 (the Deployer merkle-core derives from), never through
+        // // `deployer` below: the legacy Deployer's V0.2 slot already holds an unrelated V1-only contract on Plasma,
+        // // and deployContract would silently return it.
+        // Deployer(0xe80F045fc6F551229f98FA21E0Db35784A590e05).deployContract(
+        //     "CCIP Decoder and Sanitizer V0.2", type(CCIPDecoderAndSanitizer).creationCode, hex"", 0
+        // );
 
         // // Deploy CompoundV3DecoderAndSanitizer
         // creationCode = type(CompoundV3DecoderAndSanitizer).creationCode;
