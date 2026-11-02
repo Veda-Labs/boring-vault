@@ -22,7 +22,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
     address public managerAddress = 0xaFa8c08bedB2eC1bbEb64A7fFa44c604e7cca68d;
     address public accountantAddress = 0xEa23aC6D7D11f6b181d6B98174D334478ADAe6b0;
     address public rawDataDecoderAndSanitizer = 0x58D28BB88400b889C4a1b754d930a743323F5Ada;
-
+    address public midasVaultDecoderAndSanitizer = 0x7fc0F133Cb0a3B9C4186121C514E7830092111dC;
     function setUp() external {}
 
     /**
@@ -62,6 +62,40 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         ERC20[] memory claimingAssets = new ERC20[](1);
         claimingAssets[0] = getERC20(sourceChain, "WBTC");
         _addLeafsForFeeClaiming(leafs, getAddress(sourceChain, "accountantAddress"), claimingAssets, false);
+
+
+        // ========================== Standard Bridge ==========================
+        ERC20[] memory localTokens = new ERC20[](1);
+        localTokens[0] = getERC20(sourceChain, "USDT");
+
+        ERC20[] memory remoteTokens = new ERC20[](1);
+        remoteTokens[0] = getERC20(mainnet, "USDT");
+
+        _addStandardBridgeLeafs(
+            leafs,
+            mainnet,
+            address(0),
+            address(0),
+            getAddress(sourceChain, "standardBridge"),
+            address(0),
+            localTokens,
+            remoteTokens
+        );
+
+        // CCTP Bridge
+        _addCCTPBridgeLeafs(leafs, cctpMainnetDomainId);
+
+        // ===================== Midas Vault ==========================
+        setAddress(true, optimism, "rawDataDecoderAndSanitizer", midasVaultDecoderAndSanitizer);
+        ERC20[] memory midasVaultTokens = new ERC20[](2);
+        midasVaultTokens[0] = getERC20(sourceChain, "USDC");
+        midasVaultTokens[1] = getERC20(sourceChain, "USDT");
+
+        ERC20[] memory midasVaultRedeemAssets = new ERC20[](1);
+        midasVaultRedeemAssets[0] = getERC20(sourceChain, "USDC");
+
+        _addMidasVaultLeafs(leafs, midasVaultTokens, midasVaultRedeemAssets, getAddress(sourceChain, "liquidRWA"), getAddress(sourceChain, "liquidRWA_DepositAdapter"), getAddress(sourceChain, "liquidRWA_RedemptionVault"));
+        setAddress(true, optimism, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Verify ==========================
 

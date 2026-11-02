@@ -13,4 +13,6 @@ contract SentayUSDCInkDecoderAndSanitizer is
     BaseDecoderAndSanitizer,
     OFTDecoderAndSanitizer,
     CCTPDecoderAndSanitizer
-{}
+{
+    constructor() CCTPDecoderAndSanitizer(5) {}
+}

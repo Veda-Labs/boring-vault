@@ -24,6 +24,9 @@ contract CreateLiquidUSDPlumeMerkleRoot is Script, MerkleTreeHelper {
     address public tellerAddress = 0x4DE413a26fC24c3FC27Cc983be70aA9c5C299387;
     address public rawDataDecoderAndSanitizer = 0x169344808f48C0e09857E16a5f6d126D79506A15;
 
+    address public nBasisAtomicQueue = 0x220dc6d4569C1F406D532f9633D5Be5Bc86e8264;
+    address public nBasisLegacyAtomicQueue = 0x228C44Bb4885C6633F4b6C83f14622f37D5112E5;
+
     function setUp() external {
         vm.createSelectFork("plume");
     }
@@ -64,7 +67,7 @@ contract CreateLiquidUSDPlumeMerkleRoot is Script, MerkleTreeHelper {
         // nBASIS -> nativeUSDC withdrawal
         _addAtomicQueueLeafs(
             leafs,
-            0x228C44Bb4885C6633F4b6C83f14622f37D5112E5,
+            nBasisAtomicQueue,
             getERC20(sourceChain, "nBASIS"),
             getERC20(sourceChain, "USDC")
         );
@@ -82,7 +85,7 @@ contract CreateLiquidUSDPlumeMerkleRoot is Script, MerkleTreeHelper {
         // nALPHA -> nativeUSDC withdrawal
         _addAtomicQueueLeafs(
             leafs,
-            0x228C44Bb4885C6633F4b6C83f14622f37D5112E5,
+            nBasisLegacyAtomicQueue,
             getERC20(sourceChain, "nALPHA"),
             getERC20(sourceChain, "USDC")
         );
@@ -100,7 +103,7 @@ contract CreateLiquidUSDPlumeMerkleRoot is Script, MerkleTreeHelper {
         // nOPAL -> nativeUSDC withdrawal
         _addAtomicQueueLeafs(
             leafs,
-            0x228C44Bb4885C6633F4b6C83f14622f37D5112E5,
+            nBasisLegacyAtomicQueue,
             getERC20(sourceChain, "nOPAL"),
             getERC20(sourceChain, "USDC")
         );
@@ -112,7 +115,7 @@ contract CreateLiquidUSDPlumeMerkleRoot is Script, MerkleTreeHelper {
         // ========================== Verify ==========================
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
 
-        string memory filePath = "./leafs/Plume/LiquidUSDStrategistLeafs.json";
+        string memory filePath = "./leafs/plume/LiquidUSDStrategistLeafs.json";
 
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 

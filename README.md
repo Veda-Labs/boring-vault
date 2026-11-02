@@ -76,6 +76,23 @@ For more detailed information, please refer to the [documentation](https://docs.
 In order to run the tests make sure the following is done.
 
 1. Foundry is [installed](https://book.getfoundry.sh/getting-started/installation)
-2. Copy `sample.env`, rename the copy to `.env`, and update all RPCs.
-3. Run `forge install`
-4. Run `forge test`
+2. The [1Password CLI](https://developer.1password.com/docs/cli/get-started/) (`op`) is installed and signed in (`op signin`), with read access to the **Shared** vault.
+3. Provide the RPC endpoints from 1Password (see below).
+4. Run `forge install`
+5. Run `forge test`
+
+#### RPC endpoints
+
+The fork tests need per-chain `*_RPC_URL`s. Rather than a hand-maintained plaintext `.env`, the canonical set lives in the version-controlled [`.env.tpl`](.env.tpl): every endpoint is fully expressed, with only the two API keys as `{{ op://… }}` references (Alchemy + Goldsky). Materialize the real values from 1Password one of two ways:
+
+```sh
+# A) write the gitignored .env (foundry auto-loads it):
+op inject -i .env.tpl -o .env
+
+# B) load into the shell without any plaintext on disk:
+source scripts/rpc-env.sh
+```
+
+Then `forge test`. To change an endpoint or add a chain, edit `.env.tpl` (a reviewable diff — no per-dev drift); to rotate a key, update it once in the 1Password `Shared` vault. `.env` is gitignored, so a plaintext key never lands in git.
+
+> **Note:** CI skips the deprecated Berachain / Corn / Scroll suites (ETHFI-35). Some of them (e.g. `KodiakIslandIntegration`, `InfraredIntegration`, `HoneyIntegration`, `GoldiVaultIntegration`) fork the **sunset bArtio testnet**, whose RPC is dead — so `.env.tpl` intentionally omits `BARTIO_RPC_URL`. For a clean local run, mirror CI's `--skip` set (see [`.github/workflows/test.yml`](.github/workflows/test.yml)); a bare `forge test` will fail on those deprecated suites.

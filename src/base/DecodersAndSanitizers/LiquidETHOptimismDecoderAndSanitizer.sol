@@ -24,6 +24,8 @@ contract LiquidETHOptimismDecoderAndSanitizer is
     EtherFiDecoderAndSanitizer, 
     EtherFiDebtManagerDecoderAndSanitizer
 {
+    constructor() CCTPDecoderAndSanitizer(5) {}
+
    function deposit() external pure override (EtherFiDecoderAndSanitizer, NativeWrapperDecoderAndSanitizer) returns (bytes memory addressesFound) {
         return addressesFound;
     }

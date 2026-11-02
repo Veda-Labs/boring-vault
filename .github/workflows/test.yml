@@ -16,9 +16,9 @@ jobs:
 
     name: Foundry project
     runs-on: ubuntu-latest
-    # Explicit ceiling (the default is 6h). Note: the historical ~30-min deaths
-    # were the runner OOMing during compilation (VM killed with "runner received
-    # a shutdown signal"), not a timeout — see the swap step below.
+    # Explicit ceiling (default is 6h). The historical ~30-min deaths were the
+    # runner OOMing during compilation (VM killed with "runner received a
+    # shutdown signal"), not a timeout — see the swap step below.
     timeout-minutes: 90
     env:
       MAINNET_RPC_URL: https://eth-mainnet.g.alchemy.com/v2/${{ secrets.ALCHEMY_API_KEY }}
@@ -29,7 +29,6 @@ jobs:
       LINEA_RPC_URL: https://linea-mainnet.g.alchemy.com/v2/${{ secrets.ALCHEMY_API_KEY }}
       MANTLE_RPC_URL: https://mantle-mainnet.g.alchemy.com/v2/${{ secrets.ALCHEMY_API_KEY }}
       HOLESKY_RPC_URL: https://eth-holesky.g.alchemy.com/v2/${{ secrets.ALCHEMY_API_KEY }}
-      TEMPO_RPC_URL: https://tempo-mainnet.g.alchemy.com/v2/${{ secrets.ALCHEMY_API_KEY }}
       BERA_CHAIN_RPC_URL: ${{ secrets.BERA_CHAIN_RPC_URL }}
       BOB_RPC_URL: ${{ secrets.BOB_RPC_URL }}
       DERIVE_RPC_URL: ${{ secrets.DERIVE_RPC_URL }}
@@ -41,7 +40,6 @@ jobs:
       SCROLL_RPC_URL: ${{ secrets.SCROLL_RPC_URL }}
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
       SONIC_MAINNET_RPC_URL: ${{ secrets.SONIC_MAINNET_RPC_URL }}
-      TAC_RPC_URL: ${{ secrets.TAC_RPC_URL }}
       MONAD_RPC_URL: ${{ secrets.MONAD_RPC_URL }}
     steps:
       - uses: actions/checkout@v4
@@ -55,28 +53,30 @@ jobs:
           # calldata whose dstReceiver is the test swapper's CREATE address, which
           # is Foundry-version-sensitive. `stable` (now v1.8.x) deploys it at a
           # different address, so every baked quote reverts Adapter__ReceiverMismatch.
-          # v1.7.1 matches the version the calldata was captured under (and the
-          # Tempo step below). Bump only alongside regenerating that calldata.
+          # v1.7.1 matches the version the calldata was captured under. Bump only
+          # alongside regenerating that calldata. (The Tempo step below pins its own.)
           version: v1.7.1
 
-      # [profile.ci] and [profile.nightly] in foundry.toml must skip the same
-      # sources so PR CI and nightly-fuzz test the same code — fail fast if the
-      # two lists drift apart.
-      - name: Check ci/nightly skip lists are in sync
+      # Full recompiles peak >11 GB in a single solc pipeline; the 16 GB runner
+      # OOMs and the VM is killed mid-build ("runner received a shutdown
+      # signal"). Swap on /mnt (~60 GB free) absorbs the peak so the build
+      # completes instead of dying.
+      - name: Free disk and add swap for solc memory peak
         run: |
-          diff <(forge config --json | jq '(.skip // []) | sort') \
-               <(FOUNDRY_PROFILE=nightly forge config --json | jq '(.skip // []) | sort')
-
-      # Full recompiles (any PR touching MerkleTreeHelper/ChainValues dirties
-      # ~all test compilation units) peak >11 GB in a single solc pipeline; the
-      # 16 GB runner OOMs and the VM is killed mid-build. Swap on /mnt (~60 GB
-      # free) absorbs the peak so the build completes instead of dying.
-      - name: Add swap for solc memory peak
-        run: |
-          sudo fallocate -l 16G /mnt/swapfile2
-          sudo chmod 600 /mnt/swapfile2
-          sudo mkswap /mnt/swapfile2
-          sudo swapon /mnt/swapfile2
+          # This repo + its nested submodules leave little runner-disk headroom,
+          # so a 16G swapfile on /mnt overflowed the disk ("No space left on
+          # device") and crashed the runner agent before the build. Reclaim the
+          # preinstalled toolchains we don't use, then put a right-sized swapfile
+          # on the freed root disk to absorb the >11 GB solc compile peak.
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc \
+            /opt/hostedtoolcache/CodeQL /usr/local/graalvm /usr/local/share/powershell \
+            /usr/local/share/chromium /usr/local/lib/node_modules /usr/share/swift 2>/dev/null || true
+          df -h /
+          sudo fallocate -l 12G /swapfile2
+          sudo chmod 600 /swapfile2
+          sudo mkswap /swapfile2
+          sudo swapon /swapfile2
+          free -h
 
       # Cache forge's compilation output so same-branch pushes only recompile
       # changed files. Restore + save are split (not the combined actions/cache)
@@ -97,10 +97,17 @@ jobs:
             foundry-${{ runner.os }}-${{ hashFiles('foundry.toml') }}-
             foundry-${{ runner.os }}-
 
+      # [profile.ci] and [profile.nightly] must skip the same set (test.yml runs ci,
+      # nightly-fuzz.yml runs nightly, and neither passes --skip). Fail loudly if they drift.
+      - name: Check ci/nightly skip lists are in sync
+        run: |
+          diff <(forge config --json | jq '(.skip // []) | sort') \
+               <(FOUNDRY_PROFILE=nightly forge config --json | jq '(.skip // []) | sort')
+
       - name: Run Forge build
         run: |
           forge --version
-          forge build
+          forge build --skip script
         id: build
 
       # Persist the compiled artifacts even though the test step below fails on
@@ -115,22 +122,22 @@ jobs:
           key: ${{ steps.forge-cache.outputs.cache-primary-key }}
 
       - name: Run Forge tests
-        # script/ and the deprecated Berachain/Scroll suites (ETHFI-35) are
-        # excluded via `skip` in [profile.ci] (foundry.toml), so the build and
-        # test steps compile the exact same source set — no --skip flags here.
+        # No --skip flags: the skip set lives in [profile.ci] in foundry.toml
+        # (single source of truth), so build and test compile the exact same set.
         run: |
           forge test -vv
         id: test
 
-      # Tempo tests need Foundry >= 1.7.0 (T7 precompiles; see foundry.toml). The
-      # rolling `stable` is only v1.5.1 (below that floor), and `version: nightly`
-      # follows a rolling tag that keeps resolving to GC'd nightly releases → HTTP
-      # 404. v1.7.1 is a permanent VERSION release (never garbage-collected), so it
-      # meets the floor and never disappears. Bump when Tempo needs a newer T-rev.
-      - name: Install Foundry (v1.7.1, for Tempo precompiles)
+      # Tempo tests run forge's EMBEDDED Tempo precompiles, so the forge version must
+      # track the chain's T-rev. v1.7.1's are stale for the PropAMM suites' fork block
+      # (36_425_642): TIP-20 transfers the live node allows revert PolicyForbids()
+      # (0x54cfe659) in setUp(). v1.8.3 matches the chain. Pinned to a permanent
+      # VERSION release (not `stable`/`nightly`, which move or get GC'd). This pin is
+      # independent of the main step's v1.7.1 above. Bump when Tempo needs a newer T-rev.
+      - name: Install Foundry (v1.8.3, for Tempo precompiles)
         uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: v1.7.1
+          version: v1.8.3
 
       # Tempo tests run against the native Tempo precompiles (network = "tempo", Foundry >= 1.7.0).
       # The profiles partition the test set: default excludes test/**Tempo*, tempo runs only those.

@@ -23,6 +23,7 @@ contract CreateEtherFiEigenMerkleRootScript is Script, MerkleTreeHelper {
     address public accountantAddress = 0x075e60550C6f77f430B284E76aF699bC31651f75;
     address public rawDataDecoderAndSanitizer = 0xE210992A48184639AB85c28F50C2B1F130711323;
     address public itbDecoderAndSanitizer = 0xBF76C48401f7f690f46F0C481Ee9f193D0c43062;
+    address public etherFiDecoder = 0xFB6C4c23Dc59F380Ec62Cc6Ea40711d6D87aa88f;
 
     address public itbEigenPositionManager = 0xb814C334748dc8D12145b009020e2783624c0775;
 
@@ -75,6 +76,7 @@ contract CreateEtherFiEigenMerkleRootScript is Script, MerkleTreeHelper {
         ManageLeaf[] memory leafs = new ManageLeaf[](32);
 
         // ========================== Eigen ==========================
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", etherFiDecoder);
         _addLeafsForEigenLayerLST(
             leafs,
             getAddress(sourceChain, "EIGEN"),
@@ -85,7 +87,7 @@ contract CreateEtherFiEigenMerkleRootScript is Script, MerkleTreeHelper {
             getAddress(sourceChain, "eigenRewards"),
             address(0)
         );
-
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         // ========================== ITB Eigen ==========================
         _addLeafsForITBEigenLayerPositionManager(
             leafs, itbEigenPositionManager, getERC20(sourceChain, "EIGEN"), getAddress(sourceChain, "strategyManager")

@@ -19,6 +19,7 @@ contract CreateEtherFiUsdMerkleRootScript is Script, MerkleTreeHelper {
 
     address public boringVault = 0x939778D83b46B456224A33Fb59630B11DEC56663;
     address public rawDataDecoderAndSanitizer = 0xc6288B06365019dF18B2076Bf9B5e191826fB57F;
+    address public etherFiDecoder = 0xFB6C4c23Dc59F380Ec62Cc6Ea40711d6D87aa88f;
     address public managerAddress = 0xDFC5b0d2eC65864Dc773F681E3D52c765dc083ac;
     address public accountantAddress = 0xEB440B36f61Bf62E0C54C622944545f159C3B790;
 

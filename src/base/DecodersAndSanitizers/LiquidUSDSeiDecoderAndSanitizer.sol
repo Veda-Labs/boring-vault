@@ -17,4 +17,6 @@ contract LiquidUSDSeiDecoderAndSanitizer is
     ERC4626DecoderAndSanitizer,
     MerklDecoderAndSanitizer,
     CCTPDecoderAndSanitizer
-{}
+{
+    constructor() CCTPDecoderAndSanitizer(5) {}
+}

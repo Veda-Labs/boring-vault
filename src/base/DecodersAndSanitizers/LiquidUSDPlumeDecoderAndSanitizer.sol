@@ -24,6 +24,5 @@ contract LiquidUSDPlumeDecoderAndSanitizer is
     constructor()
         PredicateProxyDecoderAndSanitizer()
         TellerDecoderAndSanitizer()
-        AtomicQueueDecoderAndSanitizer(0.9e4, 1.1e4)
-    {}
+        AtomicQueueDecoderAndSanitizer(0.9e4, 1.1e4) CCTPDecoderAndSanitizer(5) {}
 }

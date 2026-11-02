@@ -19,4 +19,6 @@ contract BoostedUSDCInkDecoderAndSanitizer is
     NativeWrapperDecoderAndSanitizer,
     CCTPDecoderAndSanitizer
 {
+    constructor() CCTPDecoderAndSanitizer(5) {}
+
 }

@@ -75,7 +75,8 @@ contract BoringVaultIntegrationTest is Test, MerkleTreeHelper {
         rawDataDecoderAndSanitizer = address(
             new EtherFiLiquidEthDecoderAndSanitizer(
                 getAddress(sourceChain, "uniswapV3NonFungiblePositionManager"),
-                getAddress(sourceChain, "odosRouterV2")
+                getAddress(sourceChain, "odosRouterV2"),
+                address(0)
             )
         );
 

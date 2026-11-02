@@ -22,6 +22,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
     address public managerAddress = 0xaFa8c08bedB2eC1bbEb64A7fFa44c604e7cca68d;
     address public accountantAddress = 0xEa23aC6D7D11f6b181d6B98174D334478ADAe6b0;
     address public rawDataDecoderAndSanitizer = 0x05E817E83B264b7710c6cE80b342FfE2469Acb69;
+    address public etherFiDecoder = 0xFB6C4c23Dc59F380Ec62Cc6Ea40711d6D87aa88f;
     address public scrollBridgeDecoderAndSanitizer = 0xA66a6B289FB5559b7e4ebf598B8e0A97C776c200;
     address public itbPositionManager = 0x7AAf9539B7359470Def1920ca41b5AAA05C13726;
     address public itbPositionManager2 = 0x11Fd9E49c41738b7500748f7B94B4DBb0E8c13d2; // Spark LBTC (PYUSD) + Aave Core Euler PYUSD Supervised Loan
@@ -29,6 +30,9 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
     address public itbDecoderAndSanitizer = 0xb75bfC8B0Cc8588C510DcAE75c67A9DC9cF508d5; 
     address public capDecoderAndSanitizer = 0xE0e86bf98dAA0D2b408Cb038E94bCB9B7864309C;
     address public etherfibtcDecoderAndSanitizer = 0xC48cA54b9F3f8Fc7E5347DE55879851178B485e8;
+    address public cctpDecoderAndSanitizer = 0xd2a9C2F3f8c148dc0E18Dfd0bAE482d9c2E1BA2e;
+    address public merklClaimerDecoderAndSanitizer = 0xe825B233EEc65C3C55f06a1782ddF97a31e93C99;
+    address public morphoDecoderAndSanitizer = 0x4734F21246958a1F6F9827BDDf416152f8efC1EA;
 
     //one offs
     address public odosOwnedDecoderAndSanitizer = 0x6149c711434C54A48D757078EfbE0E2B2FE2cF6a;
@@ -237,6 +241,11 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
          _addBTCNLeafs(leafs, getERC20(sourceChain, "cbBTC"), getERC20(sourceChain, "BTCN"), getAddress(sourceChain, "cornSwapFacilitycbBTC"));
         _addBTCNLeafs(leafs, getERC20(sourceChain, "WBTC"), getERC20(sourceChain, "BTCN"), getAddress(sourceChain, "cornSwapFacilityWBTC"));
 
+        // ========================== Merkl ==========================
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", merklClaimerDecoderAndSanitizer);
+        _addMerklLeafs(leafs, getAddress(sourceChain, "merklDistributor"), getAddress(sourceChain, "etherfiOpsAddress"));
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+
         // ============================ Cap ============================
         {
 
@@ -304,6 +313,8 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sentoraPYUSDMain")));
         _addERC4626Leafs(leafs, ERC4626(getAddress(sourceChain, "sentoraPRIMEMain")));
 
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", morphoDecoderAndSanitizer);
+
         // ========================== MorphoBlue ==========================
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "WBTC_USDC_86"));
         _addMorphoBlueSupplyLeafs(leafs, getBytes32(sourceChain, "WBTC_USDT_86"));
@@ -345,6 +356,8 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "LBTC_WBTC_945"));
         _addMorphoBlueCollateralLeafs(leafs, getBytes32(sourceChain, "LBTC_PYUSD_86"));
 
+        setAddress(true, sourceChain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+
         // ========================== MorphoRewards ==========================
         _addMorphoRewardWrapperLeafs(leafs);
         _addMorphoRewardMerkleClaimerLeafs(leafs, 0x330eefa8a787552DC5cAd3C3cA644844B1E61Ddb);
@@ -368,6 +381,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         _addNativeLeafs(leafs, getAddress(sourceChain, "WETH"));
 
         // ========================== Teller ==========================
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", etherFiDecoder);
         {
             ERC20[] memory eBTCTellerAssets = new ERC20[](3);
             eBTCTellerAssets[0] = getERC20(sourceChain, "WBTC");
@@ -405,6 +419,8 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
             _addWithdrawQueueLeafs(leafs, getAddress(sourceChain, "TACLBTCvQueue"), getAddress(sourceChain, "TACLBTCv"), tacLBTCvAssets);
 
         }
+
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Resolv ==========================
         {
@@ -487,7 +503,9 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
 
 
         // ========================== Fluid Dex ==========================
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", etherFiDecoder);
         {
+
             uint256 dexType = 4000; 
             ERC20[] memory supplyTokens = new ERC20[](2);    
             supplyTokens[0] = getERC20(sourceChain, "WBTC"); 
@@ -506,6 +524,7 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
             ); 
         }
 
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
         // ========================== Syrup ==========================
         {
             address[] memory tokens = new address[](2);
@@ -536,6 +555,9 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
 
         // ========================== LayerZero/Stargate ==========================
         // Berachain
+
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", etherFiDecoder);
+
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WBTC"), getAddress(sourceChain, "WBTCOFTAdapter"), layerZeroBerachainEndpointId, bytes32(uint256(uint160(address(boringVault)))));   
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "solvBTC"), getAddress(sourceChain, "stargateSolvBTC"), layerZeroBerachainEndpointId, bytes32(uint256(uint160(address(boringVault)))));   
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "srUSD"), getAddress(sourceChain, "stargatesrUSD"), layerZeroBerachainEndpointId, bytes32(uint256(uint160(address(boringVault)))));   
@@ -546,6 +568,8 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         //Scroll
         _addLayerZeroLeafs(leafs, getERC20(sourceChain, "WBTC"), getAddress(sourceChain, "WBTCOFTAdapter"), layerZeroScrollEndpointId, bytes32(uint256(uint160(address(boringVault)))));   
 
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
+
         // ========================== Scroll Native Bridge==========================
         setAddress(true, mainnet, "rawDataDecoderAndSanitizer", scrollBridgeDecoderAndSanitizer);
         ERC20[] memory tokens = new ERC20[](1); 
@@ -554,14 +578,20 @@ contract CreateLiquidBtcMerkleRoot is Script, MerkleTreeHelper {
         scrollGateways[0] = getAddress(scroll, "scrollWBTCGateway");
         _addScrollNativeBridgeLeafs(leafs, "scroll", tokens, scrollGateways);  
 
+        // ========================== CCTP Bridge ==========================
+        setAddress(true, mainnet, "rawDataDecoderAndSanitizer", cctpDecoderAndSanitizer);
+        _addCCTPBridgeLeafs(leafs, cctpOptimismDomainId);
+
         // ========================== Standard Bridge to Optimism ==========================
 
         {
             setAddress(true, mainnet, "rawDataDecoderAndSanitizer", etherfibtcDecoderAndSanitizer);
-            ERC20[] memory localTokens = new ERC20[](1);
+            ERC20[] memory localTokens = new ERC20[](2);
             localTokens[0] = getERC20(sourceChain, "WBTC");
-            ERC20[] memory remoteTokens = new ERC20[](1);
+            localTokens[1] = getERC20(sourceChain, "USDT");
+            ERC20[] memory remoteTokens = new ERC20[](2);
             remoteTokens[0] = getERC20(optimism, "WBTC");
+            remoteTokens[1] = getERC20(optimism, "USDT");
             _addStandardBridgeLeafs(
                 leafs,
                 optimism,

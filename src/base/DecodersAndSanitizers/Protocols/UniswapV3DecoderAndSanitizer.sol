@@ -2,7 +2,7 @@
 // Copyright © 2025 Veda Tech Labs
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0
-// Last audited: boring-vault@4c9c671bb965899728167102a0e3ac22f4aabf7a — https://macroaudits.com/library/audits/sevenSeas-39
+// Last audited: boring-vault-fixes@75bedc585da451b4ec4690ee8d3e378c6447dfe9 — file:audit/0xmacro-veda-90.pdf
 pragma solidity 0.8.21;
 
 import {INonFungiblePositionManager} from "src/interfaces/RawDataDecoderAndSanitizerInterfaces.sol";
@@ -27,15 +27,6 @@ contract UniswapV3DecoderAndSanitizer {
 
     //============================== UNISWAP V3 ===============================
 
-    /**
-     * @dev The path walk packs the 20-byte token addresses but not the 3-byte
-     *      fee tier between hops, and amountIn / amountOutMinimum are not
-     *      bound. By design, decoder leaves authorize swap shapes (which
-     *      tokens, which receiver) rather than specific values (which pool,
-     *      what slippage). A strategist with an authored leaf for a token
-     *      pair may route through any fee-tier pool of that pair, with any
-     *      slippage floor.
-     */
     function exactInput(DecoderCustomTypes.ExactInputParams calldata params)
         external
         pure
@@ -48,13 +39,22 @@ contract UniswapV3DecoderAndSanitizer {
         uint256 chunkSize = 23; // 3 bytes for uint24 fee, and 20 bytes for address token
         uint256 pathLength = params.path.length;
         if (pathLength % chunkSize != 20) revert UniswapV3DecoderAndSanitizer__BadPathFormat();
-        uint256 pathAddressLength = 1 + (pathLength / chunkSize);
+        uint256 hops = pathLength / chunkSize; // multihop ex: 66 / 23 = 2.86 (floored) = 2. 43 / 23 = 
         uint256 pathIndex;
-        for (uint256 i; i < pathAddressLength; ++i) {
-            addressesFound = abi.encodePacked(addressesFound, params.path[pathIndex:pathIndex + 20]);
+        for (uint256 i = 0; i < hops; ++i) {
+            addressesFound = abi.encodePacked(
+                addressesFound,
+                params.path[pathIndex : pathIndex + 20], //first 20 bytes (address)
+                address(uint160(uint24(bytes3(params.path[pathIndex + 20 : pathIndex + 23])))) //20bytes..23bytes = fee
+            );
             pathIndex += chunkSize;
         }
-        addressesFound = abi.encodePacked(addressesFound, params.recipient);
+
+        addressesFound = abi.encodePacked(
+            addressesFound, 
+            params.path[pathIndex : pathIndex + 20],
+            params.recipient
+        );
     }
 
     function mint(DecoderCustomTypes.MintParams calldata params)
@@ -65,7 +65,12 @@ contract UniswapV3DecoderAndSanitizer {
     {
         // Nothing to sanitize
         // Return addresses found
-        addressesFound = abi.encodePacked(params.token0, params.token1, params.recipient);
+        addressesFound = abi.encodePacked(
+            params.token0, 
+            address(uint160(params.fee)),
+            params.token1, 
+            params.recipient
+        );
     }
 
     function increaseLiquidity(DecoderCustomTypes.IncreaseLiquidityParams calldata params)

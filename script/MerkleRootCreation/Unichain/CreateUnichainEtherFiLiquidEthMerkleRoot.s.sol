@@ -23,6 +23,7 @@ contract CreateUnichainEtherFiLiquidEthMerkleRoot is Script, MerkleTreeHelper {
     address public managerAddress = 0xDEa7AF4a96A762c9d43A7eE02acecD20A3C6D8B6;
     address public accountantAddress = 0x0d05D94a5F1E76C18fbeB7A13d17C8a314088198;
     address public rawDataDecoderAndSanitizer = 0x3B552951238bCf38097c66b10fF02203162E35C4; 
+    address public etherFiDecoder = 0xFB6C4c23Dc59F380Ec62Cc6Ea40711d6D87aa88f;
     bytes32 public morphoMarketId = 0xdacbdd711936b4f4bd789f0f7111e36e925d730ebd41178e36e705efd78a4aa1;
 
     function setUp() external {}
@@ -47,9 +48,12 @@ contract CreateUnichainEtherFiLiquidEthMerkleRoot is Script, MerkleTreeHelper {
         _addNativeLeafs(leafs);
 
         // ========================== LayerZero ==========================
+        setAddress(true, unichain, "rawDataDecoderAndSanitizer", etherFiDecoder);
+
         _addLayerZeroLeafs(
             leafs, getERC20(sourceChain, "WEETH"), getAddress(sourceChain, "WEETH"), layerZeroMainnetEndpointId, getBytes32(sourceChain, "boringVault")
         );
+        setAddress(true, unichain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         // ========================== Standard Bridge ==========================
         ERC20[] memory localTokens = new ERC20[](1);
@@ -78,6 +82,8 @@ contract CreateUnichainEtherFiLiquidEthMerkleRoot is Script, MerkleTreeHelper {
         // );
 
         // ========================== Uniswap V4 ==========================
+        //
+        setAddress(true, unichain, "rawDataDecoderAndSanitizer", etherFiDecoder);
         address[] memory hooks = new address[](1);
         address[] memory token0 = new address[](1);
         address[] memory token1 = new address[](1);
@@ -93,7 +99,7 @@ contract CreateUnichainEtherFiLiquidEthMerkleRoot is Script, MerkleTreeHelper {
             hooks
         );
 
-        //TODO: Need to finish deployment, then run merkle script. Then push the PR and create the txn, post in Admin channel
+        setAddress(true, unichain, "rawDataDecoderAndSanitizer", rawDataDecoderAndSanitizer);
 
         _addMorphoBlueSupplyLeafs(leafs, morphoMarketId);
 

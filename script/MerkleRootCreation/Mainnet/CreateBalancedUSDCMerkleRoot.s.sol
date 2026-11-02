@@ -19,7 +19,8 @@ contract CreateBalancedUSDCMerkleRoot is Script, MerkleTreeHelper {
 
     //standard
     address public boringVault = 0xcaae49fb7f74cCFBE8A05E6104b01c097a78789f;
-    address public rawDataDecoderAndSanitizer = 0x6792173F72619Bb0634c4Ac51109D36a93c71F5e;
+    address public rawDataDecoderAndSanitizer = 0x93Be181EeEcDFf0fc09B3B1c2C30A1B95C002d0c;
+    address public itbDecoderAndSanitizer = 0x2D7085602a85aFb417AE1dFcEc09C301FeC8Df36;
     address public managerAddress = 0xA0e501F98A1B5d3d8e6Ffd161c76f92570E42931;
     address public accountantAddress = 0x727929AF06Fa4f6E96cbC3fF7F4b60A65E168e23;
 
@@ -124,6 +125,17 @@ contract CreateBalancedUSDCMerkleRoot is Script, MerkleTreeHelper {
         _addGHOGSMLeafs(leafs, getAddress(sourceChain, "gsmUsdc"), getERC20(sourceChain, "waEthUSDC"));
         _addGHOGSMLeafs(leafs, getAddress(sourceChain, "gsmUsdt"), getERC20(sourceChain, "waEthUSDT"));
 
+        // ========================== Position Manager ==========================
+        // Supplies RLUSD on Aave Horizon
+        {
+            address rlusdAaveHorizonPositionManager = 0xFa4B6018C9ACE4B7e3B6832493aedF3311Ddd899;
+            ERC20[] memory rlusdAaveHorizonTokensUsed = new ERC20[](1);
+            rlusdAaveHorizonTokensUsed[0] = getERC20(sourceChain, "RLUSD");
+            _addLeafsForITBPositionManagerLocal(
+                leafs, rlusdAaveHorizonPositionManager, rlusdAaveHorizonTokensUsed, "Sentora RLUSD Aave Horizon ITB Position Manager"
+            );
+        }
+
         // ========================== Verify ==========================
 
         _verifyDecoderImplementsLeafsFunctionSelectors(leafs);
@@ -133,5 +145,69 @@ contract CreateBalancedUSDCMerkleRoot is Script, MerkleTreeHelper {
         bytes32[][] memory manageTree = _generateMerkleTree(leafs);
 
         _generateLeafs(filePath, leafs, manageTree[manageTree.length - 1][0], manageTree);
+    }
+
+    function _addLeafsForITBPositionManagerLocal(
+        ManageLeaf[] memory leafs,
+        address itbPositionManager,
+        ERC20[] memory tokensUsed,
+        string memory itbContractName
+    ) internal {
+        // acceptOwnership
+        leafIndex++;
+        leafs[leafIndex] = ManageLeaf(
+            itbPositionManager,
+            false,
+            "acceptOwnership()",
+            new address[](0),
+            string.concat("Accept ownership of the ", itbContractName, " contract"),
+            itbDecoderAndSanitizer
+        );
+
+        // removeExecutor
+        leafIndex++;
+        leafs[leafIndex] = ManageLeaf(
+            itbPositionManager,
+            false,
+            "removeExecutor(address)",
+            new address[](0),
+            string.concat("Remove executor from the ", itbContractName, " contract"),
+            itbDecoderAndSanitizer
+        );
+
+        // Withdraw
+        leafIndex++;
+        leafs[leafIndex] = ManageLeaf(
+            itbPositionManager,
+            false,
+            "withdraw(address,uint256)",
+            new address[](0),
+            string.concat("Withdraw from the ", itbContractName, " contract"),
+            itbDecoderAndSanitizer
+        );
+        // WithdrawAll
+        leafIndex++;
+        leafs[leafIndex] = ManageLeaf(
+            itbPositionManager,
+            false,
+            "withdrawAll(address)",
+            new address[](0),
+            string.concat("Withdraw all from the ", itbContractName, " contract"),
+            itbDecoderAndSanitizer
+        );
+
+        for (uint256 i; i < tokensUsed.length; ++i) {
+            // Transfer
+            leafIndex++;
+            leafs[leafIndex] = ManageLeaf(
+                address(tokensUsed[i]),
+                false,
+                "transfer(address,uint256)",
+                new address[](1),
+                string.concat("Transfer ", tokensUsed[i].symbol(), " to the ", itbContractName, " contract"),
+                itbDecoderAndSanitizer
+            );
+            leafs[leafIndex].argumentAddresses[0] = itbPositionManager;
+        }
     }
 }

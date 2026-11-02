@@ -2,7 +2,7 @@
 // Copyright © 2025 Veda Tech Labs
 // Derived from Boring Vault Software © 2025 Veda Tech Labs (TEST ONLY – NO COMMERCIAL USE)
 // Licensed under Software Evaluation License, Version 1.0
-// Last audited: boring-vault@4c9c671bb965899728167102a0e3ac22f4aabf7a — https://macroaudits.com/library/audits/sevenSeas-39
+// Last audited: boring-vault-fixes@75bedc585da451b4ec4690ee8d3e378c6447dfe9 — file:audit/0xmacro-veda-90.pdf
 pragma solidity 0.8.21;
 
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
@@ -19,6 +19,7 @@ contract UniswapV4DecoderAndSanitizer {
     error UniswapV4DecoderAndSanitizer__UnsupportedSubAction();
     error UniswapV4DecoderAndSanitizer__SubActionLength();
     error UniswapV4DecoderAndSanitizer__MustBeSweep();
+    error UniswapV4DecoderAndSanitizer__InvalidCommandsLength();
 
     //============================== Immutables ===============================
     IUniswapV4PositionManager posm;
@@ -37,14 +38,13 @@ contract UniswapV4DecoderAndSanitizer {
         pure
         returns (bytes memory addressesFound)
     {
-        // Verify exactly 1 byte
-        require(commands.length <= 2, "Invalid commands length");
+        if (commands.length > 2) revert UniswapV4DecoderAndSanitizer__InvalidCommandsLength();
         // Extract and verify command
         uint8 command = uint8(commands[0]);
         if (command == uint8(Commands.V4_SWAP)) {
             // Extract the path from PoolKey
             (bytes memory actions, bytes[] memory params) = abi.decode(inputs[0], (bytes, bytes[]));
-            if (actions.length > 3) revert UniswapV4DecoderAndSanitizer__SwapActionLength();
+            if (actions.length != 3) revert UniswapV4DecoderAndSanitizer__SwapActionLength();
 
             if (
                 uint8(actions[0]) == uint8(Actions.SWAP_EXACT_IN_SINGLE)
@@ -70,14 +70,24 @@ contract UniswapV4DecoderAndSanitizer {
                 (address currencyToSpend,) = abi.decode(params[1], (address, uint128));
                 (address currencyToReceive,) = abi.decode(params[2], (address, uint128));
 
-                addressesFound = abi.encodePacked(currency0, currency1, hook, currencyToSpend, currencyToReceive);
+                // fee and tickSpacing are pinned (widened to addresses) so the leaf authorizes the exact
+                // pool: in V4 (currency0, currency1, fee, tickSpacing, hooks) all identify the pool.
+                addressesFound = abi.encodePacked(
+                    currency0,
+                    currency1,
+                    address(uint160(swapParams.poolKey.fee)),
+                    address(uint160(int160(swapParams.poolKey.tickSpacing))),
+                    hook,
+                    currencyToSpend,
+                    currencyToReceive
+                );
 
                 if (commands.length == 1) return addressesFound;
 
                 //otherwise, we have a sweep
 
                 uint8 command1 = uint8(commands[1]);
-                if (command1 != uint8(Commands.SWEEP)) revert UniswapV4DecoderAndSanitizer__NotSwapSubAction();
+                if (command1 != uint8(Commands.SWEEP)) revert UniswapV4DecoderAndSanitizer__MustBeSweep();
 
                 (address currencyToSweep, address recipient,) = abi.decode(inputs[1], (address, address, uint256));
                 addressesFound = abi.encodePacked(addressesFound, currencyToSweep, recipient);
@@ -142,8 +152,18 @@ contract UniswapV4DecoderAndSanitizer {
 
             (address currency0Settle, address currency1Settle) = abi.decode(params[1], (address, address));
 
+            // Pin fee and tickSpacing so the leaf authorizes the exact pool. Minting into an
+            // attacker-created pool (same currencies + hooks, different fee/tickSpacing) at a faked
+            // price lets them trade the vault's liquidity out at off-market rates.
             addressesFound = abi.encodePacked(
-                poolKey.currency0, poolKey.currency1, poolKey.hooks, recipient, currency0Settle, currency1Settle
+                poolKey.currency0,
+                poolKey.currency1,
+                address(uint160(poolKey.fee)),
+                address(uint160(int160(poolKey.tickSpacing))),
+                poolKey.hooks,
+                recipient,
+                currency0Settle,
+                currency1Settle
             );
 
             //expected sweep index would be 2 here (if any) -> mint, settle, sweep
@@ -165,6 +185,7 @@ contract UniswapV4DecoderAndSanitizer {
             ) = abi.decode(params[0], (uint256, uint256, uint128, uint128, bytes));
 
             (DecoderCustomTypes.PoolKey memory poolKey,) = posm.getPoolAndPositionInfo(tokenId);
+            address owner = posm.ownerOf(tokenId);
 
             uint8 subAction = uint8(bytes1(actions[1]));
 
@@ -179,7 +200,7 @@ contract UniswapV4DecoderAndSanitizer {
                 (address currency0Settle, address currency1Settle) = abi.decode(params[1], (address, address));
 
                 addressesFound = abi.encodePacked(
-                    poolKey.currency0, poolKey.currency1, poolKey.hooks, currency0Settle, currency1Settle
+                    poolKey.currency0, poolKey.currency1, poolKey.hooks, owner, currency0Settle, currency1Settle
                 );
 
                 //expected sweep index would be 2 here (if any) -> increase, settle, sweep
@@ -204,9 +225,8 @@ contract UniswapV4DecoderAndSanitizer {
                     revert UniswapV4DecoderAndSanitizer__UnsupportedSubAction();
                 }
 
-                // Return currency0, currency1
                 addressesFound = abi.encodePacked(
-                    poolKey.currency0, poolKey.currency1, poolKey.hooks, currency0Settle, currency1Settle
+                    poolKey.currency0, poolKey.currency1, poolKey.hooks, owner, currency0Settle, currency1Settle
                 );
                 addressesFound = _processSweepIfPresent(actions, params, 3, addressesFound);
                 return addressesFound;
@@ -225,9 +245,8 @@ contract UniswapV4DecoderAndSanitizer {
                     revert UniswapV4DecoderAndSanitizer__UnsupportedSubAction();
                 }
 
-                // Return currency0, currency1
                 addressesFound = abi.encodePacked(
-                    poolKey.currency0, poolKey.currency1, poolKey.hooks, currency0Settle, currency1Settle
+                    poolKey.currency0, poolKey.currency1, poolKey.hooks, owner, currency0Settle, currency1Settle
                 );
                 addressesFound = _processSweepIfPresent(actions, params, 3, addressesFound);
                 return addressesFound;

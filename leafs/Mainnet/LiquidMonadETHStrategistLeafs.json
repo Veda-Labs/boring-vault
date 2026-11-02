@@ -1,0 +1,272 @@
+{
+  "metadata": {
+    "AccountantAddress": "0x5ce04a3d8D5297A24bF752d0172064941D8d853b",
+    "BoringVaultAddress": "0xA024063B630D554078bbF985718B22F3c6870EE0",
+    "DecoderAndSanitizerAddress": "0x9F135C948dB96306e697526daFfCD6bc59B83Ccd",
+    "DigestComposition": [
+      "Bytes20(DECODER_AND_SANITIZER_ADDRESS)",
+      "Bytes20(TARGET_ADDRESS)",
+      "Bytes1(CAN_SEND_VALUE)",
+      "Bytes4(TARGET_FUNCTION_SELECTOR)",
+      "Bytes{N*20}(ADDRESS_ARGUMENT_0,...,ADDRESS_ARGUMENT_N)"
+    ],
+    "LeafCount": 8,
+    "ManageRoot": "0x1b4d6e5db109e6f877bb2ea226be836df715386a02c6aac6c693ba77d92d8c2b",
+    "ManagerAddress": "0xA4F58CCE8c5C42a313e12d3c8FBb983D5B8A09Ef",
+    "TreeCapacity": 16
+  },
+  "leafs": [
+    {
+      "AddressArguments": ["0x80226fc0Ee2b096224EeAc085Bb9a8cba1146f7D"],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x9F135C948dB96306e697526daFfCD6bc59B83Ccd",
+      "Description": "Approve mainnet CCIP Router to spend LINK",
+      "FunctionSelector": "0x095ea7b3",
+      "FunctionSignature": "approve(address,uint256)",
+      "LeafDigest": "0x8fad97c10670d672ab15ca19fafa060af1ea3ebd38dbc0a15a361889cf1c349c",
+      "PackedArgumentAddresses": "0x80226fc0ee2b096224eeac085bb9a8cba1146f7d",
+      "TargetAddress": "0x514910771AF9Ca656af840dff83E8264EcF986CA"
+    },
+    {
+      "AddressArguments": ["0x80226fc0Ee2b096224EeAc085Bb9a8cba1146f7D"],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x9F135C948dB96306e697526daFfCD6bc59B83Ccd",
+      "Description": "Approve mainnet CCIP Router to spend wstETH",
+      "FunctionSelector": "0x095ea7b3",
+      "FunctionSignature": "approve(address,uint256)",
+      "LeafDigest": "0xa8c9ea621eb8ef04c3abe413cf371e60ff7f85d9a8a9aee414d55f6dadbc9dd9",
+      "PackedArgumentAddresses": "0x80226fc0ee2b096224eeac085bb9a8cba1146f7d",
+      "TargetAddress": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0"
+    },
+    {
+      "AddressArguments": [
+        "0x00000000000000000000000075b59c77F9926079",
+        "0xA024063B630D554078bbF985718B22F3c6870EE0",
+        "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
+        "0x514910771AF9Ca656af840dff83E8264EcF986CA"
+      ],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x9F135C948dB96306e697526daFfCD6bc59B83Ccd",
+      "Description": "Bridge wstETH to chain 8481857512324358265 using CCIP",
+      "FunctionSelector": "0x96f4e9f9",
+      "FunctionSignature": "ccipSend(uint64,(bytes,bytes,(address,uint256)[],address,bytes))",
+      "LeafDigest": "0x4436c03e4efc7484b1b0102beae6cac616d7e6189106b68c59625741fdb392a3",
+      "PackedArgumentAddresses": "0x00000000000000000000000075b59c77f9926079a024063b630d554078bbf985718b22f3c6870ee07f39c581f595b53c5cb19bd0b3f8da6c935e2ca0514910771af9ca656af840dff83e8264ecf986ca",
+      "TargetAddress": "0x80226fc0Ee2b096224EeAc085Bb9a8cba1146f7D"
+    },
+    {
+      "AddressArguments": ["0x80226fc0Ee2b096224EeAc085Bb9a8cba1146f7D"],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x9F135C948dB96306e697526daFfCD6bc59B83Ccd",
+      "Description": "Approve mainnet CCIP Router to spend WETH",
+      "FunctionSelector": "0x095ea7b3",
+      "FunctionSignature": "approve(address,uint256)",
+      "LeafDigest": "0xc4c54cf898b562f9b495aef4f788a2b0c39bcb0898fed6ac7559526558cf17c9",
+      "PackedArgumentAddresses": "0x80226fc0ee2b096224eeac085bb9a8cba1146f7d",
+      "TargetAddress": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+    },
+    {
+      "AddressArguments": [
+        "0x00000000000000000000000075b59c77F9926079",
+        "0xA024063B630D554078bbF985718B22F3c6870EE0",
+        "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
+        "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+      ],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x9F135C948dB96306e697526daFfCD6bc59B83Ccd",
+      "Description": "Bridge wstETH to chain 8481857512324358265 using CCIP",
+      "FunctionSelector": "0x96f4e9f9",
+      "FunctionSignature": "ccipSend(uint64,(bytes,bytes,(address,uint256)[],address,bytes))",
+      "LeafDigest": "0xdb36e4b671af959dbdf780aed10d76a5e81c9349b6ad8a2bd9d3fcf6f43e5db1",
+      "PackedArgumentAddresses": "0x00000000000000000000000075b59c77f9926079a024063b630d554078bbf985718b22f3c6870ee07f39c581f595b53c5cb19bd0b3f8da6c935e2ca0c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "TargetAddress": "0x80226fc0Ee2b096224EeAc085Bb9a8cba1146f7D"
+    },
+    {
+      "AddressArguments": ["0x03dB430D830601DB368991eE55DAa9A708df7912"],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x9F135C948dB96306e697526daFfCD6bc59B83Ccd",
+      "Description": "Approve WETH to be spent by Wormhole multiTokenExecutor",
+      "FunctionSelector": "0x095ea7b3",
+      "FunctionSignature": "approve(address,uint256)",
+      "LeafDigest": "0x339ec778a8c4fda2234398dee0e9ef0263e07f9b3370264307ba3e598af3f156",
+      "PackedArgumentAddresses": "0x03db430d830601db368991ee55daa9a708df7912",
+      "TargetAddress": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+    },
+    {
+      "AddressArguments": [
+        "0x556790e948b9920A8868bCAFcC87D25e82e8a075",
+        "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        "0x0000000000000000000000000000000000000030",
+        "0x000000000000000000000000a024063B00000000",
+        "0x630d554078Bbf985718b22F3c6870EE000000000",
+        "0x000000000000000000000000a024063B00000000",
+        "0x630d554078Bbf985718b22F3c6870EE000000000",
+        "0xA024063B630D554078bbF985718B22F3c6870EE0",
+        "0xa54008017941EcE968623a0Dd8Ee907E2b133596",
+        "0x000000000000000000000000a024063B00000000",
+        "0x630d554078Bbf985718b22F3c6870EE000000000",
+        "0x7D73bE2ac3edDc8C5c0A1418b410b9710d4AF40D"
+      ],
+      "CanSendValue": true,
+      "DecoderAndSanitizerAddress": "0x9F135C948dB96306e697526daFfCD6bc59B83Ccd",
+      "Description": "Wormhole NTT transfer WETH to chain 48",
+      "FunctionSelector": "0x924105c3",
+      "FunctionSignature": "transfer(address,address,uint256,uint16,bytes32,bytes32,bytes,(uint256,address,bytes,bytes),(uint16,address))",
+      "LeafDigest": "0x99f700a876bfd10a0e5490c3bddef1d23f903fa9030e52cc9184ec115c1cdc12",
+      "PackedArgumentAddresses": "0x556790e948b9920a8868bcafcc87d25e82e8a075c02aaa39b223fe8d0a0e5c4f27ead9083c756cc20000000000000000000000000000000000000030000000000000000000000000a024063b00000000630d554078bbf985718b22f3c6870ee000000000000000000000000000000000a024063b00000000630d554078bbf985718b22f3c6870ee000000000a024063b630d554078bbf985718b22f3c6870ee0a54008017941ece968623a0dd8ee907e2b133596000000000000000000000000a024063b00000000630d554078bbf985718b22f3c6870ee0000000007d73be2ac3eddc8c5c0a1418b410b9710d4af40d",
+      "TargetAddress": "0x03dB430D830601DB368991eE55DAa9A708df7912"
+    },
+    {
+      "AddressArguments": [
+        "0x556790e948b9920A8868bCAFcC87D25e82e8a075",
+        "0x0000000000000000000000000000000000000030",
+        "0x000000000000000000000000a024063B00000000",
+        "0x630d554078Bbf985718b22F3c6870EE000000000",
+        "0x000000000000000000000000a024063B00000000",
+        "0x630d554078Bbf985718b22F3c6870EE000000000",
+        "0xA024063B630D554078bbF985718B22F3c6870EE0",
+        "0xa54008017941EcE968623a0Dd8Ee907E2b133596",
+        "0x000000000000000000000000a024063B00000000",
+        "0x630d554078Bbf985718b22F3c6870EE000000000",
+        "0x7D73bE2ac3edDc8C5c0A1418b410b9710d4AF40D"
+      ],
+      "CanSendValue": true,
+      "DecoderAndSanitizerAddress": "0x9F135C948dB96306e697526daFfCD6bc59B83Ccd",
+      "Description": "Wormhole NTT transferETH to chain 48",
+      "FunctionSelector": "0xbe2fa910",
+      "FunctionSignature": "transferETH(address,uint256,uint16,bytes32,bytes32,bytes,(uint256,address,bytes,bytes),(uint16,address))",
+      "LeafDigest": "0x0b271055799331ddbf04dcbac1ebb66df15ac2418257f2f82b084369f3c7f098",
+      "PackedArgumentAddresses": "0x556790e948b9920a8868bcafcc87d25e82e8a0750000000000000000000000000000000000000030000000000000000000000000a024063b00000000630d554078bbf985718b22f3c6870ee000000000000000000000000000000000a024063b00000000630d554078bbf985718b22f3c6870ee000000000a024063b630d554078bbf985718b22f3c6870ee0a54008017941ece968623a0dd8ee907e2b133596000000000000000000000000a024063b00000000630d554078bbf985718b22f3c6870ee0000000007d73be2ac3eddc8c5c0a1418b410b9710d4af40d",
+      "TargetAddress": "0x03dB430D830601DB368991eE55DAa9A708df7912"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "AddressArguments": [],
+      "CanSendValue": false,
+      "DecoderAndSanitizerAddress": "0x0000000000000000000000000000000000000000",
+      "Description": "",
+      "FunctionSelector": "0xc5d24601",
+      "FunctionSignature": "",
+      "LeafDigest": "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "PackedArgumentAddresses": "0x",
+      "TargetAddress": "0x0000000000000000000000000000000000000000"
+    }
+  ],
+  "MerkleTree": {
+    "0": ["0x1b4d6e5db109e6f877bb2ea226be836df715386a02c6aac6c693ba77d92d8c2b"],
+    "1": [
+      "0xfd84cc32596da7e0f5fe06076ff7512c2d732ffc3dbb71d8c535587b3d0d33de",
+      "0x41fbd3a0cfdfcee05cf3eb16d95ed1c81f50c3c6268bb806b406ec06ee93e704"
+    ],
+    "2": [
+      "0x081ad40d59c4bae5b19f1f47c4cdbdbe897ec0557eb770adc1f6407faeedf506",
+      "0x10d2ac7b543e1594effa3713d63df9525892d7a761f5f9d541c22c7fd584122e",
+      "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe",
+      "0x849eda7a295b642e5ddaf49a30eec4470cf507efa83b4104c0752d069c7638fe"
+    ],
+    "3": [
+      "0x9fbcb132f4c8d26834295c6f3626163226ce2df4250ddced707f25f077714f50",
+      "0x2c255ef9f9e7f10b90bc1af7c2903dcd8bf6e29d94ba652f1050dcaf939da080",
+      "0x6b0db1cd77bd04dcc6b6f8eb951362845a9782393aaa92d73004cce045f2511f",
+      "0x79af7d14024b7dd6670a3bd1b6090e008add0e9fbe83b5c0c1c593e7eaca708f",
+      "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
+      "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
+      "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba",
+      "0xc5a36f3b7b955966d5ed3135dcc612f978306d73bce3697e230afae57fbaeeba"
+    ],
+    "4": [
+      "0x8fad97c10670d672ab15ca19fafa060af1ea3ebd38dbc0a15a361889cf1c349c",
+      "0xa8c9ea621eb8ef04c3abe413cf371e60ff7f85d9a8a9aee414d55f6dadbc9dd9",
+      "0x4436c03e4efc7484b1b0102beae6cac616d7e6189106b68c59625741fdb392a3",
+      "0xc4c54cf898b562f9b495aef4f788a2b0c39bcb0898fed6ac7559526558cf17c9",
+      "0xdb36e4b671af959dbdf780aed10d76a5e81c9349b6ad8a2bd9d3fcf6f43e5db1",
+      "0x339ec778a8c4fda2234398dee0e9ef0263e07f9b3370264307ba3e598af3f156",
+      "0x99f700a876bfd10a0e5490c3bddef1d23f903fa9030e52cc9184ec115c1cdc12",
+      "0x0b271055799331ddbf04dcbac1ebb66df15ac2418257f2f82b084369f3c7f098",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400",
+      "0xa7a0fd846665d92e66be6155c6221b3acd7145ca7c4e4b67a594e4c516969400"
+    ]
+  }
+}

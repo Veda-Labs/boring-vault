@@ -7,6 +7,10 @@ pragma solidity 0.8.21;
 
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";  
 
+interface IFluidFactory {
+    function ownerOf(uint256 tokenId) external view returns (address);
+}
+
 // Swell
 interface INonFungiblePositionManager {
     struct Position {
@@ -68,6 +72,7 @@ interface PancakeSwapV3MasterChef {
 
 interface CamelotNonFungiblePositionManager {
     function ownerOf(uint256 tokenId) external view returns (address);
+    function balanceOf(address owner) external view returns (uint256);
     function positions(uint256 tokenId)
         external
         view
@@ -131,7 +136,8 @@ interface IRecipeMarketHub {
 
 
 interface IUniswapV4PositionManager {
-    function getPoolAndPositionInfo(uint256 tokenId) external view returns (DecoderCustomTypes.PoolKey memory, uint256); 
+    function getPoolAndPositionInfo(uint256 tokenId) external view returns (DecoderCustomTypes.PoolKey memory, uint256);
+    function ownerOf(uint256 tokenId) external view returns (address);
 }
 
 interface IPoolRegistry {

@@ -7,4 +7,6 @@ pragma solidity 0.8.21;
 import {FluidDexDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/Protocols/FluidDexDecoderAndSanitizer.sol";
 import {BaseDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/BaseDecoderAndSanitizer.sol";
 
-contract FullFluidDexDecoderAndSanitizer is FluidDexDecoderAndSanitizer, BaseDecoderAndSanitizer {}
+contract FullFluidDexDecoderAndSanitizer is FluidDexDecoderAndSanitizer, BaseDecoderAndSanitizer {
+    constructor(address _fluidFactory) FluidDexDecoderAndSanitizer(_fluidFactory) {}
+}

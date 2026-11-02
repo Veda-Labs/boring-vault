@@ -52,7 +52,7 @@ contract EigenLayerLSTStakingDecoderAndSanitizer {
             for (uint256 j = 0; j < withdrawals[i].strategies.length; j++) {
                 addressesFound = abi.encodePacked(addressesFound, withdrawals[i].strategies[j]);
             }
-            for (uint256 j = 0; j < tokens.length; j++) {
+            for (uint256 j = 0; j < tokens[i].length; j++) {
                 addressesFound = abi.encodePacked(addressesFound, tokens[i][j]);
             }
         }
@@ -73,7 +73,7 @@ contract EigenLayerLSTStakingDecoderAndSanitizer {
             for (uint256 j = 0; j < withdrawals[i].strategies.length; j++) {
                 addressesFound = abi.encodePacked(addressesFound, withdrawals[i].strategies[j]);
             }
-            for (uint256 j = 0; j < tokens.length; j++) {
+            for (uint256 j = 0; j < tokens[i].length; j++) {
                 addressesFound = abi.encodePacked(addressesFound, tokens[i][j]);
             }
         }

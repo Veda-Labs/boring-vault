@@ -23,6 +23,5 @@ contract VmUSDDecoderAndSanitizer is
 {
     constructor(address _uniswapV3NonFungiblePositionManager, address _uniswapV4PositionManager)
         UniswapV3SwapRouter02DecoderAndSanitizer(_uniswapV3NonFungiblePositionManager)
-        UniswapV4DecoderAndSanitizer(_uniswapV4PositionManager)
-    {}
+        UniswapV4DecoderAndSanitizer(_uniswapV4PositionManager) CCTPDecoderAndSanitizer(5) {}
 }
